@@ -1,0 +1,1 @@
+package replay_hively {	public class hvl_position{		public var pos_Track:Vector.<uint>;				//uint8		public var pos_Transpose:Vector.<int>;			//int8				public function hvl_position():void{			pos_Track = Vector.<uint>( cons.MAX_CHANNELS, true );			pos_Transpose = Vector.<int>( cons.MAX_CHANNELS, true );		}	}}
