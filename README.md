@@ -9,3 +9,4 @@ Done:
 
 Todo:
 -Everything else
+-Get license type
