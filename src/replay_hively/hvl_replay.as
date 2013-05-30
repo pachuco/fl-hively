@@ -524,7 +524,7 @@ struct hvl_tune *hvl_LoadTune( TEXT *name, uint32 freq, uint32 defstereo )
       ( buf[2] == 'X' ) &&
       ( buf[3] < 3 ) )
     return hvl_load_ahx( buf, buflen, defstereo, freq );
-
+/*
   if( ( buf[0] != 'H' ) ||
       ( buf[1] != 'V' ) ||
       ( buf[2] != 'L' ) ||
@@ -745,6 +745,7 @@ struct hvl_tune *hvl_LoadTune( TEXT *name, uint32 freq, uint32 defstereo )
   hvl_InitSubsong( ht, 0 );
   free( buf );
   return ht;
+*/
 }
 
         
