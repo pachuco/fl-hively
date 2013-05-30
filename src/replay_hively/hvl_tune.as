@@ -162,10 +162,10 @@ package replay_hively {
                 ht_Voices[i].vc_ADSR.rFrames=0;
                 ht_Voices[i].vc_ADSR.rVolume=0;
                 ht_Voices[i].vc_ADSR.pad=0;
-                for(j=0;j<0x281;j++){ //why not 0x282*4 ???
+                for(j=0;j<0x281;j++){ //Should be 0x282*4
                     ht_Voices[i].vc_VoiceBuffer[j]=0;
                 }
-                for(j=0;j<0x281;j++){
+                for(j=0;j<0x281;j++){ //same
                     ht_Voices[i].vc_RingVoiceBuffer[j]=0;
                 }
             }

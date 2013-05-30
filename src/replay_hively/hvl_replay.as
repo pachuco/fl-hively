@@ -273,8 +273,7 @@ package replay_hively {
         }
         
     //TODO    
-struct hvl_tune *hvl_load_ahx( uint8 *buf, uint32 buflen, uint32 defstereo, uint32 freq )
-{
+struct hvl_tune *hvl_load_ahx( uint8 *buf, uint32 buflen, uint32 defstereo, uint32 freq ){
   uint8  *bptr;
   TEXT   *nptr;
   uint32  i, j, k, l, posn, insn, ssn, hs, trkn, trkl;
@@ -482,42 +481,14 @@ struct hvl_tune *hvl_load_ahx( uint8 *buf, uint32 buflen, uint32 defstereo, uint
   return ht;
 }
 
-struct hvl_tune *hvl_LoadTune( TEXT *name, uint32 freq, uint32 defstereo )
-{
-  struct hvl_tune *ht;
-  uint8  *buf, *bptr;
-  TEXT   *nptr;
-  uint32  buflen, i, j, posn, insn, ssn, chnn, hs, trkl, trkn;
-  FILE *fh;
-  struct  hvl_plsentry *ple;
+public function hvl_LoadTune( buf:ByteArray, freq:uint, defstereo:uint ):hvl_tune{
+  var ht:hvl_tune;              //*
+  var bptr:uint;      //*uint8
+  var nptr:String;              //*TEXT
+  var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
+  var ple:hvl_plsentry;         //*
 
-  fh = fopen( name, "rb" );
-  if( !fh )
-  {
-    printf( "Can't open file\n" );
-    return NULL;
-  }
-
-  fseek( fh, 0, SEEK_END );
-  buflen = ftell( fh );
-  fseek( fh, 0, SEEK_SET );
-
-  buf = malloc( buflen );
-  if( !buf )
-  {
-    fclose( fh );
-    printf( "Out of memory!\n" );
-    return NULL;
-  }
-  
-  if( fread( buf, 1, buflen, fh ) != buflen )
-  {
-    fclose( fh );
-    free( buf );
-    printf( "Unable to read from file!\n" );
-    return NULL;
-  }
-  fclose( fh );
+  buflen = buf.length;
   
   if( ( buf[0] == 'T' ) &&
       ( buf[1] == 'H' ) &&
