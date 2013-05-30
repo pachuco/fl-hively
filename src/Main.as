@@ -24,8 +24,12 @@ package
             removeEventListener(Event.ADDED_TO_STAGE, init);
             // entry point
             var replayer:hvl_replay = new hvl_replay();
+            
+            //wavegen
             var fr:FileReference = new FileReference();
             fr.save(replayer.getdemwaves(), "fl_hively.waves");
+            
+            //
             
         }
         

@@ -223,6 +223,533 @@ package replay_hively {
             }while( len );
         }
         
+        public function hvl_InitSubsong( ht:hvl_tune, nr:uint ):Boolean{
+            var PosNr:uint, i:uint;
+
+            if( nr > ht.ht_SubsongNr ){
+                return FALSE;
+            }
+
+            ht.ht_SongNum = nr;
+
+            PosNr = 0;
+            if( nr ){
+                PosNr = ht.ht_Subsongs[nr-1];
+            }
+
+            ht.ht_PosNr          = PosNr;
+            ht.ht_PosJump        = 0;
+            ht.ht_PatternBreak   = 0;
+            ht.ht_NoteNr         = 0;
+            ht.ht_PosJumpNote    = 0;
+            ht.ht_Tempo          = 6;
+            ht.ht_StepWaitFrames = 0;
+            ht.ht_GetNewPosition = 1;
+            ht.ht_SongEndReached = 0;
+            ht.ht_PlayingTime    = 0;
+
+            for( i=0; i<MAX_CHANNELS; i+=4 ){
+                ht.ht_Voices[i+0].vc_Pan          = ht.ht_defpanleft;
+                ht.ht_Voices[i+0].vc_SetPan       = ht.ht_defpanleft; // 1.4
+                ht.ht_Voices[i+0].vc_PanMultLeft  = panning_left[ht.ht_defpanleft];
+                ht.ht_Voices[i+0].vc_PanMultRight = panning_right[ht.ht_defpanleft];
+                ht.ht_Voices[i+1].vc_Pan          = ht.ht_defpanright;
+                ht.ht_Voices[i+1].vc_SetPan       = ht.ht_defpanright; // 1.4
+                ht.ht_Voices[i+1].vc_PanMultLeft  = panning_left[ht.ht_defpanright];
+                ht.ht_Voices[i+1].vc_PanMultRight = panning_right[ht.ht_defpanright];
+                ht.ht_Voices[i+2].vc_Pan          = ht.ht_defpanright;
+                ht.ht_Voices[i+2].vc_SetPan       = ht.ht_defpanright; // 1.4
+                ht.ht_Voices[i+2].vc_PanMultLeft  = panning_left[ht.ht_defpanright];
+                ht.ht_Voices[i+2].vc_PanMultRight = panning_right[ht.ht_defpanright];
+                ht.ht_Voices[i+3].vc_Pan          = ht.ht_defpanleft;
+                ht.ht_Voices[i+3].vc_SetPan       = ht.ht_defpanleft;  // 1.4
+                ht.ht_Voices[i+3].vc_PanMultLeft  = panning_left[ht.ht_defpanleft];
+                ht.ht_Voices[i+3].vc_PanMultRight = panning_right[ht.ht_defpanleft];
+            }
+
+            ht.hvl_reset_some_stuff();
+
+            return TRUE;
+        }
+        
+    //TODO    
+struct hvl_tune *hvl_load_ahx( uint8 *buf, uint32 buflen, uint32 defstereo, uint32 freq )
+{
+  uint8  *bptr;
+  TEXT   *nptr;
+  uint32  i, j, k, l, posn, insn, ssn, hs, trkn, trkl;
+  struct hvl_tune *ht;
+  struct  hvl_plsentry *ple;
+  int32 defgain[] = { 71, 72, 76, 85, 100 };
+  
+  posn = ((buf[6]&0x0f)<<8)|buf[7];
+  insn = buf[12];
+  ssn  = buf[13];
+  trkl = buf[10];
+  trkn = buf[11];
+
+  hs  = sizeof( struct hvl_tune );
+  hs += sizeof( struct hvl_position ) * posn;
+  hs += sizeof( struct hvl_instrument ) * (insn+1);
+  hs += sizeof( uint16 ) * ssn;
+
+  // Calculate the size of all instrument PList buffers
+  bptr = &buf[14];
+  bptr += ssn*2;    // Skip past the subsong list
+  bptr += posn*4*2; // Skip past the positions
+  bptr += trkn*trkl*3;
+  if((buf[6]&0x80)==0) bptr += trkl*3;
+  
+  // *NOW* we can finally calculate PList space
+  for( i=1; i<=insn; i++ )
+  {
+    hs += bptr[21] * sizeof( struct hvl_plsentry );
+    bptr += 22 + bptr[21]*4;
+  }
+
+  ht = malloc( hs );
+  if( !ht )
+  {
+    free( buf );
+    printf( "Out of memory!\n" );
+    return NULL;
+  }
+  
+  ht->ht_Frequency       = freq;
+  ht->ht_FreqF           = (float64)freq;
+  
+  ht->ht_Positions   = (struct hvl_position *)(&ht[1]);
+  ht->ht_Instruments = (struct hvl_instrument *)(&ht->ht_Positions[posn]);
+  ht->ht_Subsongs    = (uint16 *)(&ht->ht_Instruments[(insn+1)]);
+  ple                = (struct hvl_plsentry *)(&ht->ht_Subsongs[ssn]);
+
+  ht->ht_WaveformTab[0]  = &waves[WO_TRIANGLE_04];
+  ht->ht_WaveformTab[1]  = &waves[WO_SAWTOOTH_04];
+  ht->ht_WaveformTab[3]  = &waves[WO_WHITENOISE];
+
+  ht->ht_Channels        = 4;
+  ht->ht_PositionNr      = posn;
+  ht->ht_Restart         = (buf[8]<<8)|buf[9];
+  ht->ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
+  ht->ht_TrackLength     = trkl;
+  ht->ht_TrackNr         = trkn;
+  ht->ht_InstrumentNr    = insn;
+  ht->ht_SubsongNr       = ssn;
+  ht->ht_defstereo       = defstereo;
+  ht->ht_defpanleft      = stereopan_left[ht->ht_defstereo];
+  ht->ht_defpanright     = stereopan_right[ht->ht_defstereo];
+  ht->ht_mixgain         = (defgain[ht->ht_defstereo]*256)/100;
+  
+  if( ht->ht_Restart >= ht->ht_PositionNr )
+    ht->ht_Restart = ht->ht_PositionNr-1;
+
+  // Do some validation  
+  if( ( ht->ht_PositionNr > 1000 ) ||
+      ( ht->ht_TrackLength > 64 ) ||
+      ( ht->ht_InstrumentNr > 64 ) )
+  {
+    printf( "%d,%d,%d\n", ht->ht_PositionNr,
+                          ht->ht_TrackLength,
+                          ht->ht_InstrumentNr );
+    free( ht );
+    free( buf );
+    printf( "Invalid file.\n" );
+    return NULL;
+  }
+
+  strncpy( ht->ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
+  nptr = (TEXT *)&buf[((buf[4]<<8)|buf[5])+strlen( ht->ht_Name )+1];
+
+  bptr = &buf[14];
+  
+  // Subsongs
+  for( i=0; i<ht->ht_SubsongNr; i++ )
+  {
+    ht->ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
+    if( ht->ht_Subsongs[i] >= ht->ht_PositionNr )
+      ht->ht_Subsongs[i] = 0;
+    bptr += 2;
+  }
+  
+  // Position list
+  for( i=0; i<ht->ht_PositionNr; i++ )
+  {
+    for( j=0; j<4; j++ )
+    {
+      ht->ht_Positions[i].pos_Track[j]     = *bptr++;
+      ht->ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
+    }
+  }
+  
+  // Tracks
+  for( i=0; i<=ht->ht_TrackNr; i++ )
+  {
+    if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) )
+    {
+      for( j=0; j<ht->ht_TrackLength; j++ )
+      {
+        ht->ht_Tracks[i][j].stp_Note       = 0;
+        ht->ht_Tracks[i][j].stp_Instrument = 0;
+        ht->ht_Tracks[i][j].stp_FX         = 0;
+        ht->ht_Tracks[i][j].stp_FXParam    = 0;
+        ht->ht_Tracks[i][j].stp_FXb        = 0;
+        ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+      }
+      continue;
+    }
+    
+    for( j=0; j<ht->ht_TrackLength; j++ )
+    {
+      ht->ht_Tracks[i][j].stp_Note       = (bptr[0]>>2)&0x3f;
+      ht->ht_Tracks[i][j].stp_Instrument = ((bptr[0]&0x3)<<4) | (bptr[1]>>4);
+      ht->ht_Tracks[i][j].stp_FX         = bptr[1]&0xf;
+      ht->ht_Tracks[i][j].stp_FXParam    = bptr[2];
+      ht->ht_Tracks[i][j].stp_FXb        = 0;
+      ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+      bptr += 3;
+    }
+  }
+  
+  // Instruments
+  for( i=1; i<=ht->ht_InstrumentNr; i++ )
+  {
+    if( nptr < (TEXT *)(buf+buflen) )
+    {
+      strncpy( ht->ht_Instruments[i].ins_Name, nptr, 128 );
+      nptr += strlen( nptr )+1;
+    } else {
+      ht->ht_Instruments[i].ins_Name[0] = 0;
+    }
+    
+    ht->ht_Instruments[i].ins_Volume      = bptr[0];
+    ht->ht_Instruments[i].ins_FilterSpeed = ((bptr[1]>>3)&0x1f)|((bptr[12]>>2)&0x20);
+    ht->ht_Instruments[i].ins_WaveLength  = bptr[1]&0x07;
+
+    ht->ht_Instruments[i].ins_Envelope.aFrames = bptr[2];
+    ht->ht_Instruments[i].ins_Envelope.aVolume = bptr[3];
+    ht->ht_Instruments[i].ins_Envelope.dFrames = bptr[4];
+    ht->ht_Instruments[i].ins_Envelope.dVolume = bptr[5];
+    ht->ht_Instruments[i].ins_Envelope.sFrames = bptr[6];
+    ht->ht_Instruments[i].ins_Envelope.rFrames = bptr[7];
+    ht->ht_Instruments[i].ins_Envelope.rVolume = bptr[8];
+    
+    ht->ht_Instruments[i].ins_FilterLowerLimit     = bptr[12]&0x7f;
+    ht->ht_Instruments[i].ins_VibratoDelay         = bptr[13];
+    ht->ht_Instruments[i].ins_HardCutReleaseFrames = (bptr[14]>>4)&0x07;
+    ht->ht_Instruments[i].ins_HardCutRelease       = bptr[14]&0x80?1:0;
+    ht->ht_Instruments[i].ins_VibratoDepth         = bptr[14]&0x0f;
+    ht->ht_Instruments[i].ins_VibratoSpeed         = bptr[15];
+    ht->ht_Instruments[i].ins_SquareLowerLimit     = bptr[16];
+    ht->ht_Instruments[i].ins_SquareUpperLimit     = bptr[17];
+    ht->ht_Instruments[i].ins_SquareSpeed          = bptr[18];
+    ht->ht_Instruments[i].ins_FilterUpperLimit     = bptr[19]&0x3f;
+    ht->ht_Instruments[i].ins_PList.pls_Speed      = bptr[20];
+    ht->ht_Instruments[i].ins_PList.pls_Length     = bptr[21];
+    
+    ht->ht_Instruments[i].ins_PList.pls_Entries    = ple;
+    ple += bptr[21];
+    
+    bptr += 22;
+    for( j=0; j<ht->ht_Instruments[i].ins_PList.pls_Length; j++ )
+    {
+      k = (bptr[0]>>5)&7;
+      if( k == 6 ) k = 12;
+      if( k == 7 ) k = 15;
+      l = (bptr[0]>>2)&7;
+      if( l == 6 ) l = 12;
+      if( l == 7 ) l = 15;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1]      = k;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0]      = l;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform   = ((bptr[0]<<1)&6) | (bptr[1]>>7);
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed      = (bptr[1]>>6)&1;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note       = bptr[1]&0x3f;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = bptr[2];
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = bptr[3];
+
+      // 1.6: Strip "toggle filter" commands if the module is
+      //      version 0 (pre-filters). This is what AHX also does.
+      if( ( buf[3] == 0 ) && ( l == 4 ) && ( (bptr[2]&0xf0) != 0 ) )
+        ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] &= 0x0f;
+      if( ( buf[3] == 0 ) && ( k == 4 ) && ( (bptr[3]&0xf0) != 0 ) )
+        ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] &= 0x0f; // 1.8
+
+      bptr += 4;
+    }
+  }
+  
+  hvl_InitSubsong( ht, 0 );
+  free( buf );
+  return ht;
+}
+
+struct hvl_tune *hvl_LoadTune( TEXT *name, uint32 freq, uint32 defstereo )
+{
+  struct hvl_tune *ht;
+  uint8  *buf, *bptr;
+  TEXT   *nptr;
+  uint32  buflen, i, j, posn, insn, ssn, chnn, hs, trkl, trkn;
+  FILE *fh;
+  struct  hvl_plsentry *ple;
+
+  fh = fopen( name, "rb" );
+  if( !fh )
+  {
+    printf( "Can't open file\n" );
+    return NULL;
+  }
+
+  fseek( fh, 0, SEEK_END );
+  buflen = ftell( fh );
+  fseek( fh, 0, SEEK_SET );
+
+  buf = malloc( buflen );
+  if( !buf )
+  {
+    fclose( fh );
+    printf( "Out of memory!\n" );
+    return NULL;
+  }
+  
+  if( fread( buf, 1, buflen, fh ) != buflen )
+  {
+    fclose( fh );
+    free( buf );
+    printf( "Unable to read from file!\n" );
+    return NULL;
+  }
+  fclose( fh );
+  
+  if( ( buf[0] == 'T' ) &&
+      ( buf[1] == 'H' ) &&
+      ( buf[2] == 'X' ) &&
+      ( buf[3] < 3 ) )
+    return hvl_load_ahx( buf, buflen, defstereo, freq );
+
+  if( ( buf[0] != 'H' ) ||
+      ( buf[1] != 'V' ) ||
+      ( buf[2] != 'L' ) ||
+      ( buf[3] > 1 ) )
+  {
+    free( buf );
+    printf( "Invalid file.\n" );
+    return NULL;
+  }
+  
+  posn = ((buf[6]&0x0f)<<8)|buf[7];
+  insn = buf[12];
+  ssn  = buf[13];
+  chnn = (buf[8]>>2)+4;
+  trkl = buf[10];
+  trkn = buf[11];
+
+  hs  = sizeof( struct hvl_tune );
+  hs += sizeof( struct hvl_position ) * posn;
+  hs += sizeof( struct hvl_instrument ) * (insn+1);
+  hs += sizeof( uint16 ) * ssn;
+
+  // Calculate the size of all instrument PList buffers
+  bptr = &buf[16];
+  bptr += ssn*2;       // Skip past the subsong list
+  bptr += posn*chnn*2; // Skip past the positions
+  
+  // Skip past the tracks
+  // 1.4: Fixed two really stupid bugs that cancelled each other
+  //      out if the module had a blank first track (which is how
+  //      come they were missed.
+  for( i=((buf[6]&0x80)==0x80)?1:0; i<=trkn; i++ )
+    for( j=0; j<trkl; j++ )
+    {
+      if( bptr[0] == 0x3f )
+      {
+        bptr++;
+        continue;
+      }
+      bptr += 5;
+    }
+  
+  // *NOW* we can finally calculate PList space
+  for( i=1; i<=insn; i++ )
+  {
+    hs += bptr[21] * sizeof( struct hvl_plsentry );
+    bptr += 22 + bptr[21]*5;
+  }
+  
+  ht = malloc( hs );    
+  if( !ht )
+  {
+    free( buf );
+    printf( "Out of memory!\n" );
+    return NULL;
+  }
+  
+  ht->ht_Version         = buf[3]; // 1.5
+  ht->ht_Frequency       = freq;
+  ht->ht_FreqF           = (float64)freq;
+  
+  ht->ht_Positions       = (struct hvl_position *)(&ht[1]);
+  ht->ht_Instruments     = (struct hvl_instrument *)(&ht->ht_Positions[posn]);
+  ht->ht_Subsongs        = (uint16 *)(&ht->ht_Instruments[(insn+1)]);
+  ple                    = (struct hvl_plsentry *)(&ht->ht_Subsongs[ssn]);
+
+  ht->ht_WaveformTab[0]  = &waves[WO_TRIANGLE_04];
+  ht->ht_WaveformTab[1]  = &waves[WO_SAWTOOTH_04];
+  ht->ht_WaveformTab[3]  = &waves[WO_WHITENOISE];
+
+  ht->ht_PositionNr      = posn;
+  ht->ht_Channels        = (buf[8]>>2)+4;
+  ht->ht_Restart         = ((buf[8]&3)<<8)|buf[9];
+  ht->ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
+  ht->ht_TrackLength     = buf[10];
+  ht->ht_TrackNr         = buf[11];
+  ht->ht_InstrumentNr    = insn;
+  ht->ht_SubsongNr       = ssn;
+  ht->ht_mixgain         = (buf[14]<<8)/100;
+  ht->ht_defstereo       = buf[15];
+  ht->ht_defpanleft      = stereopan_left[ht->ht_defstereo];
+  ht->ht_defpanright     = stereopan_right[ht->ht_defstereo];
+  
+  if( ht->ht_Restart >= ht->ht_PositionNr )
+    ht->ht_Restart = ht->ht_PositionNr-1;
+
+  // Do some validation  
+  if( ( ht->ht_PositionNr > 1000 ) ||
+      ( ht->ht_TrackLength > 64 ) ||
+      ( ht->ht_InstrumentNr > 64 ) )
+  {
+    printf( "%d,%d,%d\n", ht->ht_PositionNr,
+                          ht->ht_TrackLength,
+                          ht->ht_InstrumentNr );
+    free( ht );
+    free( buf );
+    printf( "Invalid file.\n" );
+    return NULL;
+  }
+
+  strncpy( ht->ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
+  nptr = (TEXT *)&buf[((buf[4]<<8)|buf[5])+strlen( ht->ht_Name )+1];
+
+  bptr = &buf[16];
+  
+  // Subsongs
+  for( i=0; i<ht->ht_SubsongNr; i++ )
+  {
+    ht->ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
+    bptr += 2;
+  }
+  
+  // Position list
+  for( i=0; i<ht->ht_PositionNr; i++ )
+  {
+    for( j=0; j<ht->ht_Channels; j++ )
+    {
+      ht->ht_Positions[i].pos_Track[j]     = *bptr++;
+      ht->ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
+    }
+  }
+  
+  // Tracks
+  for( i=0; i<=ht->ht_TrackNr; i++ )
+  {
+    if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) )
+    {
+      for( j=0; j<ht->ht_TrackLength; j++ )
+      {
+        ht->ht_Tracks[i][j].stp_Note       = 0;
+        ht->ht_Tracks[i][j].stp_Instrument = 0;
+        ht->ht_Tracks[i][j].stp_FX         = 0;
+        ht->ht_Tracks[i][j].stp_FXParam    = 0;
+        ht->ht_Tracks[i][j].stp_FXb        = 0;
+        ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+      }
+      continue;
+    }
+    
+    for( j=0; j<ht->ht_TrackLength; j++ )
+    {
+      if( bptr[0] == 0x3f )
+      {
+        ht->ht_Tracks[i][j].stp_Note       = 0;
+        ht->ht_Tracks[i][j].stp_Instrument = 0;
+        ht->ht_Tracks[i][j].stp_FX         = 0;
+        ht->ht_Tracks[i][j].stp_FXParam    = 0;
+        ht->ht_Tracks[i][j].stp_FXb        = 0;
+        ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+        bptr++;
+        continue;
+      }
+      
+      ht->ht_Tracks[i][j].stp_Note       = bptr[0];
+      ht->ht_Tracks[i][j].stp_Instrument = bptr[1];
+      ht->ht_Tracks[i][j].stp_FX         = bptr[2]>>4;
+      ht->ht_Tracks[i][j].stp_FXParam    = bptr[3];
+      ht->ht_Tracks[i][j].stp_FXb        = bptr[2]&0xf;
+      ht->ht_Tracks[i][j].stp_FXbParam   = bptr[4];
+      bptr += 5;
+    }
+  }
+  
+  
+  // Instruments
+  for( i=1; i<=ht->ht_InstrumentNr; i++ )
+  {
+    if( nptr < (TEXT *)(buf+buflen) )
+    {
+      strncpy( ht->ht_Instruments[i].ins_Name, nptr, 128 );
+      nptr += strlen( nptr )+1;
+    } else {
+      ht->ht_Instruments[i].ins_Name[0] = 0;
+    }
+    
+    ht->ht_Instruments[i].ins_Volume      = bptr[0];
+    ht->ht_Instruments[i].ins_FilterSpeed = ((bptr[1]>>3)&0x1f)|((bptr[12]>>2)&0x20);
+    ht->ht_Instruments[i].ins_WaveLength  = bptr[1]&0x07;
+
+    ht->ht_Instruments[i].ins_Envelope.aFrames = bptr[2];
+    ht->ht_Instruments[i].ins_Envelope.aVolume = bptr[3];
+    ht->ht_Instruments[i].ins_Envelope.dFrames = bptr[4];
+    ht->ht_Instruments[i].ins_Envelope.dVolume = bptr[5];
+    ht->ht_Instruments[i].ins_Envelope.sFrames = bptr[6];
+    ht->ht_Instruments[i].ins_Envelope.rFrames = bptr[7];
+    ht->ht_Instruments[i].ins_Envelope.rVolume = bptr[8];
+    
+    ht->ht_Instruments[i].ins_FilterLowerLimit     = bptr[12]&0x7f;
+    ht->ht_Instruments[i].ins_VibratoDelay         = bptr[13];
+    ht->ht_Instruments[i].ins_HardCutReleaseFrames = (bptr[14]>>4)&0x07;
+    ht->ht_Instruments[i].ins_HardCutRelease       = bptr[14]&0x80?1:0;
+    ht->ht_Instruments[i].ins_VibratoDepth         = bptr[14]&0x0f;
+    ht->ht_Instruments[i].ins_VibratoSpeed         = bptr[15];
+    ht->ht_Instruments[i].ins_SquareLowerLimit     = bptr[16];
+    ht->ht_Instruments[i].ins_SquareUpperLimit     = bptr[17];
+    ht->ht_Instruments[i].ins_SquareSpeed          = bptr[18];
+    ht->ht_Instruments[i].ins_FilterUpperLimit     = bptr[19]&0x3f;
+    ht->ht_Instruments[i].ins_PList.pls_Speed      = bptr[20];
+    ht->ht_Instruments[i].ins_PList.pls_Length     = bptr[21];
+    
+    ht->ht_Instruments[i].ins_PList.pls_Entries    = ple;
+    ple += bptr[21];
+    
+    bptr += 22;
+    for( j=0; j<ht->ht_Instruments[i].ins_PList.pls_Length; j++ )
+    {
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0] = bptr[0]&0xf;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1] = (bptr[1]>>3)&0xf;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform = bptr[1]&7;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed = (bptr[2]>>6)&1;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note  = bptr[2]&0x3f;
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = bptr[3];
+      ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = bptr[4];
+      bptr += 5;
+    }
+  }
+  
+  hvl_InitSubsong( ht, 0 );
+  free( buf );
+  return ht;
+}
+
+        
+        
+        
         
     }
 }
