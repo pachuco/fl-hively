@@ -43,7 +43,7 @@ package replay_hively {
         }
         
         private function Period2Freq(period:int):Number{
-            return 3546897.0 * 65536.0 / period;
+            return cons.AMIGA_PAULA_PAL_CLK * 65536.0 / period;
         }
         
         private function hvl_GenPanningTables():void{

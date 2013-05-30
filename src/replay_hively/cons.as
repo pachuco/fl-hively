@@ -44,5 +44,18 @@ package replay_hively {
         ]);
         // Woohoo!
         public static const MAX_CHANNELS:uint = 16;
+        
+        
+        
+        
+        //might come in handy later, thanks bubsy
+        public static AMIGA_PAL_XTAL:uint            =  28375160;
+        public static AMIGA_NTSC_XTAL:uint           =  28636360;
+        public static AMIGA_CPU_PAL_CLK:uint         =  (AMIGA_PAL_XTAL / 4);
+        public static AMIGA_CPU_NTSC_CLK:uint        =  (AMIGA_NTSC_XTAL / 4);
+        public static AMIGA_CIA_PAL_CLK:uint         =  (AMIGA_CPU_PAL_CLK / 10);
+        public static AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10);
+        public static AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
+        public static AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
     }
 }
