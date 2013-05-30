@@ -1,3 +1,15 @@
+/*
+** Changes for the 1.4 release are commented. You can do
+** a search for "1.4" and merge them into your own replay
+** code.
+**
+** Changes for 1.5 are marked also.
+**
+** ... as are those for 1.6
+**
+** ... and for 1.8
+*/
+
 package replay_hively {
     import flash.events.*;
     import flash.media.*;
@@ -344,7 +356,7 @@ package replay_hively {
                     return NULL;
             }
             
-            ht.ht_Name = tools.strnget(buf, buf[(buf[4]<<8)|buf[5]], 128);
+            ht.ht_Name = tools.strnget(buf, (buf[4]<<8)|buf[5], 128);
             //strncpy( ht.ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
             nptr = ((buf[4]<<8)|buf[5])+ht.ht_Name.length+1;
 
