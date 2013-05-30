@@ -307,7 +307,7 @@ package replay_hively {
             ht.ht_Frequency       = freq;
             ht.ht_FreqF           = Number(freq);
 
-            ht.ht_Positions   = (struct hvl_position *)(&ht[1]);
+            ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
             ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
             ht.ht_Subsongs    = (uint16 *)(&ht.ht_Instruments[(insn+1)]);
             ple                = (struct hvl_plsentry *)(&ht.ht_Subsongs[ssn]);
