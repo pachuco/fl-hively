@@ -343,11 +343,12 @@ package replay_hively {
                     trace( "Invalid file.\n" );
                     return NULL;
             }
+            
+            ht.ht_Name = tools.strnget(buf, buf[(buf[4]<<8)|buf[5]], 128);
+            //strncpy( ht.ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
+            nptr = ((buf[4]<<8)|buf[5])+ht.ht_Name.length+1;
 
-            strncpy( ht.ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
-            nptr = (TEXT *)&buf[((buf[4]<<8)|buf[5])+strlen( ht.ht_Name )+1];
-
-            bptr = &buf[14];
+            bptr = 14; //&buf[14];
 
             // Subsongs
             for( i=0; i<ht.ht_SubsongNr; i++ )

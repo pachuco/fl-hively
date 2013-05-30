@@ -25,7 +25,7 @@ package replay_hively {
         public var ht_Stereo:uint;                              //uint8
         public var ht_Subsongs:uint;                            //*uint16
         public var ht_Channels:uint;                            //uint16
-        public var ht_Positions:hvl_position;                   //struct hvl_position *ht_Positions;
+        public var ht_Positions:uint;                           //struct hvl_position *ht_Positions;
         public var ht_Tracks:Vector.<Vector.<hvl_step>>;        //hvl_step[256][64]
         public var ht_Instruments:hvl_instrument;               //struct hvl_instrument *ht_Instruments;
         public var ht_Voices:Vector.<hvl_voice>;                //hvl_voice[MAX_CHANNELS]

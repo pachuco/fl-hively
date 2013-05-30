@@ -17,6 +17,15 @@ package replay_hively{
             return result & msk;
         }
         
+        public static function strnget(ba:ByteArray, off:uint, range:uint):String{
+            var i:uint;
+            var s:String="";
+            for(i=0; ba[off+i]!=0x00 && i<range && (off+i)<ba.length; i++){
+                s+=ba[off+i];
+            }
+            return s;//+0x00;
+        }
+        
         public static function ui2i8(x:int):int{
             if(x>=128){
                 x-=256;
