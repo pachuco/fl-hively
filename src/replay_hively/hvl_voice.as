@@ -63,8 +63,8 @@ package replay_hively {
         public var vc_PerfSpeed:int;                                //int16
         public var vc_PerfWait:int;                                 //int16
         public var vc_PerfList:hvl_plist;                           //struct hvl_plist *vc_PerfList;
-        public var vc_AudioPointer;                                 //*int8
-        public var vc_AudioSource;                                  //*int8
+        public var vc_AudioPointer:uint;                            //*int8
+        public var vc_AudioSource:uint;                             //*int8
         public var vc_NoteDelayOn:uint;                             //uint8
         public var vc_NoteCutOn:uint;                               //uint8
         public var vc_NoteDelayWait:int;                            //int16
@@ -72,7 +72,7 @@ package replay_hively {
         public var vc_AudioPeriod:int;                              //int16
         public var vc_AudioVolume:int;                              //int16
         public var vc_WNRandom:int;                                 //int32
-        public var vc_MixSource;                                    //*int8
+        public var vc_MixSource:uint;                               //*int8
         public var vc_SquareTempBuffer:Vector.<int>;                //int8[0x80]
         public var vc_VoiceBuffer:Vector.<int>;                     //int8[0x282*4]
         public var vc_VoiceNum:uint;                                //uint8
@@ -85,12 +85,12 @@ package replay_hively {
         public var vc_PanMultRight:uint;                            //uint32
         public var vc_RingSamplePos:uint;                           //uint32
         public var vc_RingDelta:uint;                               //uint32
-        public var vc_RingMixSource:int;                            //*int8
+        public var vc_RingMixSource:uint;                           //*int8
         public var vc_RingPlantPeriod:uint;                         //uint8
         public var vc_RingInstrPeriod:int;                          //int16
         public var vc_RingBasePeriod:int;                           //int16
         public var vc_RingAudioPeriod:int;                          //int16
-        public var vc_RingAudioSource:int;                          //*int8
+        public var vc_RingAudioSource:uint;                         //*int8
         public var vc_RingNewWaveform:uint;                         //uint8
         public var vc_RingWaveform:uint;                            //uint8
         public var vc_RingFixedPeriod:uint;                         //uint8

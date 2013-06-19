@@ -1,0 +1,39 @@
+Done:
+-Precalculated waveform generator
+
+Todo:
+-Everything else
+-Get license.txt
+-Synchro class(animation can be synchronised to music events)
+-Optimisation
+
+
+
+
+
+// Class quickmap; struct pointer handling decisions go here
+hvl_envelope
+
+hvl_instrument
+    hvl_envelope
+    hvl_plist
+
+hvl_plist
+    *hvl_plsentry
+
+hvl_plsentry
+
+hvl_position
+
+hvl_step
+
+hvl_tune
+    *hvl_position
+    *hvl_instrument
+    hvl_voice[MAX_CHANNELS]
+    
+hvl_voice
+    hvl_envelope
+    *hvl_instrument
+    *hvl_plist
+    
