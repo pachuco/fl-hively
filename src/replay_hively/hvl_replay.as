@@ -363,22 +363,19 @@ package replay_hively {
             bptr = 14; //&buf[14];
 
             // Subsongs
-            for( i=0; i<ht.ht_SubsongNr; i++ )
-            {
-            ht.ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
-            if( ht.ht_Subsongs[i] >= ht.ht_PositionNr )
-              ht.ht_Subsongs[i] = 0;
-            bptr += 2;
+            for( i=0; i<ht.ht_SubsongNr; i++ ){
+                ht.ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
+                if( ht.ht_Subsongs[i] >= ht.ht_PositionNr )
+                    ht.ht_Subsongs[i] = 0;
+                bptr += 2;
             }
 
             // Position list
-            for( i=0; i<ht.ht_PositionNr; i++ )
-            {
-            for( j=0; j<4; j++ )
-            {
-              ht.ht_Positions[i].pos_Track[j]     = *bptr++;
-              ht.ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
-            }
+            for( i=0; i<ht.ht_PositionNr; i++ ){
+                for( j=0; j<4; j++ ){
+                    ht.ht_Positions[i].pos_Track[j]     = *bptr++;
+                    ht.ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
+                }
             }
 
             // Tracks

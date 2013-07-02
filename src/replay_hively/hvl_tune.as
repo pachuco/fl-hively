@@ -25,9 +25,9 @@ package replay_hively {
         public var ht_Stereo:uint;                              //uint8
         public var ht_Subsongs:uint;                            //*uint16
         public var ht_Channels:uint;                            //uint16
-        public var ht_Positions:uint;                           //struct hvl_position *ht_Positions;
+        public var ht_Positions:Vector.<hvl_position>;          //struct hvl_position *ht_Positions;
         public var ht_Tracks:Vector.<Vector.<hvl_step>>;        //hvl_step[256][64]
-        public var ht_Instruments:hvl_instrument;               //struct hvl_instrument *ht_Instruments;
+        public var ht_Instruments:Vector.<hvl_instrument>;      //struct hvl_instrument *ht_Instruments;
         public var ht_Voices:Vector.<hvl_voice>;                //hvl_voice[MAX_CHANNELS]
         public var ht_defstereo:int;                            //int32
         public var ht_defpanleft:int;                           //int32
@@ -38,15 +38,15 @@ package replay_hively {
         public function hvl_tune():void{
             
             ht_WaveformTab = Vector.<uint>(cons.MAX_CHANNELS, true);
-            //ht_Positions = new hvl_position();
+            ht_Positions = Vector.<hvl_position>();                                     //malloc();
             
             ht_Tracks = Vector.<Vector.<hvl_step>>(256, true);
             for(i=0;i<256;i++){
                 var track_temp:Vector.<hvl_step> = Vector.<hvl_step>(64, true);
                 ht_Tracks[i]=track_temp;
             }
-            track_temp=null;
-            //ht_Instruments = new hvl_instrument();
+            
+            ht_Instruments = ht_Instruments:Vector.<hvl_instrument>();                  //malloc();
             ht_Voices = Vector.<hvl_voice>(cons.MAX_CHANNELS, true);
         }
         
@@ -176,6 +176,20 @@ package replay_hively {
                 ht_Voices[i].vc_TrackMasterVolume = 0x40;
                 ht_Voices[i].vc_TrackOn           = 1;
                 ht_Voices[i].vc_MixSource         = ht_Voices[i].vc_VoiceBuffer;
+            }
+        }
+        
+        public function malloc_positions( ind:uint ):void{
+            for(i=0;i<ind;i++){
+                var pos_temp:hvl_position = new hvl_position();
+                ht_Positions.push(pos_temp);
+            }
+        }
+        
+        public function malloc_instruments( ind:uint ):void{
+            for(i=0;i<ind;i++){
+                var ins_temp:hvl_instrument = new hvl_instrument();
+                ht_Instruments.push(ins_temp);
             }
         }
     }

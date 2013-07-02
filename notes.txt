@@ -9,6 +9,7 @@ Todo:
 
 Considered optimisations:
 -compact nested arrays into single one and use offset multiplication instead of array index
+-tidy up the code
 
 
 
@@ -25,7 +26,7 @@ hvl_instrument
     hvl_plist
 
 hvl_plist
-    *hvl_plsentry             //
+    *hvl_plsentry               //
 
 hvl_plsentry
 
@@ -34,8 +35,8 @@ hvl_position
 hvl_step
 
 hvl_tune
-    *hvl_position
-    *hvl_instrument
+    *hvl_position               //Vector.<hvl_position>   malloc_positions()
+    *hvl_instrument             //Vector.<hvl_instrument> malloc_instruments()
     hvl_voice[MAX_CHANNELS]
     
 hvl_voice
@@ -43,3 +44,4 @@ hvl_voice
     *hvl_instrument
     *hvl_plist
     
+--------------------------------------------
