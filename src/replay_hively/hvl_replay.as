@@ -209,12 +209,12 @@ package replay_hively {
 
                 s = ays & 0xff;
 
-                if( ays & 0x100 )
-                {
-                s = 0x80;
+                if( ays & 0x100 ){
+                    s = 0x7f;
 
-                if((ays & 0xffff) >= 0 )
-                s = 0x7f;
+                    if( ays & 0x8000 ){
+                        s = 0x80;
+                    }
                 }
 
                 waves_t[buf++] = s;
