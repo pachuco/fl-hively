@@ -7,11 +7,17 @@ Todo:
 -Synchro class(animation can be synchronised to music events)
 -Optimisation
 
-
+Considered optimisations:
+-compact nested arrays into single one and use offset multiplication instead of array index
 
 
 
 // Class quickmap; struct pointer handling decisions go here
+//
+// Suggested way would be declaring vectors with the pointed structures in hvl_tune and turning
+//the pointers themselves into uint offsets.
+// Without memory pre-allocation, we push() stuff into the vectors.
+
 hvl_envelope
 
 hvl_instrument
@@ -19,7 +25,7 @@ hvl_instrument
     hvl_plist
 
 hvl_plist
-    *hvl_plsentry
+    *hvl_plsentry             //
 
 hvl_plsentry
 
