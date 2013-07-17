@@ -23,7 +23,7 @@ package replay_hively {
         public var ht_PatternBreak:uint;                        //uint8
         public var ht_SongEndReached:uint;                      //uint8
         public var ht_Stereo:uint;                              //uint8
-        public var ht_Subsongs:uint;                            //*uint16
+        public var ht_Subsongs:Vector.<uint>;                   //*uint16
         public var ht_Channels:uint;                            //uint16
         public var ht_Positions:Vector.<hvl_position>;          //struct hvl_position *ht_Positions;
         public var ht_Tracks:Vector.<Vector.<hvl_step>>;        //hvl_step[256][64]
@@ -191,6 +191,10 @@ package replay_hively {
                 var ins_temp:hvl_instrument = new hvl_instrument();
                 ht_Instruments.push(ins_temp);
             }
+        }
+        
+        public function malloc_subsongs( ind:uint ):void{
+            ht_Subsongs = Vector.<uint>(ind, true);
         }
     }
 }

@@ -25,6 +25,14 @@ package replay_hively{
             }
             return s;//+0x00;
         }
+
+        public static function strlen(ba:ByteArray, off:uint):uint{
+            var i:uint;
+
+            for(i=0; ba[off+i]!=0x00 && (off+i)<ba.length; i++){
+            }
+            return i;
+        }
         
         public static function ui2i8(x:int):int{
             if(x>=128){

@@ -287,7 +287,7 @@ package replay_hively {
     //TODO    
         private function hvl_load_ahx( buf:ByteArray, buflen:uint, defstereo:uint, freq:uint ):hvl_tune{
             var bptr:uint;      //*uint8
-            var nptr:String;    //*TEXT
+            var nptr:uint;      //*TEXT
             var i:uint, j:uint, k:uint, l:uint, posn:uint, insn:uint, ssn:uint, hs:uint, trkn:uint, trkl:uint;
             var ht:hvl_tune;
             var ple:hvl_plsentry;
@@ -319,9 +319,13 @@ package replay_hively {
             ht.ht_Frequency       = freq;
             ht.ht_FreqF           = Number(freq);
 
-            ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
-            ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
-            ht.ht_Subsongs    = (uint16 *)(&ht.ht_Instruments[(insn+1)]);
+            ht.malloc_positions(posn);
+            ht.malloc_instruments(insn);
+            ht.malloc_subsongs(ssn);
+
+            //ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
+            //ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
+            //ht.ht_Subsongs    = (uint16 *)(&ht.ht_Instruments[(insn+1)]);
             ple                = (struct hvl_plsentry *)(&ht.ht_Subsongs[ssn]);
 
             ht.ht_WaveformTab[0]  = cons.WO_TRIANGLE_04;
@@ -364,7 +368,7 @@ package replay_hively {
 
             // Subsongs
             for( i=0; i<ht.ht_SubsongNr; i++ ){
-                ht.ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
+                ht.ht_Subsongs[i] = (buf[bptr]<<8)|buf[bptr+1];
                 if( ht.ht_Subsongs[i] >= ht.ht_PositionNr )
                     ht.ht_Subsongs[i] = 0;
                 bptr += 2;
@@ -373,8 +377,8 @@ package replay_hively {
             // Position list
             for( i=0; i<ht.ht_PositionNr; i++ ){
                 for( j=0; j<4; j++ ){
-                    ht.ht_Positions[i].pos_Track[j]     = *bptr++;
-                    ht.ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
+                    ht.ht_Positions[i].pos_Track[j]     = buf[bptr++];
+                    ht.ht_Positions[i].pos_Transpose[j] = tools.ui2i8(buf[bptr++]);  //TODO:check if all goes well here
                 }
             }
 
@@ -397,10 +401,10 @@ package replay_hively {
 
             for( j=0; j<ht.ht_TrackLength; j++ )
             {
-              ht.ht_Tracks[i][j].stp_Note       = (bptr[0]>>2)&0x3f;
-              ht.ht_Tracks[i][j].stp_Instrument = ((bptr[0]&0x3)<<4) | (bptr[1]>>4);
-              ht.ht_Tracks[i][j].stp_FX         = bptr[1]&0xf;
-              ht.ht_Tracks[i][j].stp_FXParam    = bptr[2];
+              ht.ht_Tracks[i][j].stp_Note       = (buf[bptr]>>2)&0x3f;
+              ht.ht_Tracks[i][j].stp_Instrument = ((buf[bptr]&0x3)<<4) | (buf[bptr+1]>>4);
+              ht.ht_Tracks[i][j].stp_FX         = buf[bptr+1]&0xf;
+              ht.ht_Tracks[i][j].stp_FXParam    = buf[bptr+2];
               ht.ht_Tracks[i][j].stp_FXb        = 0;
               ht.ht_Tracks[i][j].stp_FXbParam   = 0;
               bptr += 3;

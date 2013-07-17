@@ -38,10 +38,19 @@ hvl_tune
     *hvl_position               //Vector.<hvl_position>   malloc_positions()
     *hvl_instrument             //Vector.<hvl_instrument> malloc_instruments()
     hvl_voice[MAX_CHANNELS]
+    ------
+    *int8 ht_WaveformTab        //Vector.<uint>
+    *uint16 ht_Subsongs         //Vector.<uint>           malloc_subsongs()     //TODO: check usage
     
 hvl_voice
     hvl_envelope
     *hvl_instrument
     *hvl_plist
+    ------
+    *int8 vc_AudioPointer
+    *int8 vc_AudioSource
+    *int8 vc_MixSource
+    *int8 vc_RingMixSource
+    *int8 vc_RingAudioSource
     
 --------------------------------------------
