@@ -4,16 +4,18 @@ Done:
 Todo:
 -Everything else
 -Get license.txt
+-Turn everything that is public into protected and make an interface class
 -Synchro class(animation can be synchronised to music events)
 -Optimisation
 
 Considered optimisations:
--compact nested arrays into single one and use offset multiplication instead of array index
+-compact Tracks[][] into single array and use offset multiplication instead of array nesting
+-dynamically allocate Tracks[] instead of using fixed array
 -tidy up the code
 
 
 
-// Class quickmap; struct pointer handling decisions go here
+// Class quickmap; pointer handling decisions go here
 //
 // Suggested way would be declaring vectors with the pointed structures in hvl_tune and turning
 //the pointers themselves into uint offsets.
@@ -23,10 +25,10 @@ hvl_envelope
 
 hvl_instrument
     hvl_envelope
-    hvl_plist
+    hvl_plist                   //Seemed odd at first; this is where the instrument macro sits
 
 hvl_plist
-    *hvl_plsentry               //
+    *hvl_plsentry               //Becomes vector
 
 hvl_plsentry
 
@@ -44,8 +46,8 @@ hvl_tune
     
 hvl_voice
     hvl_envelope
-    *hvl_instrument
-    *hvl_plist
+    *hvl_instrument             //Already in hvl_tune;                    becomes uint offset
+    *hvl_plist                  //Let's stick it in hvl_tune as vector;   becomes uint offset
     ------
     *int8 vc_AudioPointer
     *int8 vc_AudioSource

@@ -322,12 +322,12 @@ package replay_hively {
             ht.malloc_positions(posn);
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
+            ple                = new hvl_plsentry(); //No!
 
             //ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
             //ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
             //ht.ht_Subsongs    = (uint16 *)(&ht.ht_Instruments[(insn+1)]);
             //ple                = (struct hvl_plsentry *)(&ht.ht_Subsongs[ssn]);
-            ple                = new hvl_plsentry();
 
             ht.ht_WaveformTab[0]  = cons.WO_TRIANGLE_04;
             ht.ht_WaveformTab[1]  = cons.WO_SAWTOOTH_04;
