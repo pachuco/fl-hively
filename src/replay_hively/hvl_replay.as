@@ -485,6 +485,7 @@ package replay_hively {
             var nptr:String;              //*TEXT
             var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
             var ple:hvl_plsentry;         //*
+            buf.endian("littleEndian");
 
             buflen = buf.length;
   

@@ -4,7 +4,7 @@ Done:
 Todo:
 -Everything else
 -Get license.txt
--Turn everything that is public into protected and make an interface class
+-Turn everything that is public into protected and make a front_panel class
 -Synchro class(animation can be synchronised to music events)
 -Optimisation
 
