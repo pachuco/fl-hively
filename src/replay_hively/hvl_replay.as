@@ -16,6 +16,7 @@ package replay_hively {
     import flash.utils.*;
     public class hvl_replay{
         private var waves_t:ByteArray = new ByteArray();
+        waves_t.endian("littleEndian");
         private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
@@ -322,7 +323,7 @@ package replay_hively {
             ht.malloc_positions(posn);
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
-            ple                = new hvl_plsentry(); //No!
+            ple                = 0; //TODO: check ple
 
             //ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
             //ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
@@ -415,7 +416,7 @@ package replay_hively {
                     ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.ht_Instruments[i].ins_Name[0] = 0;
+                    ht.ht_Instruments[i].ins_Name[0] = "";
                 }
 
                 ht.ht_Instruments[i].ins_Volume      = buf[bptr];

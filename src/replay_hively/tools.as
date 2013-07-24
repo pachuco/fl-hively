@@ -1,23 +1,23 @@
 package replay_hively{
     public class tools{
-        public static function bitRotate(n:int, x:int, bits:uint):int{
+        public static function bitRotate(x:int, n:int, bits:uint):int{
             //Thanks go to Raymond Basque.
             var tmp:int =0;
             var msk:int = 0xffffffff >>> (32-bits); 
             var result:int=0;
-            x %= bits;
-            tmp = n & msk;
-            result = x < 0 ? (n << -x) : (n  >>> x);
-            if (x < 0){
-                tmp >>>= (bits + x);
+            n %= bits;
+            tmp = x & msk;
+            result = n < 0 ? (x << -n) : (x  >>> n);
+            if (n < 0){
+                tmp >>>= (bits + n);
             }else {
-                tmp <<= (bits - x);
+                tmp <<= (bits - n);
             }
             result |= tmp;
             return result & msk;
         }
         
-        public static function strnget(ba:ByteArray, off:uint, range:uint):String{
+        public static function strncpy(ba:ByteArray, off:uint, range:uint):String{
             var i:uint;
             var s:String="";
             for(i=0; ba[off+i]!=0x00 && i<range && (off+i)<ba.length; i++){
