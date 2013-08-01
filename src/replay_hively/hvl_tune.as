@@ -5,6 +5,7 @@ package replay_hively {
         public var ht_Frequency:uint;                           //uint32
         public var ht_FreqF:Number;                             //float64
         public var ht_WaveformTab:Vector.<uint>;                //*int8[MAX_CHANNELS]
+        public var ht_WaveformTab_i2:uint>;
         public var ht_Restart:uint;                             //uint16
         public var ht_PositionNr:uint;                          //uint16
         public var ht_SpeedMultiplier:uint;                     //uint8
