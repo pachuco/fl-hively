@@ -8,19 +8,9 @@ package replay_hively {
             pls_Entries = Vector.<hvl_plsentry>;
         }
 
-        public function feed_me( ba:ByteArray, off:uint ):void{
-            ba.position = off;
-            pls_Speed = ba.readShort();
-            pls_Length = ba.readShort();
-            for( var i:uint=0; i<pls_Length; i++ ){
+        public function ple_malloc( len:uint ):void{
+            for( var i:uint=0; i<len; i++ ){
                 var ple = new hvl_plsentry();
-                ple.ple_Note        = ba.readUnsignedByte();
-                ple.ple_Waveform    = ba.readUnsignedByte();
-                ple.ple_Fixed       = ba.readShort();
-                ple.ple_FX[0]       = ba.readByte();
-                ple.ple_FX[1]       = ba.readByte();
-                ple.ple_FXParam[0]  = ba.readByte();
-                ple.ple_FXParam[1]  = ba.readByte();
                 pls_Entries.push( ple );
             }
         }

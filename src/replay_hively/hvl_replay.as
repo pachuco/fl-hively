@@ -15,8 +15,7 @@ package replay_hively {
     import flash.media.*;
     import flash.utils.*;
     public class hvl_replay{
-        private var waves_t:ByteArray = new ByteArray();
-        waves_t.endian("littleEndian");
+        private var waves_t:ButtArray = new ButtArray();
         private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
@@ -371,8 +370,9 @@ package replay_hively {
             // Subsongs
             for( i=0; i<ht.ht_SubsongNr; i++ ){
                 ht.ht_Subsongs[i] = (buf[bptr]<<8)|buf[bptr+1];
-                if( ht.ht_Subsongs[i] >= ht.ht_PositionNr )
+                if( ht.ht_Subsongs[i] >= ht.ht_PositionNr ){
                     ht.ht_Subsongs[i] = 0;
+                }
                 bptr += 2;
             }
 
@@ -444,8 +444,10 @@ package replay_hively {
                 ht.ht_Instruments[i].ins_PList.pls_Speed      = buf[bptr+20];
                 ht.ht_Instruments[i].ins_PList.pls_Length     = buf[bptr+21];
 
-                ht.ht_Instruments[i].ins_PList.pls_Entries    = ple;
-                ple += buf[bptr+21];
+                //ht.ht_Instruments[i].ins_PList.pls_Entries    = ple;
+                ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
+                ple += buf[bptr+21]; //TODO: ple is not really used at this point.
+                                     //      check and see if we remove or fix.
 
                 bptr += 22;
                 for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ ){
@@ -465,10 +467,12 @@ package replay_hively {
 
                     // 1.6: Strip "toggle filter" commands if the module is
                     //      version 0 (pre-filters). This is what AHX also does.
-                    if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) )
-                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] &= 0x0f;
-                    if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) )
-                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] &= 0x0f; // 1.8
+                    if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) ){
+                        ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] &= 0x0f;
+                    }
+                    if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) ){
+                        ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] &= 0x0f; // 1.8
+                    }
 
                     bptr += 4;
                 }
@@ -479,13 +483,12 @@ package replay_hively {
             return ht;
 }
 
-        public function hvl_LoadTune( buf:ByteArray, freq:uint, defstereo:uint ):hvl_tune{
+        public function hvl_LoadTune( buf:ButtArray, freq:uint, defstereo:uint ):hvl_tune{
             var ht:hvl_tune;              //*
             var bptr:uint;      //*uint8
             var nptr:String;              //*TEXT
             var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
             var ple:hvl_plsentry;         //*
-            buf.endian("littleEndian");
 
             buflen = buf.length;
   
@@ -553,162 +556,162 @@ package replay_hively {
             return NULL;
             }
 
-            ht->ht_Version         = buf[3]; // 1.5
-            ht->ht_Frequency       = freq;
-            ht->ht_FreqF           = (float64)freq;
+            ht.ht_Version         = buf[3]; // 1.5
+            ht.ht_Frequency       = freq;
+            ht.ht_FreqF           = (float64)freq;
 
-            ht->ht_Positions       = (struct hvl_position *)(&ht[1]);
-            ht->ht_Instruments     = (struct hvl_instrument *)(&ht->ht_Positions[posn]);
-            ht->ht_Subsongs        = (uint16 *)(&ht->ht_Instruments[(insn+1)]);
-            ple                    = (struct hvl_plsentry *)(&ht->ht_Subsongs[ssn]);
+            ht.ht_Positions       = (struct hvl_position *)(&ht[1]);
+            ht.ht_Instruments     = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
+            ht.ht_Subsongs        = (uint16 *)(&ht.ht_Instruments[(insn+1)]);
+            ple                    = (struct hvl_plsentry *)(&ht.ht_Subsongs[ssn]);
 
-            ht->ht_WaveformTab[0]  = &waves[WO_TRIANGLE_04];
-            ht->ht_WaveformTab[1]  = &waves[WO_SAWTOOTH_04];
-            ht->ht_WaveformTab[3]  = &waves[WO_WHITENOISE];
+            ht.ht_WaveformTab[0]  = &waves[WO_TRIANGLE_04];
+            ht.ht_WaveformTab[1]  = &waves[WO_SAWTOOTH_04];
+            ht.ht_WaveformTab[3]  = &waves[WO_WHITENOISE];
 
-            ht->ht_PositionNr      = posn;
-            ht->ht_Channels        = (buf[8]>>2)+4;
-            ht->ht_Restart         = ((buf[8]&3)<<8)|buf[9];
-            ht->ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
-            ht->ht_TrackLength     = buf[10];
-            ht->ht_TrackNr         = buf[11];
-            ht->ht_InstrumentNr    = insn;
-            ht->ht_SubsongNr       = ssn;
-            ht->ht_mixgain         = (buf[14]<<8)/100;
-            ht->ht_defstereo       = buf[15];
-            ht->ht_defpanleft      = stereopan_left[ht->ht_defstereo];
-            ht->ht_defpanright     = stereopan_right[ht->ht_defstereo];
+            ht.ht_PositionNr      = posn;
+            ht.ht_Channels        = (buf[8]>>2)+4;
+            ht.ht_Restart         = ((buf[8]&3)<<8)|buf[9];
+            ht.ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
+            ht.ht_TrackLength     = buf[10];
+            ht.ht_TrackNr         = buf[11];
+            ht.ht_InstrumentNr    = insn;
+            ht.ht_SubsongNr       = ssn;
+            ht.ht_mixgain         = (buf[14]<<8)/100;
+            ht.ht_defstereo       = buf[15];
+            ht.ht_defpanleft      = stereopan_left[ht.ht_defstereo];
+            ht.ht_defpanright     = stereopan_right[ht.ht_defstereo];
 
-            if( ht->ht_Restart >= ht->ht_PositionNr )
-            ht->ht_Restart = ht->ht_PositionNr-1;
+            if( ht.ht_Restart >= ht.ht_PositionNr )
+            ht.ht_Restart = ht.ht_PositionNr-1;
 
             // Do some validation  
-            if( ( ht->ht_PositionNr > 1000 ) ||
-              ( ht->ht_TrackLength > 64 ) ||
-              ( ht->ht_InstrumentNr > 64 ) )
+            if( ( ht.ht_PositionNr > 1000 ) ||
+              ( ht.ht_TrackLength > 64 ) ||
+              ( ht.ht_InstrumentNr > 64 ) )
             {
-            printf( "%d,%d,%d\n", ht->ht_PositionNr,
-                                  ht->ht_TrackLength,
-                                  ht->ht_InstrumentNr );
+            printf( "%d,%d,%d\n", ht.ht_PositionNr,
+                                  ht.ht_TrackLength,
+                                  ht.ht_InstrumentNr );
             free( ht );
             free( buf );
             printf( "Invalid file.\n" );
             return NULL;
             }
 
-            strncpy( ht->ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
-            nptr = (TEXT *)&buf[((buf[4]<<8)|buf[5])+strlen( ht->ht_Name )+1];
+            strncpy( ht.ht_Name, (TEXT *)&buf[(buf[4]<<8)|buf[5]], 128 );
+            nptr = (TEXT *)&buf[((buf[4]<<8)|buf[5])+strlen( ht.ht_Name )+1];
 
             bptr = &buf[16];
 
             // Subsongs
-            for( i=0; i<ht->ht_SubsongNr; i++ )
+            for( i=0; i<ht.ht_SubsongNr; i++ )
             {
-            ht->ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
+            ht.ht_Subsongs[i] = (bptr[0]<<8)|bptr[1];
             bptr += 2;
             }
 
             // Position list
-            for( i=0; i<ht->ht_PositionNr; i++ )
+            for( i=0; i<ht.ht_PositionNr; i++ )
             {
-            for( j=0; j<ht->ht_Channels; j++ )
+            for( j=0; j<ht.ht_Channels; j++ )
             {
-              ht->ht_Positions[i].pos_Track[j]     = *bptr++;
-              ht->ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
+              ht.ht_Positions[i].pos_Track[j]     = *bptr++;
+              ht.ht_Positions[i].pos_Transpose[j] = *(int8 *)bptr++;
             }
             }
 
             // Tracks
-            for( i=0; i<=ht->ht_TrackNr; i++ )
+            for( i=0; i<=ht.ht_TrackNr; i++ )
             {
             if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) )
             {
-              for( j=0; j<ht->ht_TrackLength; j++ )
+              for( j=0; j<ht.ht_TrackLength; j++ )
               {
-                ht->ht_Tracks[i][j].stp_Note       = 0;
-                ht->ht_Tracks[i][j].stp_Instrument = 0;
-                ht->ht_Tracks[i][j].stp_FX         = 0;
-                ht->ht_Tracks[i][j].stp_FXParam    = 0;
-                ht->ht_Tracks[i][j].stp_FXb        = 0;
-                ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+                ht.ht_Tracks[i][j].stp_Note       = 0;
+                ht.ht_Tracks[i][j].stp_Instrument = 0;
+                ht.ht_Tracks[i][j].stp_FX         = 0;
+                ht.ht_Tracks[i][j].stp_FXParam    = 0;
+                ht.ht_Tracks[i][j].stp_FXb        = 0;
+                ht.ht_Tracks[i][j].stp_FXbParam   = 0;
               }
               continue;
             }
 
-            for( j=0; j<ht->ht_TrackLength; j++ )
+            for( j=0; j<ht.ht_TrackLength; j++ )
             {
               if( bptr[0] == 0x3f )
               {
-                ht->ht_Tracks[i][j].stp_Note       = 0;
-                ht->ht_Tracks[i][j].stp_Instrument = 0;
-                ht->ht_Tracks[i][j].stp_FX         = 0;
-                ht->ht_Tracks[i][j].stp_FXParam    = 0;
-                ht->ht_Tracks[i][j].stp_FXb        = 0;
-                ht->ht_Tracks[i][j].stp_FXbParam   = 0;
+                ht.ht_Tracks[i][j].stp_Note       = 0;
+                ht.ht_Tracks[i][j].stp_Instrument = 0;
+                ht.ht_Tracks[i][j].stp_FX         = 0;
+                ht.ht_Tracks[i][j].stp_FXParam    = 0;
+                ht.ht_Tracks[i][j].stp_FXb        = 0;
+                ht.ht_Tracks[i][j].stp_FXbParam   = 0;
                 bptr++;
                 continue;
               }
               
-              ht->ht_Tracks[i][j].stp_Note       = bptr[0];
-              ht->ht_Tracks[i][j].stp_Instrument = bptr[1];
-              ht->ht_Tracks[i][j].stp_FX         = bptr[2]>>4;
-              ht->ht_Tracks[i][j].stp_FXParam    = bptr[3];
-              ht->ht_Tracks[i][j].stp_FXb        = bptr[2]&0xf;
-              ht->ht_Tracks[i][j].stp_FXbParam   = bptr[4];
+              ht.ht_Tracks[i][j].stp_Note       = bptr[0];
+              ht.ht_Tracks[i][j].stp_Instrument = bptr[1];
+              ht.ht_Tracks[i][j].stp_FX         = bptr[2]>>4;
+              ht.ht_Tracks[i][j].stp_FXParam    = bptr[3];
+              ht.ht_Tracks[i][j].stp_FXb        = bptr[2]&0xf;
+              ht.ht_Tracks[i][j].stp_FXbParam   = bptr[4];
               bptr += 5;
             }
             }
 
 
             // Instruments
-            for( i=1; i<=ht->ht_InstrumentNr; i++ )
+            for( i=1; i<=ht.ht_InstrumentNr; i++ )
             {
             if( nptr < (TEXT *)(buf+buflen) )
             {
-              strncpy( ht->ht_Instruments[i].ins_Name, nptr, 128 );
+              strncpy( ht.ht_Instruments[i].ins_Name, nptr, 128 );
               nptr += strlen( nptr )+1;
             } else {
-              ht->ht_Instruments[i].ins_Name[0] = 0;
+              ht.ht_Instruments[i].ins_Name[0] = 0;
             }
 
-            ht->ht_Instruments[i].ins_Volume      = bptr[0];
-            ht->ht_Instruments[i].ins_FilterSpeed = ((bptr[1]>>3)&0x1f)|((bptr[12]>>2)&0x20);
-            ht->ht_Instruments[i].ins_WaveLength  = bptr[1]&0x07;
+            ht.ht_Instruments[i].ins_Volume      = bptr[0];
+            ht.ht_Instruments[i].ins_FilterSpeed = ((bptr[1]>>3)&0x1f)|((bptr[12]>>2)&0x20);
+            ht.ht_Instruments[i].ins_WaveLength  = bptr[1]&0x07;
 
-            ht->ht_Instruments[i].ins_Envelope.aFrames = bptr[2];
-            ht->ht_Instruments[i].ins_Envelope.aVolume = bptr[3];
-            ht->ht_Instruments[i].ins_Envelope.dFrames = bptr[4];
-            ht->ht_Instruments[i].ins_Envelope.dVolume = bptr[5];
-            ht->ht_Instruments[i].ins_Envelope.sFrames = bptr[6];
-            ht->ht_Instruments[i].ins_Envelope.rFrames = bptr[7];
-            ht->ht_Instruments[i].ins_Envelope.rVolume = bptr[8];
+            ht.ht_Instruments[i].ins_Envelope.aFrames = bptr[2];
+            ht.ht_Instruments[i].ins_Envelope.aVolume = bptr[3];
+            ht.ht_Instruments[i].ins_Envelope.dFrames = bptr[4];
+            ht.ht_Instruments[i].ins_Envelope.dVolume = bptr[5];
+            ht.ht_Instruments[i].ins_Envelope.sFrames = bptr[6];
+            ht.ht_Instruments[i].ins_Envelope.rFrames = bptr[7];
+            ht.ht_Instruments[i].ins_Envelope.rVolume = bptr[8];
 
-            ht->ht_Instruments[i].ins_FilterLowerLimit     = bptr[12]&0x7f;
-            ht->ht_Instruments[i].ins_VibratoDelay         = bptr[13];
-            ht->ht_Instruments[i].ins_HardCutReleaseFrames = (bptr[14]>>4)&0x07;
-            ht->ht_Instruments[i].ins_HardCutRelease       = bptr[14]&0x80?1:0;
-            ht->ht_Instruments[i].ins_VibratoDepth         = bptr[14]&0x0f;
-            ht->ht_Instruments[i].ins_VibratoSpeed         = bptr[15];
-            ht->ht_Instruments[i].ins_SquareLowerLimit     = bptr[16];
-            ht->ht_Instruments[i].ins_SquareUpperLimit     = bptr[17];
-            ht->ht_Instruments[i].ins_SquareSpeed          = bptr[18];
-            ht->ht_Instruments[i].ins_FilterUpperLimit     = bptr[19]&0x3f;
-            ht->ht_Instruments[i].ins_PList.pls_Speed      = bptr[20];
-            ht->ht_Instruments[i].ins_PList.pls_Length     = bptr[21];
+            ht.ht_Instruments[i].ins_FilterLowerLimit     = bptr[12]&0x7f;
+            ht.ht_Instruments[i].ins_VibratoDelay         = bptr[13];
+            ht.ht_Instruments[i].ins_HardCutReleaseFrames = (bptr[14]>>4)&0x07;
+            ht.ht_Instruments[i].ins_HardCutRelease       = bptr[14]&0x80?1:0;
+            ht.ht_Instruments[i].ins_VibratoDepth         = bptr[14]&0x0f;
+            ht.ht_Instruments[i].ins_VibratoSpeed         = bptr[15];
+            ht.ht_Instruments[i].ins_SquareLowerLimit     = bptr[16];
+            ht.ht_Instruments[i].ins_SquareUpperLimit     = bptr[17];
+            ht.ht_Instruments[i].ins_SquareSpeed          = bptr[18];
+            ht.ht_Instruments[i].ins_FilterUpperLimit     = bptr[19]&0x3f;
+            ht.ht_Instruments[i].ins_PList.pls_Speed      = bptr[20];
+            ht.ht_Instruments[i].ins_PList.pls_Length     = bptr[21];
 
-            ht->ht_Instruments[i].ins_PList.pls_Entries    = ple;
+            ht.ht_Instruments[i].ins_PList.pls_Entries    = ple;
             ple += bptr[21];
 
             bptr += 22;
-            for( j=0; j<ht->ht_Instruments[i].ins_PList.pls_Length; j++ )
+            for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ )
             {
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0] = bptr[0]&0xf;
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1] = (bptr[1]>>3)&0xf;
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform = bptr[1]&7;
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed = (bptr[2]>>6)&1;
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note  = bptr[2]&0x3f;
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = bptr[3];
-              ht->ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = bptr[4];
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0] = bptr[0]&0xf;
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1] = (bptr[1]>>3)&0xf;
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform = bptr[1]&7;
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed = (bptr[2]>>6)&1;
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note  = bptr[2]&0x3f;
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = bptr[3];
+              ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = bptr[4];
               bptr += 5;
             }
             }
@@ -717,11 +720,225 @@ package replay_hively {
             free( buf );
             return ht;
             */
-}
+}   
 
-        
-        
-        
-        
+        private function hvl_process_stepfx_1( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int ):void{
+            switch( FX ){
+                case 0x0:  // Position Jump HI
+                    if( ((FXParam&0x0f) > 0) && ((FXParam&0x0f) <= 9) ){
+                        ht.ht_PosJump = FXParam & 0xf;
+                    }
+                    break;
+
+                case 0x5:  // Volume Slide + Tone Portamento
+                case 0xa:  // Volume Slide
+                    voice.vc_VolumeSlideDown = FXParam & 0x0f;
+                    voice.vc_VolumeSlideUp   = FXParam >> 4;
+                    break;
+
+                case 0x7:  // Panning
+                    if( FXParam > 127 ){
+                        FXParam -= 256;
+                    }
+                    voice.vc_Pan          = (FXParam+128);
+                    voice.vc_SetPan       = (FXParam+128); // 1.4
+                    voice.vc_PanMultLeft  = panning_left[voice.vc_Pan];
+                    voice.vc_PanMultRight = panning_right[voice.vc_Pan];
+                    break;
+
+                case 0xb: // Position jump
+                    ht.ht_PosJump      = ht.ht_PosJump*100 + (FXParam & 0x0f) + (FXParam >> 4)*10;
+                    ht.ht_PatternBreak = 1;
+                    if( ht.ht_PosJump <= ht.ht_PosNr ){
+                        ht.ht_SongEndReached = 1;
+                    }
+                    break;
+
+                case 0xd: // Pattern break
+                    ht.ht_PosJump      = ht.ht_PosNr+1;
+                    ht.ht_PosJumpNote  = (FXParam & 0x0f) + (FXParam>>4)*10;
+                    ht.ht_PatternBreak = 1;
+                    if( ht.ht_PosJumpNote >  ht.ht_TrackLength ){
+                        ht.ht_PosJumpNote = 0;
+                    }
+                    break;
+
+                case 0xe: // Extended commands
+                    switch( FXParam >> 4 ){
+                        case 0xc: // Note cut
+                            if( (FXParam & 0x0f) < ht.ht_Tempo ){
+                                voice.vc_NoteCutWait = FXParam & 0x0f;
+                                if( voice.vc_NoteCutWait ){
+                                    voice.vc_NoteCutOn      = 1;
+                                    voice.vc_HardCutRelease = 0;
+                                }
+                            }
+                            break;
+                      
+                            // 1.6: 0xd case removed
+                    }
+                    break;
+
+                case 0xf: // Speed
+                    ht.ht_Tempo = FXParam;
+                    if( FXParam == 0 ){
+                        ht.ht_SongEndReached = 1;
+                    }
+                    break;
+            }  
+        }
+
+        private function hvl_process_stepfx_2( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int, int32 *Note ):void{
+            switch( FX ){
+                case 0x9: // Set squarewave offset
+                    voice.vc_SquarePos    = FXParam >> (5 - voice.vc_WaveLength);
+                    //voice.vc_PlantSquare  = 1;
+                    voice.vc_IgnoreSquare = 1;
+                    break;
+
+                    case 0x5: // Tone portamento + volume slide
+                    case 0x3: // Tone portamento
+                        if( FXParam != 0 ){
+                            voice.vc_PeriodSlideSpeed = FXParam;
+                        }
+              
+                        if( *Note ){ //TODO: Deal with Note pointer
+                            var mew:int, diff:int;
+
+                            mew   = period_tab[*Note];
+                            diff  = period_tab[voice.vc_TrackPeriod];
+                            diff -= mew;
+                            mew   = diff + voice.vc_PeriodSlidePeriod;
+                
+                            if( mew ){
+                                voice.vc_PeriodSlideLimit = -diff;
+                            }
+                        }
+                        voice.vc_PeriodSlideOn        = 1;
+                        voice.vc_PeriodSlideWithLimit = 1;
+                        *Note = 0;
+                        break;      
+            } 
+        }
+
+        private function hvl_process_stepfx_3( ht:hvl_tune, voice:hvl_voice, int32 FX, int32 FXParam ):void{
+            i:int;
+          
+            switch( FX ){
+                case 0x01: // Portamento up (period slide down)
+                    voice->vc_PeriodSlideSpeed     = -FXParam;
+                    voice->vc_PeriodSlideOn        = 1;
+                    voice->vc_PeriodSlideWithLimit = 0;
+                    break;
+                case 0x02: // Portamento down
+                    voice->vc_PeriodSlideSpeed     = FXParam;
+                    voice->vc_PeriodSlideOn        = 1;
+                    voice->vc_PeriodSlideWithLimit = 0;
+                    break;
+                case 0x04: // Filter override
+                    if( ( FXParam == 0 ) || ( FXParam == 0x40 ) ){
+                        break;
+                    }
+                    if( FXParam < 0x40 ){
+                        voice->vc_IgnoreFilter = FXParam;
+                        break;
+                    }
+                    if( FXParam > 0x7f ){
+                        break;
+                    }
+                    voice->vc_FilterPos = FXParam - 0x40;
+                    break;
+                case 0x0c: // Volume
+                    FXParam &= 0xff;
+                    if( FXParam <= 0x40 ){
+                        voice->vc_NoteMaxVolume = FXParam;
+                        break;
+                    }
+              
+                    if( (FXParam -= 0x50) < 0 ){
+                        break;  // 1.6
+                    }
+
+                    if( FXParam <= 0x40 ){
+                        for( i=0; i<ht->ht_Channels; i++ ){
+                            ht->ht_Voices[i].vc_TrackMasterVolume = FXParam;
+                        }
+                        break;
+                    }
+              
+                    if( (FXParam -= 0xa0-0x50) < 0 ){
+                        break; // 1.6
+                    }
+
+                    if( FXParam <= 0x40 ){
+                        voice->vc_TrackMasterVolume = FXParam;
+                    }
+                    break;
+
+                case 0xe: // Extended commands;
+                    switch( FXParam >> 4 ){
+                        case 0x1: // Fineslide up
+                            voice->vc_PeriodSlidePeriod -= (FXParam & 0x0f); // 1.8
+                            voice->vc_PlantPeriod = 1;
+                            break;
+                
+                        case 0x2: // Fineslide down
+                            voice->vc_PeriodSlidePeriod += (FXParam & 0x0f); // 1.8
+                            voice->vc_PlantPeriod = 1;
+                            break;
+                
+                        case 0x4: // Vibrato control
+                            voice->vc_VibratoDepth = FXParam & 0x0f;
+                            break;
+                
+                        case 0x0a: // Fine volume up
+                            voice->vc_NoteMaxVolume += FXParam & 0x0f;
+                  
+                            if( voice->vc_NoteMaxVolume > 0x40 ){
+                                voice->vc_NoteMaxVolume = 0x40;
+                            }
+                            break;
+                
+                        case 0x0b: // Fine volume down
+                            voice->vc_NoteMaxVolume -= FXParam & 0x0f;
+                  
+                            if( voice->vc_NoteMaxVolume < 0 ){
+                                voice->vc_NoteMaxVolume = 0;
+                            }
+                            break;
+                
+                            case 0x0f: // Misc flags (1.5)
+                                if( ht->ht_Version < 1 ){
+                                    break;
+                                }
+                                switch( FXParam & 0xf ){
+                                    case 1:
+                                        voice->vc_OverrideTranspose = voice->vc_Transpose;
+                                        break;
+                                }
+                                break;
+                    } 
+                    break;
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }
+        
+        

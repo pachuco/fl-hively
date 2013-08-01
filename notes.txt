@@ -47,8 +47,8 @@ hvl_tune
     
 hvl_voice
     hvl_envelope
-    *hvl_instrument             //Already in hvl_tune;        becomes uint offset
-    *hvl_plist                  //Already in hvl_instrument;  becomes uint offset, possibly identical to hvl_instrument
+    *hvl_instrument             //Already in hvl_tune;        becomes reference
+    *hvl_plist                  //Already in hvl_instrument;  becomes reference
     ------
     *int8 vc_AudioPointer
     *int8 vc_AudioSource

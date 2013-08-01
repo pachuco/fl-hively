@@ -1,0 +1,1 @@
+package replay_hively {    import flash.utils.ByteArray;    public class ButtArray extends ByteArray{        public function ButtArray():void{            super.endian("littleEndian");        }    //TODO: add lazy, indexed read/write methods    }}
