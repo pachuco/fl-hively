@@ -826,32 +826,32 @@ package replay_hively {
           
             switch( FX ){
                 case 0x01: // Portamento up (period slide down)
-                    voice->vc_PeriodSlideSpeed     = -FXParam;
-                    voice->vc_PeriodSlideOn        = 1;
-                    voice->vc_PeriodSlideWithLimit = 0;
+                    voice.vc_PeriodSlideSpeed     = -FXParam;
+                    voice.vc_PeriodSlideOn        = 1;
+                    voice.vc_PeriodSlideWithLimit = 0;
                     break;
                 case 0x02: // Portamento down
-                    voice->vc_PeriodSlideSpeed     = FXParam;
-                    voice->vc_PeriodSlideOn        = 1;
-                    voice->vc_PeriodSlideWithLimit = 0;
+                    voice.vc_PeriodSlideSpeed     = FXParam;
+                    voice.vc_PeriodSlideOn        = 1;
+                    voice.vc_PeriodSlideWithLimit = 0;
                     break;
                 case 0x04: // Filter override
                     if( ( FXParam == 0 ) || ( FXParam == 0x40 ) ){
                         break;
                     }
                     if( FXParam < 0x40 ){
-                        voice->vc_IgnoreFilter = FXParam;
+                        voice.vc_IgnoreFilter = FXParam;
                         break;
                     }
                     if( FXParam > 0x7f ){
                         break;
                     }
-                    voice->vc_FilterPos = FXParam - 0x40;
+                    voice.vc_FilterPos = FXParam - 0x40;
                     break;
                 case 0x0c: // Volume
                     FXParam &= 0xff;
                     if( FXParam <= 0x40 ){
-                        voice->vc_NoteMaxVolume = FXParam;
+                        voice.vc_NoteMaxVolume = FXParam;
                         break;
                     }
               
@@ -860,8 +860,8 @@ package replay_hively {
                     }
 
                     if( FXParam <= 0x40 ){
-                        for( i=0; i<ht->ht_Channels; i++ ){
-                            ht->ht_Voices[i].vc_TrackMasterVolume = FXParam;
+                        for( i=0; i<ht.ht_Channels; i++ ){
+                            ht.ht_Voices[i].vc_TrackMasterVolume = FXParam;
                         }
                         break;
                     }
@@ -871,49 +871,49 @@ package replay_hively {
                     }
 
                     if( FXParam <= 0x40 ){
-                        voice->vc_TrackMasterVolume = FXParam;
+                        voice.vc_TrackMasterVolume = FXParam;
                     }
                     break;
 
                 case 0xe: // Extended commands;
                     switch( FXParam >> 4 ){
                         case 0x1: // Fineslide up
-                            voice->vc_PeriodSlidePeriod -= (FXParam & 0x0f); // 1.8
-                            voice->vc_PlantPeriod = 1;
+                            voice.vc_PeriodSlidePeriod -= (FXParam & 0x0f); // 1.8
+                            voice.vc_PlantPeriod = 1;
                             break;
                 
                         case 0x2: // Fineslide down
-                            voice->vc_PeriodSlidePeriod += (FXParam & 0x0f); // 1.8
-                            voice->vc_PlantPeriod = 1;
+                            voice.vc_PeriodSlidePeriod += (FXParam & 0x0f); // 1.8
+                            voice.vc_PlantPeriod = 1;
                             break;
                 
                         case 0x4: // Vibrato control
-                            voice->vc_VibratoDepth = FXParam & 0x0f;
+                            voice.vc_VibratoDepth = FXParam & 0x0f;
                             break;
                 
                         case 0x0a: // Fine volume up
-                            voice->vc_NoteMaxVolume += FXParam & 0x0f;
+                            voice.vc_NoteMaxVolume += FXParam & 0x0f;
                   
-                            if( voice->vc_NoteMaxVolume > 0x40 ){
-                                voice->vc_NoteMaxVolume = 0x40;
+                            if( voice.vc_NoteMaxVolume > 0x40 ){
+                                voice.vc_NoteMaxVolume = 0x40;
                             }
                             break;
                 
                         case 0x0b: // Fine volume down
-                            voice->vc_NoteMaxVolume -= FXParam & 0x0f;
+                            voice.vc_NoteMaxVolume -= FXParam & 0x0f;
                   
-                            if( voice->vc_NoteMaxVolume < 0 ){
-                                voice->vc_NoteMaxVolume = 0;
+                            if( voice.vc_NoteMaxVolume < 0 ){
+                                voice.vc_NoteMaxVolume = 0;
                             }
                             break;
                 
                             case 0x0f: // Misc flags (1.5)
-                                if( ht->ht_Version < 1 ){
+                                if( ht.ht_Version < 1 ){
                                     break;
                                 }
                                 switch( FXParam & 0xf ){
                                     case 1:
-                                        voice->vc_OverrideTranspose = voice->vc_Transpose;
+                                        voice.vc_OverrideTranspose = voice.vc_Transpose;
                                         break;
                                 }
                                 break;
