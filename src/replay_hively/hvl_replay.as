@@ -788,7 +788,7 @@ package replay_hively {
             }  
         }
 
-        private function hvl_process_stepfx_2( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int, int32 *Note ):void{
+        private function hvl_process_stepfx_2( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int, Note:int ):int{
             switch( FX ){
                 case 0x9: // Set squarewave offset
                     voice.vc_SquarePos    = FXParam >> (5 - voice.vc_WaveLength);
@@ -802,7 +802,7 @@ package replay_hively {
                             voice.vc_PeriodSlideSpeed = FXParam;
                         }
               
-                        if( *Note ){ //TODO: Deal with Note pointer
+                        if( Note ){ //TODO: Deal with Note pointer
                             var mew:int, diff:int;
 
                             mew   = period_tab[*Note];
@@ -818,7 +818,8 @@ package replay_hively {
                         voice.vc_PeriodSlideWithLimit = 1;
                         *Note = 0;
                         break;      
-            } 
+            }
+            return Note;
         }
 
         private function hvl_process_stepfx_3( ht:hvl_tune, voice:hvl_voice, int32 FX, int32 FXParam ):void{
@@ -922,11 +923,733 @@ package replay_hively {
             }
         }
 
+        private function hvl_process_step( ht:hvl_tune, voice:hvl_voice ):void{
+            var Note:int, Instr:int, donenotedel:int; //int32
+            var Step:hvl_step;                        //struct hvl_step *Step;
+          
+            if( voice.vc_TrackOn == 0 ){
+                return;
+            }
+          
+            voice.vc_VolumeSlideUp = voice.vc_VolumeSlideDown = 0;
+          
+            //TODO: a bit of a headache to read. Make sure we are doing things right.
+            //Step = &ht->ht_Tracks[ht->ht_Positions[ht->ht_PosNr].pos_Track[voice->vc_VoiceNum]][ht->ht_NoteNr];
+            Step = ht.ht_Tracks[ ht.ht_Positions[ ht.ht_PosNr ].pos_Track[ voice.vc_VoiceNum ] ]     [ ht.ht_NoteNr ];
+          
+            Note    = Step.stp_Note;
+            Instr   = Step.stp_Instrument;
+          
+            // --------- 1.6: from here --------------
 
+            donenotedel = 0;
 
+            // Do notedelay here
+            if( ((Step.stp_FX&0xf)==0xe) && ((Step.stp_FXParam&0xf0)==0xd0) ){
+                if( voice.vc_NoteDelayOn ){
+                    voice.vc_NoteDelayOn = 0;
+                    donenotedel = 1;
+                } else {
+                    if( (Step.stp_FXParam&0x0f) < ht.ht_Tempo ){
+                        voice.vc_NoteDelayWait = Step.stp_FXParam & 0x0f;
+                        if( voice.vc_NoteDelayWait ){
+                            voice.vc_NoteDelayOn = 1;
+                            return;
+                        }
+                    }
+                }
+            }
 
+            if( (donenotedel==0) && ((Step.stp_FXb&0xf)==0xe) && ((Step.stp_FXbParam&0xf0)==0xd0) ){
+                if( voice.vc_NoteDelayOn ){
+                    voice.vc_NoteDelayOn = 0;
+                } else {
+                    if( (Step.stp_FXbParam&0x0f) < ht.ht_Tempo ){
+                        voice.vc_NoteDelayWait = Step.stp_FXbParam & 0x0f;
+                        if( voice.vc_NoteDelayWait ){
+                            voice.vc_NoteDelayOn = 1;
+                            return;
+                        }
+                    }
+                }
+            }
 
+            // --------- 1.6: to here --------------
 
+            if( Note ){
+                voice.vc_OverrideTranspose = 1000; // 1.5
+            }
+
+            hvl_process_stepfx_1( ht, voice, Step.stp_FX&0xf,  Step.stp_FXParam );  
+            hvl_process_stepfx_1( ht, voice, Step.stp_FXb&0xf, Step.stp_FXbParam );
+          
+            if( ( Instr ) && ( Instr <= ht.ht_InstrumentNr ) ){
+                var Ins:hvl_instrument;
+                var SquareLower:int, SquareUpper:int, d6:int, d3:int, d4:int; //int16
+            
+                /* 1.4: Reset panning to last set position */
+                voice.vc_Pan          = voice.vc_SetPan;
+                voice.vc_PanMultLeft  = panning_left[voice.vc_Pan];
+                voice.vc_PanMultRight = panning_right[voice.vc_Pan];
+
+                voice.vc_PeriodSlideSpeed =     0;
+                voice.vc_PeriodSlidePeriod =    0;
+                voice.vc_PeriodSlideLimit =     0;
+
+                voice.vc_PerfSubVolume    = 0x40;
+                voice.vc_ADSRVolume       = 0;
+                //voice.vc_Instrument       = Ins = &ht.ht_Instruments[Instr];
+                voice.vc_Instrument       = Ins = ht.ht_Instruments[Instr];
+                voice.vc_SamplePos        = 0;
+            
+                voice.vc_ADSR.aFrames     = Ins.ins_Envelope.aFrames;
+                voice.vc_ADSR.aVolume     = Ins.ins_Envelope.aVolume*256/voice.vc_ADSR.aFrames;
+                voice.vc_ADSR.dFrames     = Ins.ins_Envelope.dFrames;
+                voice.vc_ADSR.dVolume     = (Ins.ins_Envelope.dVolume-Ins.ins_Envelope.aVolume)*256/voice.vc_ADSR.dFrames;
+                voice.vc_ADSR.sFrames     = Ins.ins_Envelope.sFrames;
+                voice.vc_ADSR.rFrames     = Ins.ins_Envelope.rFrames;
+                voice.vc_ADSR.rVolume     = (Ins.ins_Envelope.rVolume-Ins.ins_Envelope.dVolume)*256/voice.vc_ADSR.rFrames;
+            
+                voice.vc_WaveLength       = Ins.ins_WaveLength;
+                voice.vc_NoteMaxVolume    = Ins.ins_Volume;
+            
+                voice.vc_VibratoCurrent   = 0;
+                voice.vc_VibratoDelay     = Ins.ins_VibratoDelay;
+                voice.vc_VibratoDepth     = Ins.ins_VibratoDepth;
+                voice.vc_VibratoSpeed     = Ins.ins_VibratoSpeed;
+                voice.vc_VibratoPeriod    = 0;
+            
+                voice.vc_HardCutRelease   = Ins.ins_HardCutRelease;
+                voice.vc_HardCut          = Ins.ins_HardCutReleaseFrames;
+            
+                voice.vc_IgnoreSquare = voice.vc_SquareSlidingIn = 0;
+                voice.vc_SquareWait   = voice.vc_SquareOn        = 0;
+            
+                SquareLower = Ins.ins_SquareLowerLimit >> (5 - voice.vc_WaveLength);
+                SquareUpper = Ins.ins_SquareUpperLimit >> (5 - voice.vc_WaveLength);
+            
+                if( SquareUpper < SquareLower ){
+                    var t:int = SquareUpper;            //int16
+                    SquareUpper = SquareLower;
+                    SquareLower = t;
+                }
+            
+                voice.vc_SquareUpperLimit = SquareUpper;
+                voice.vc_SquareLowerLimit = SquareLower;
+            
+                voice.vc_IgnoreFilter     = 0;
+                voice.vc_FilterWait       = 0;
+                voice.vc_FilterOn         = 0;
+                voice.vc_FilterSlidingIn  = 0;
+
+                d6 = Ins.ins_FilterSpeed;
+                d3 = Ins.ins_FilterLowerLimit;
+                d4 = Ins.ins_FilterUpperLimit;
+            
+                if( d3 & 0x80 ) d6 |= 0x20;
+                if( d4 & 0x80 ) d6 |= 0x40;
+            
+                voice.vc_FilterSpeed = d6;
+                d3 &= ~0x80;
+                d4 &= ~0x80;
+            
+                if( d3 > d4 ){
+                    var t:int = d3;                     //int16
+                    d3 = d4;
+                    d4 = t;
+                }
+            
+                voice.vc_FilterUpperLimit = d4;
+                voice.vc_FilterLowerLimit = d3;
+                voice.vc_FilterPos        = 32;
+            
+                voice.vc_PerfWait    = 0;
+                voice.vc_PerfCurrent = 0;
+                voice.vc_PerfSpeed = Ins.ins_PList.pls_Speed;
+                //voice.vc_PerfList  = &voice.vc_Instrument.ins_PList;
+                voice.vc_PerfList  = voice.vc_Instrument.ins_PList;
+                
+                //WARNING: "unreachable" value
+                //voice.vc_RingMixSource   = null;   // No ring modulation
+                voice.vc_RingMixSource   = uint.MAX_VALUE;   // No ring modulation
+                voice.vc_RingSamplePos   = 0;
+                voice.vc_RingPlantPeriod = 0;
+                voice.vc_RingNewWaveform = 0;
+            }
+          
+            voice.vc_PeriodSlideOn = 0;
+          
+            Note = hvl_process_stepfx_2( ht, voice, Step.stp_FX&0xf,  Step.stp_FXParam,  Note );  
+            Note = hvl_process_stepfx_2( ht, voice, Step.stp_FXb&0xf, Step.stp_FXbParam, Note );
+
+            if( Note ){
+                voice.vc_TrackPeriod = Note;
+                voice.vc_PlantPeriod = 1;
+            }
+          
+            hvl_process_stepfx_3( ht, voice, Step.stp_FX&0xf,  Step.stp_FXParam );  
+            hvl_process_stepfx_3( ht, voice, Step.stp_FXb&0xf, Step.stp_FXbParam );  
+        }
+
+        private function hvl_plist_command_parse( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int ):void{
+            switch( FX ){
+                case 0:
+                    if( ( FXParam > 0 ) && ( FXParam < 0x40 ) ){
+                        if( voice.vc_IgnoreFilter ){
+                            voice.vc_FilterPos    = voice.vc_IgnoreFilter;
+                            voice.vc_IgnoreFilter = 0;
+                        } else {
+                            voice.vc_FilterPos    = FXParam;
+                        }
+                        voice.vc_NewWaveform = 1;
+                    }
+                    break;
+
+                case 1:
+                    voice.vc_PeriodPerfSlideSpeed = FXParam;
+                    voice.vc_PeriodPerfSlideOn    = 1;
+                    break;
+
+                case 2:
+                    voice.vc_PeriodPerfSlideSpeed = -FXParam;
+                    voice.vc_PeriodPerfSlideOn    = 1;
+                    break;
+            
+                case 3:
+                    if( voice.vc_IgnoreSquare == 0 ){
+                        voice.vc_SquarePos = FXParam >> (5-voice.vc_WaveLength);
+                    } else {
+                        voice.vc_IgnoreSquare = 0;
+                    }
+                    break;
+            
+                case 4:
+                    if( FXParam == 0 ){
+                        voice.vc_SquareInit = (voice.vc_SquareOn ^= 1);
+                        voice.vc_SquareSign = 1;
+                    } else {
+
+                        if( FXParam & 0x0f ){
+                            voice.vc_SquareInit = (voice.vc_SquareOn ^= 1);
+                            voice.vc_SquareSign = 1;
+                            if(( FXParam & 0x0f ) == 0x0f ){
+                                voice.vc_SquareSign = -1;
+                            }
+                        }
+                
+                        if( FXParam & 0xf0 ){
+                            voice.vc_FilterInit = (voice.vc_FilterOn ^= 1);
+                            voice.vc_FilterSign = 1;
+                            if(( FXParam & 0xf0 ) == 0xf0 ){
+                                voice.vc_FilterSign = -1;
+                            }
+                        }
+                    }
+                    break;
+            
+                case 5:
+                    voice.vc_PerfCurrent = FXParam;
+                    break;
+            
+                case 7:
+                    // Ring modulate with triangle
+                    if(( FXParam >= 1 ) && ( FXParam <= 0x3C )){
+                        voice.vc_RingBasePeriod = FXParam;
+                        voice.vc_RingFixedPeriod = 1;
+                    } else if(( FXParam >= 0x81 ) && ( FXParam <= 0xBC )) {
+                        voice.vc_RingBasePeriod = FXParam-0x80;
+                        voice.vc_RingFixedPeriod = 0;
+                    } else {
+                        voice.vc_RingBasePeriod = 0;
+                        voice.vc_RingFixedPeriod = 0;
+                        voice.vc_RingNewWaveform = 0;
+                        //WARNING: "unreachable" value
+                        //voice.vc_RingAudioSource = NULL; // turn it off
+                        //voice.vc_RingMixSource   = NULL;
+                        voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
+                        voice.vc_RingMixSource   = uint.MAX_VALUE;
+                        break;
+                    }    
+                    voice.vc_RingWaveform    = 0;
+                    voice.vc_RingNewWaveform = 1;
+                    voice.vc_RingPlantPeriod = 1;
+                    break;
+            
+                case 8:  // Ring modulate with sawtooth
+                    if(( FXParam >= 1 ) && ( FXParam <= 0x3C )){
+                        voice.vc_RingBasePeriod = FXParam;
+                        voice.vc_RingFixedPeriod = 1;
+                    } else if(( FXParam >= 0x81 ) && ( FXParam <= 0xBC )) {
+                        voice.vc_RingBasePeriod = FXParam-0x80;
+                        voice.vc_RingFixedPeriod = 0;
+                    } else {
+                        voice.vc_RingBasePeriod = 0;
+                        voice.vc_RingFixedPeriod = 0;
+                        voice.vc_RingNewWaveform = 0;
+                        //WARNING: "unreachable" value
+                        //voice.vc_RingAudioSource = NULL; // turn it off
+                        //voice.vc_RingMixSource   = NULL;
+                        voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
+                        voice.vc_RingMixSource   = uint.MAX_VALUE;
+                        break;
+                    }
+
+                    voice.vc_RingWaveform    = 1;
+                    voice.vc_RingNewWaveform = 1;
+                    voice.vc_RingPlantPeriod = 1;
+                    break;
+
+                /* New in HivelyTracker 1.4 */    
+                case 9:    
+                    if( FXParam > 127 ){
+                        FXParam -= 256;
+                    }
+                    voice.vc_Pan          = (FXParam+128);
+                    voice.vc_PanMultLeft  = panning_left[voice.vc_Pan];
+                    voice.vc_PanMultRight = panning_right[voice.vc_Pan];
+                    break;
+
+                case 12:
+                    if( FXParam <= 0x40 ){
+                        voice.vc_NoteMaxVolume = FXParam;
+                        break;
+                    }
+              
+                    if( (FXParam -= 0x50) < 0 ) break;
+
+                    if( FXParam <= 0x40 ){
+                        voice.vc_PerfSubVolume = FXParam;
+                        break;
+                    }
+              
+                    if( (FXParam -= 0xa0-0x50) < 0 ) break;
+              
+                    if( FXParam <= 0x40 ){
+                        voice.vc_TrackMasterVolume = FXParam;
+                    }
+                    break;
+            
+                case 15:
+                    voice.vc_PerfSpeed = voice.vc_PerfWait = FXParam;
+                    break;
+            } 
+        }
+
+        private function hvl_process_frame( ht:hvl_tune, voice:hvl_voice ):void{
+            const Offsets:Vector.<uint> = Vector.<uint>([0x00, 0x04, 0x04+0x08, 0x04+0x08+0x10, 0x04+0x08+0x10+0x20, 0x04+0x08+0x10+0x20+0x40]);
+
+            if( voice->vc_TrackOn == 0 ){
+                return;
+            }
+
+            if( voice->vc_NoteDelayOn ){
+                if( voice->vc_NoteDelayWait <= 0 ){
+                    hvl_process_step( ht, voice );
+                } else {
+                    voice->vc_NoteDelayWait--;
+                }
+            }
+          
+            if( voice->vc_HardCut ){
+                int32 nextinst;
+            
+                if( ht->ht_NoteNr+1 < ht->ht_TrackLength ){
+                    nextinst = ht->ht_Tracks[voice->vc_Track][ht->ht_NoteNr+1].stp_Instrument;
+                } else {
+                    nextinst = ht->ht_Tracks[voice->vc_NextTrack][0].stp_Instrument;
+                }
+            
+                if( nextinst ){
+                    int32 d1;
+                  
+                    d1 = ht->ht_Tempo - voice->vc_HardCut;
+                  
+                    if( d1 < 0 ) d1 = 0;
+                
+                    if( !voice->vc_NoteCutOn ){
+                        voice->vc_NoteCutOn       = 1;
+                        voice->vc_NoteCutWait     = d1;
+                        voice->vc_HardCutReleaseF = -(d1-ht->ht_Tempo);
+                    } else {
+                        voice->vc_HardCut = 0;
+                    }
+                }
+            }
+            
+            if( voice->vc_NoteCutOn ){
+                if( voice->vc_NoteCutWait <= 0 ){
+                    voice->vc_NoteCutOn = 0;
+                
+                    if( voice->vc_HardCutRelease ){
+                        voice->vc_ADSR.rVolume = -(voice->vc_ADSRVolume - (voice->vc_Instrument->ins_Envelope.rVolume << 8)) / voice->vc_HardCutReleaseF;
+                        voice->vc_ADSR.rFrames = voice->vc_HardCutReleaseF;
+                        voice->vc_ADSR.aFrames = voice->vc_ADSR.dFrames = voice->vc_ADSR.sFrames = 0;
+                    } else {
+                        voice->vc_NoteMaxVolume = 0;
+                    }
+                } else {
+                    voice->vc_NoteCutWait--;
+                }
+            }
+            
+            // ADSR envelope
+            if( voice->vc_ADSR.aFrames ){
+                voice->vc_ADSRVolume += voice->vc_ADSR.aVolume;
+              
+                if( --voice->vc_ADSR.aFrames <= 0 ){
+                    voice->vc_ADSRVolume = voice->vc_Instrument->ins_Envelope.aVolume << 8;
+                }
+
+            } else if( voice->vc_ADSR.dFrames ) {
+            
+                voice->vc_ADSRVolume += voice->vc_ADSR.dVolume;
+              
+                if( --voice->vc_ADSR.dFrames <= 0 ){
+                    voice->vc_ADSRVolume = voice->vc_Instrument->ins_Envelope.dVolume << 8;
+                }
+            
+            } else if( voice->vc_ADSR.sFrames ) {
+            
+                voice->vc_ADSR.sFrames--;
+            
+            } else if( voice->vc_ADSR.rFrames ) {
+            
+                voice->vc_ADSRVolume += voice->vc_ADSR.rVolume;
+            
+                if( --voice->vc_ADSR.rFrames <= 0 ){
+                    voice->vc_ADSRVolume = voice->vc_Instrument->ins_Envelope.rVolume << 8;
+                }
+            }
+
+            // VolumeSlide
+            voice->vc_NoteMaxVolume = voice->vc_NoteMaxVolume + voice->vc_VolumeSlideUp - voice->vc_VolumeSlideDown;
+
+            if( voice->vc_NoteMaxVolume < 0 ){
+                voice->vc_NoteMaxVolume = 0;
+            } else if ( voice->vc_NoteMaxVolume > 0x40 ){
+                voice->vc_NoteMaxVolume = 0x40;
+            }
+
+            // Portamento
+            if( voice->vc_PeriodSlideOn ){
+                if( voice->vc_PeriodSlideWithLimit ){
+                    int32  d0, d2;
+                  
+                    d0 = voice->vc_PeriodSlidePeriod - voice->vc_PeriodSlideLimit;
+                    d2 = voice->vc_PeriodSlideSpeed;
+              
+                    if( d0 > 0 ) d2 = -d2;
+              
+                    if( d0 ){
+                        int32 d3;
+                 
+                        d3 = (d0 + d2) ^ d0;
+                
+                        if( d3 >= 0 ){
+                            d0 = voice->vc_PeriodSlidePeriod + d2;
+                        } else {
+                            d0 = voice->vc_PeriodSlideLimit;
+                        }
+                
+                        voice->vc_PeriodSlidePeriod = d0;
+                        voice->vc_PlantPeriod = 1;
+                    }
+                } else {
+                    voice->vc_PeriodSlidePeriod += voice->vc_PeriodSlideSpeed;
+                    voice->vc_PlantPeriod = 1;
+                }
+            }
+          
+            // Vibrato
+            if( voice->vc_VibratoDepth ){
+                if( voice->vc_VibratoDelay <= 0 ){
+                    voice->vc_VibratoPeriod = (vib_tab[voice->vc_VibratoCurrent] * voice->vc_VibratoDepth) >> 7;
+                    voice->vc_PlantPeriod = 1;
+                    voice->vc_VibratoCurrent = (voice->vc_VibratoCurrent + voice->vc_VibratoSpeed) & 0x3f;
+                } else {
+                    voice->vc_VibratoDelay--;
+                }
+            }
+          
+            // PList
+            if( voice->vc_PerfList != 0 ){
+                if( voice->vc_Instrument && voice->vc_PerfCurrent < voice->vc_Instrument->ins_PList.pls_Length ){
+                    if( --voice->vc_PerfWait <= 0 ){
+                        uint32 i;
+                        int32 cur;
+                
+                        cur = voice->vc_PerfCurrent++;
+                        voice->vc_PerfWait = voice->vc_PerfSpeed;
+                
+                        if( voice->vc_PerfList->pls_Entries[cur].ple_Waveform ){
+                            voice->vc_Waveform             = voice->vc_PerfList->pls_Entries[cur].ple_Waveform-1;
+                            voice->vc_NewWaveform          = 1;
+                            voice->vc_PeriodPerfSlideSpeed = voice->vc_PeriodPerfSlidePeriod = 0;
+                        }
+                
+                        // Holdwave
+                        voice->vc_PeriodPerfSlideOn = 0;
+                
+                        for( i=0; i<2; i++ ){
+                            hvl_plist_command_parse( ht, voice, voice->vc_PerfList->pls_Entries[cur].ple_FX[i]&0xff, voice->vc_PerfList->pls_Entries[cur].ple_FXParam[i]&0xff );
+                        }
+                
+                        // GetNote
+                        if( voice->vc_PerfList->pls_Entries[cur].ple_Note ){
+                            voice->vc_InstrPeriod = voice->vc_PerfList->pls_Entries[cur].ple_Note;
+                            voice->vc_PlantPeriod = 1;
+                            voice->vc_FixedNote   = voice->vc_PerfList->pls_Entries[cur].ple_Fixed;
+                        }
+                    }
+                } else {
+                    if( voice->vc_PerfWait ){
+                        voice->vc_PerfWait--;
+                    } else {
+                        voice->vc_PeriodPerfSlideSpeed = 0;
+                    }
+                }
+            }
+          
+            // PerfPortamento
+            if( voice->vc_PeriodPerfSlideOn ){
+                voice->vc_PeriodPerfSlidePeriod -= voice->vc_PeriodPerfSlideSpeed;
+            
+                if( voice->vc_PeriodPerfSlidePeriod ){
+                    voice->vc_PlantPeriod = 1;
+                }
+            }
+          
+            if( voice->vc_Waveform == 3-1 && voice->vc_SquareOn ){
+                if( --voice->vc_SquareWait <= 0 ){
+                    int32 d1, d2, d3;
+              
+                    d1 = voice->vc_SquareLowerLimit;
+                    d2 = voice->vc_SquareUpperLimit;
+                    d3 = voice->vc_SquarePos;
+              
+                    if( voice->vc_SquareInit ){
+                        voice->vc_SquareInit = 0;
+                
+                        if( d3 <= d1 ){
+                            voice->vc_SquareSlidingIn = 1;
+                            voice->vc_SquareSign = 1;
+                        } else if( d3 >= d2 ) {
+                            voice->vc_SquareSlidingIn = 1;
+                            voice->vc_SquareSign = -1;
+                        }
+                    }
+              
+                    // NoSquareInit
+                    if( d1 == d3 || d2 == d3 ){
+                        if( voice->vc_SquareSlidingIn ){
+                            voice->vc_SquareSlidingIn = 0;
+                        } else {
+                            voice->vc_SquareSign = -voice->vc_SquareSign;
+                        }
+                    }
+              
+                    d3 += voice->vc_SquareSign;
+                    voice->vc_SquarePos   = d3;
+                    voice->vc_PlantSquare = 1;
+                    voice->vc_SquareWait  = voice->vc_Instrument->ins_SquareSpeed;
+                }
+            }
+          
+            if( voice->vc_FilterOn && --voice->vc_FilterWait <= 0 ){ //TODO: check C vs AS3 operator precedence!
+                uint32 i, FMax;
+                int32 d1, d2, d3;
+            
+                d1 = voice->vc_FilterLowerLimit;
+                d2 = voice->vc_FilterUpperLimit;
+                d3 = voice->vc_FilterPos;
+            
+                if( voice->vc_FilterInit ){
+                    voice->vc_FilterInit = 0;
+                    if( d3 <= d1 ){
+                        voice->vc_FilterSlidingIn = 1;
+                        voice->vc_FilterSign      = 1;
+                    } else if( d3 >= d2 ) {
+                        voice->vc_FilterSlidingIn = 1;
+                        voice->vc_FilterSign      = -1;
+                    }
+                }
+            
+                // NoFilterInit
+                FMax = (voice->vc_FilterSpeed < 3) ? (5-voice->vc_FilterSpeed) : 1;
+
+                for( i=0; i<FMax; i++ ){
+                    if( ( d1 == d3 ) || ( d2 == d3 ) ){
+                        if( voice->vc_FilterSlidingIn ){
+                            voice->vc_FilterSlidingIn = 0;
+                        } else {
+                            voice->vc_FilterSign = -voice->vc_FilterSign;
+                        }
+                    }
+                    d3 += voice->vc_FilterSign;
+                }
+            
+                if( d3 < 1 )  d3 = 1;
+                if( d3 > 63 ) d3 = 63;
+                voice->vc_FilterPos   = d3;
+                voice->vc_NewWaveform = 1;
+                voice->vc_FilterWait  = voice->vc_FilterSpeed - 3;
+            
+                if( voice->vc_FilterWait < 1 ){
+                    voice->vc_FilterWait = 1;
+                }
+            }
+
+            if( voice->vc_Waveform == 3-1 || voice->vc_PlantSquare ){
+                // CalcSquare
+                uint32  i;
+                int32   Delta;
+                int8   *SquarePtr;
+                int32  X;
+            
+                SquarePtr = &waves[WO_SQUARES+(voice->vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3)];
+                X = voice->vc_SquarePos << (5 - voice->vc_WaveLength);
+            
+                if( X > 0x20 ){
+                    X = 0x40 - X;
+                    voice->vc_SquareReverse = 1;
+                }
+            
+                // OkDownSquare
+                if( X > 0 ){
+                    SquarePtr += (X-1) << 7;
+                }
+            
+                Delta = 32 >> voice->vc_WaveLength;
+                ht->ht_WaveformTab[2] = voice->vc_SquareTempBuffer;
+            
+                for( i=0; i<(1<<voice->vc_WaveLength)*4; i++ ){
+                    voice->vc_SquareTempBuffer[i] = *SquarePtr;
+                    SquarePtr += Delta;
+                }
+            
+                voice->vc_NewWaveform = 1;
+                voice->vc_Waveform    = 3-1;
+                voice->vc_PlantSquare = 0;
+            }
+          
+            if( voice->vc_Waveform == 4-1 ){
+                voice->vc_NewWaveform = 1;
+            }
+          
+            if( voice->vc_RingNewWaveform ){
+                int8 *rasrc;
+            
+                if( voice->vc_RingWaveform > 1 ){
+                    voice->vc_RingWaveform = 1;
+                }
+            
+                rasrc = ht->ht_WaveformTab[voice->vc_RingWaveform];
+                rasrc += Offsets[voice->vc_WaveLength];
+            
+                voice->vc_RingAudioSource = rasrc;
+            }    
+                
+          
+            if( voice->vc_NewWaveform ){
+                int8 *AudioSource;
+
+                AudioSource = ht->ht_WaveformTab[voice->vc_Waveform];
+
+                if( voice->vc_Waveform != 3-1 ){
+                    AudioSource += (voice->vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
+                }
+
+                if( voice->vc_Waveform < 3-1){
+                    // GetWLWaveformlor2
+                    AudioSource += Offsets[voice->vc_WaveLength];
+                }
+
+                if( voice->vc_Waveform == 4-1 ){
+                    // AddRandomMoving
+                    AudioSource += ( voice->vc_WNRandom & (2*0x280-1) ) & ~1;
+                    // GoOnRandom
+                    voice->vc_WNRandom += 2239384;
+                    voice->vc_WNRandom  = ((((voice->vc_WNRandom >> 8) | (voice->vc_WNRandom << 24)) + 782323) ^ 75) - 6735;
+                }
+
+                voice->vc_AudioSource = AudioSource;
+            }
+          
+            // Ring modulation period calculation
+            //TODO: We use uint.MAX_VALUE instead of NULL
+            if( voice->vc_RingAudioSource ){
+                voice->vc_RingAudioPeriod = voice->vc_RingBasePeriod;
+          
+                if( !(voice->vc_RingFixedPeriod) ){
+                    if( voice->vc_OverrideTranspose != 1000 ){  // 1.5
+                        voice->vc_RingAudioPeriod += voice->vc_OverrideTranspose + voice->vc_TrackPeriod - 1;
+                    } else {
+                        voice->vc_RingAudioPeriod += voice->vc_Transpose + voice->vc_TrackPeriod - 1;
+                    }
+                }
+          
+                if( voice->vc_RingAudioPeriod > 5*12 ){
+                    voice->vc_RingAudioPeriod = 5*12;
+                }
+          
+                if( voice->vc_RingAudioPeriod < 0 ){
+                    voice->vc_RingAudioPeriod = 0;
+                }
+          
+                voice->vc_RingAudioPeriod = period_tab[voice->vc_RingAudioPeriod];
+
+                if( !(voice->vc_RingFixedPeriod) ){
+                    voice->vc_RingAudioPeriod += voice->vc_PeriodSlidePeriod;
+                }
+
+                voice->vc_RingAudioPeriod += voice->vc_PeriodPerfSlidePeriod + voice->vc_VibratoPeriod;
+
+                if( voice->vc_RingAudioPeriod > 0x0d60 ){
+                    voice->vc_RingAudioPeriod = 0x0d60;
+                }
+
+                if( voice->vc_RingAudioPeriod < 0x0071 ){
+                    voice->vc_RingAudioPeriod = 0x0071;
+                }
+            }
+          
+            // Normal period calculation
+            voice->vc_AudioPeriod = voice->vc_InstrPeriod;
+          
+            if( !(voice->vc_FixedNote) ){
+                if( voice->vc_OverrideTranspose != 1000 ){ // 1.5
+                    voice->vc_AudioPeriod += voice->vc_OverrideTranspose + voice->vc_TrackPeriod - 1;
+                } else {
+                    voice->vc_AudioPeriod += voice->vc_Transpose + voice->vc_TrackPeriod - 1;
+                }
+            }
+            
+            if( voice->vc_AudioPeriod > 5*12 ){
+                voice->vc_AudioPeriod = 5*12;
+            }
+          
+            if( voice->vc_AudioPeriod < 0 ){
+                voice->vc_AudioPeriod = 0;
+            }
+          
+            voice->vc_AudioPeriod = period_tab[voice->vc_AudioPeriod];
+          
+            if( !(voice->vc_FixedNote) ){
+                voice->vc_AudioPeriod += voice->vc_PeriodSlidePeriod;
+            }
+
+            voice->vc_AudioPeriod += voice->vc_PeriodPerfSlidePeriod + voice->vc_VibratoPeriod;    
+
+            if( voice->vc_AudioPeriod > 0x0d60 ){
+                voice->vc_AudioPeriod = 0x0d60;
+            }
+
+            if( voice->vc_AudioPeriod < 0x0071 ){
+                voice->vc_AudioPeriod = 0x0071;
+            }
+          
+            voice->vc_AudioVolume = (((((((voice->vc_ADSRVolume >> 8) * voice->vc_NoteMaxVolume) >> 6) * voice->vc_PerfSubVolume) >> 6) * voice->vc_TrackMasterVolume) >> 6);
+        }
 
 
 
