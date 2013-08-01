@@ -57,3 +57,8 @@ hvl_voice
     *int8 vc_RingAudioSource
     
 --------------------------------------------
+Things that might/will explode:
+-we have a lot of 'if( myint )' or 'if( *mypoint )' in here. Pointers are commonly set as either NULL or 0.
+    Unfortunatelly, these pointers tend to be converted to offsets and 0 is a valid offset.
+    We would need to overhaul pointy stuff to make use of uint.MAX_VALUE.
+-ht_WaveformTab[] is in a sorry state. Maybe we should convert it to a Vector.<Vector.<int>>
