@@ -37,12 +37,11 @@ package replay_hively {
             hvl_GenSquare( cons.WO_SQUARES );
             hvl_GenWhiteNoise( cons.WO_WHITENOISE, cons.WHITENOISELEN );
             hvl_GenFilterWaves( cons.WO_TRIANGLE_04, cons.WO_LOWPASSES, cons.WO_HIGHPASSES );
-            var i:uint;
-            for(i=0; i<cons.WAVES_SIZE; i++){
+            for(var i:uint=0; i<cons.WAVES_SIZE; i++){
                 //we work with ByteArray and transfer to Vector.<int> after
                 //because of some accuracy issues for working directly
                 //with Vector.<int>
-                //Why? no bloody idea.
+                //Why? no bloody idea. Rounding error, perhaps?
                 waves[i]=tools.ui2i8(waves_t[i]);
                 //There is no point in using tools.ui2i8() to access our waves
                 //every bloody time.
@@ -1522,7 +1521,7 @@ package replay_hively {
             
                 Delta = 32 >> voice.vc_WaveLength;
                 //TODO: fix this!
-                ht.ht_WaveformTab[2] = voice.vc_SquareTempBuffer;
+                ht.ht_WaveformTab_i2 = voice.vc_SquareTempBuffer;
             
                 for( i=0; i<(1<<voice.vc_WaveLength)*4; i++ ){
                     voice.vc_SquareTempBuffer[i] = waves[SquarePtr];
@@ -1544,7 +1543,7 @@ package replay_hively {
                 if( voice.vc_RingWaveform > 1 ){
                     voice.vc_RingWaveform = 1;
                 }
-            
+                //TODO: check this!
                 //rasrc = ht.ht_WaveformTab[voice.vc_RingWaveform];
                 rasrc = voice.vc_RingWaveform;
                 rasrc += Offsets[voice.vc_WaveLength];
@@ -1565,7 +1564,6 @@ package replay_hively {
 
                 if( voice.vc_Waveform < 3-1){
                     // GetWLWaveformlor2
-                    //AudioSource += Offsets[voice.vc_WaveLength];
                     AudioSource += Offsets[voice.vc_WaveLength];
                 }
 
@@ -1574,15 +1572,16 @@ package replay_hively {
                     AudioSource += ( voice.vc_WNRandom & (2*0x280-1) ) & ~1;
                     // GoOnRandom
                     voice.vc_WNRandom += 2239384;
-                    voice.vc_WNRandom  = ((((voice.vc_WNRandom >> 8) | (voice.vc_WNRandom << 24)) + 782323) ^ 75) - 6735;
+                    //voice.vc_WNRandom  = ((((voice.vc_WNRandom >> 8) | (voice.vc_WNRandom << 24)) + 782323) ^ 75) - 6735;
+                    voice.vc_WNRandom  = ((tools.bitRotate(ays, voice.vc_WNRandom, 32) + 782323) ^ 75) - 6735;
                 }
 
                 voice.vc_AudioSource = AudioSource;
             }
           
             // Ring modulation period calculation
-            //TODO: We use uint.MAX_VALUE instead of NULL
-            if( voice.vc_RingAudioSource == uint.MAX_VALUE ){
+            //TODO: Check! We use uint.MAX_VALUE instead of NULL.
+            if( voice.vc_RingAudioSource != uint.MAX_VALUE ){
                 voice.vc_RingAudioPeriod = voice.vc_RingBasePeriod;
           
                 if( !(voice.vc_RingFixedPeriod) ){
@@ -1656,151 +1655,149 @@ package replay_hively {
             voice.vc_AudioVolume = (((((((voice.vc_ADSRVolume >> 8) * voice.vc_NoteMaxVolume) >> 6) * voice.vc_PerfSubVolume) >> 6) * voice.vc_TrackMasterVolume) >> 6);
         }
 
-void hvl_set_audio( struct hvl_voice *voice, float64 freqf )
-{
-  if( voice->vc_TrackOn == 0 )
-  {
-    voice->vc_VoiceVolume = 0;
-    return;
-  }
+        private function hvl_set_audio( voice:hvl_voice, freqf:Number ):void{
+            if( voice.vc_TrackOn == 0 ){
+                voice.vc_VoiceVolume = 0;
+                return;
+            }
   
-  voice->vc_VoiceVolume = voice->vc_AudioVolume;
+            voice.vc_VoiceVolume = voice.vc_AudioVolume;
   
-  if( voice->vc_PlantPeriod )
-  {
-    float64 freq2;
-    uint32  delta;
+            if( voice.vc_PlantPeriod ){
+                var freq2:Number;   //float64
+                var delta:uint;     //uint32
     
-    voice->vc_PlantPeriod = 0;
-    voice->vc_VoicePeriod = voice->vc_AudioPeriod;
+                voice.vc_PlantPeriod = 0;
+                voice.vc_VoicePeriod = voice.vc_AudioPeriod;
     
-    freq2 = Period2Freq( voice->vc_AudioPeriod );
-    delta = (uint32)(freq2 / freqf);
+                freq2 = Period2Freq( voice.vc_AudioPeriod );
+                delta = uint(freq2 / freqf);
 
-    if( delta > (0x280<<16) ) delta -= (0x280<<16);
-    if( delta == 0 ) delta = 1;
-    voice->vc_Delta = delta;
-  }
+                if( delta > (0x280<<16) ) delta -= (0x280<<16);
+                if( delta == 0 ) delta = 1;
+                voice.vc_Delta = delta;
+            }
   
-  if( voice->vc_NewWaveform )
-  {
-    int8 *src;
+            if( voice.vc_NewWaveform ){
+                var src:uint;        //*int8
     
-    src = voice->vc_AudioSource;
+                src = voice.vc_AudioSource;
     
-    if( voice->vc_Waveform == 4-1 )
-    {
-      memcpy( &voice->vc_VoiceBuffer[0], src, 0x280 );
-    } else {
-      uint32 i, WaveLoops;
+                if( voice.vc_Waveform == 4-1 ){
+                    //memcpy( &voice->vc_VoiceBuffer[0], src, 0x280 );
+                    for( var i:uint=0;i<0x280; i++ ){
+                        voice.vc_VoiceBuffer[i] = waves[src+i];
+                    }
+                } else {
+                    var i:uint, WaveLoops:uint;        //uint32
 
-      WaveLoops = (1 << (5 - voice->vc_WaveLength)) * 5;
+                    WaveLoops = (1 << (5 - voice.vc_WaveLength)) * 5;
 
-      for( i=0; i<WaveLoops; i++ )
-        memcpy( &voice->vc_VoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
-    }
+                    for( i=0; i<WaveLoops; i++ ){
+                        //memcpy( &voice->vc_VoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
+                        for( var j:uint=0; j<4*(1<<voice.vc_WaveLength); j++ ){
+                            voice.vc_VoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = waves[src+j];
+                        }
+                    }
+                }
 
-    voice->vc_VoiceBuffer[0x280] = voice->vc_VoiceBuffer[0];
-    voice->vc_MixSource          = voice->vc_VoiceBuffer;
-  }
+                voice.vc_VoiceBuffer[0x280] = voice.vc_VoiceBuffer[0];
+                voice.vc_MixSource          = voice.vc_VoiceBuffer;
+            }
 
-  /* Ring Modulation */
-  if( voice->vc_RingPlantPeriod )
-  {
-    float64 freq2;
-    uint32  delta;
+            /* Ring Modulation */
+            if( voice.vc_RingPlantPeriod ){
+                var freq2:Number;     //float64
+                var delta:uint;       //uint32
     
-    voice->vc_RingPlantPeriod = 0;
-    freq2 = Period2Freq( voice->vc_RingAudioPeriod );
-    delta = (uint32)(freq2 / freqf);
+                voice.vc_RingPlantPeriod = 0;
+                freq2 = Period2Freq( voice.vc_RingAudioPeriod );
+                delta = (uint32)(freq2 / freqf);
     
-    if( delta > (0x280<<16) ) delta -= (0x280<<16);
-    if( delta == 0 ) delta = 1;
-    voice->vc_RingDelta = delta;
-  }
+                if( delta > (0x280<<16) ) delta -= (0x280<<16);
+                if( delta == 0 ) delta = 1;
+                voice.vc_RingDelta = delta;
+            }
   
-  if( voice->vc_RingNewWaveform )
-  {
-    int8 *src;
-    uint32 i, WaveLoops;
+            if( voice.vc_RingNewWaveform ){
+                var src:uint;                  //*int8
+                var i:uint, WaveLoops:uint;    //uint32
     
-    src = voice->vc_RingAudioSource;
+                src = voice.vc_RingAudioSource;
 
-    WaveLoops = (1 << (5 - voice->vc_WaveLength)) * 5;
+                WaveLoops = (1 << (5 - voice.vc_WaveLength)) * 5;
 
-    for( i=0; i<WaveLoops; i++ )
-      memcpy( &voice->vc_RingVoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
+                for( i=0; i<WaveLoops; i++ ){
+                    //memcpy( &voice->vc_RingVoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
+                    for( var j:uint=0; j<4*(1<<voice.vc_WaveLength);j++ ){
+                        voice.vc_RingVoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = waves[src+j];
+                    }
+                }
 
-    voice->vc_RingVoiceBuffer[0x280] = voice->vc_RingVoiceBuffer[0];
-    voice->vc_RingMixSource          = voice->vc_RingVoiceBuffer;
-  }
-}
+                voice.vc_RingVoiceBuffer[0x280] = voice.vc_RingVoiceBuffer[0];
+                voice.vc_RingMixSource          = voice.vc_RingVoiceBuffer;
+            }
+        }
 
-void hvl_play_irq( struct hvl_tune *ht )
-{
-  uint32 i;
+        private function hvl_play_irq( ht:hvl_tune ):void{
+            var i:uint;         //uint32
 
-  if( ht->ht_StepWaitFrames <= 0 )
-  {
-    if( ht->ht_GetNewPosition )
-    {
-      int32 nextpos = (ht->ht_PosNr+1==ht->ht_PositionNr)?0:(ht->ht_PosNr+1);
+            if( ht.ht_StepWaitFrames <= 0 ){
+                if( ht.ht_GetNewPosition ){
+                    var nextpos:int = (ht.ht_PosNr+1==ht.ht_PositionNr)?0:(ht.ht_PosNr+1);     //int32
 
-      for( i=0; i<ht->ht_Channels; i++ )
-      {
-        ht->ht_Voices[i].vc_Track         = ht->ht_Positions[ht->ht_PosNr].pos_Track[i];
-        ht->ht_Voices[i].vc_Transpose     = ht->ht_Positions[ht->ht_PosNr].pos_Transpose[i];
-        ht->ht_Voices[i].vc_NextTrack     = ht->ht_Positions[nextpos].pos_Track[i];
-        ht->ht_Voices[i].vc_NextTranspose = ht->ht_Positions[nextpos].pos_Transpose[i];
-      }
-      ht->ht_GetNewPosition = 0;
-    }
+                    for( i=0; i<ht.ht_Channels; i++ ){
+                        ht.ht_Voices[i].vc_Track         = ht.ht_Positions[ht.ht_PosNr].pos_Track[i];
+                        ht.ht_Voices[i].vc_Transpose     = ht.ht_Positions[ht.ht_PosNr].pos_Transpose[i];
+                        ht.ht_Voices[i].vc_NextTrack     = ht.ht_Positions[nextpos].pos_Track[i];
+                        ht.ht_Voices[i].vc_NextTranspose = ht.ht_Positions[nextpos].pos_Transpose[i];
+                    }
+                    ht.ht_GetNewPosition = 0;
+                }
     
-    for( i=0; i<ht->ht_Channels; i++ )
-      hvl_process_step( ht, &ht->ht_Voices[i] );
+                for( i=0; i<ht.ht_Channels; i++ ){
+                    hvl_process_step( ht, ht.ht_Voices[i] );
+                }
     
-    ht->ht_StepWaitFrames = ht->ht_Tempo;
-  }
+                ht.ht_StepWaitFrames = ht.ht_Tempo;
+            }
   
-  for( i=0; i<ht->ht_Channels; i++ )
-    hvl_process_frame( ht, &ht->ht_Voices[i] );
+            for( i=0; i<ht.ht_Channels; i++ ){
+                hvl_process_frame( ht, ht.ht_Voices[i] );
+            }
 
-  ht->ht_PlayingTime++;
-  if( ht->ht_Tempo > 0 && --ht->ht_StepWaitFrames <= 0 )
-  {
-    if( !ht->ht_PatternBreak )
-    {
-      ht->ht_NoteNr++;
-      if( ht->ht_NoteNr >= ht->ht_TrackLength )
-      {
-        ht->ht_PosJump      = ht->ht_PosNr+1;
-        ht->ht_PosJumpNote  = 0;
-        ht->ht_PatternBreak = 1;
-      }
-    }
+            ht.ht_PlayingTime++;
+            if( ht.ht_Tempo > 0 && --ht.ht_StepWaitFrames <= 0 ){
+                if( !ht.ht_PatternBreak ){
+                    ht.ht_NoteNr++;
+                    if( ht.ht_NoteNr >= ht.ht_TrackLength ){
+                        ht.ht_PosJump      = ht.ht_PosNr+1;
+                        ht.ht_PosJumpNote  = 0;
+                        ht.ht_PatternBreak = 1;
+                    }
+                }
     
-    if( ht->ht_PatternBreak )
-    {
-      ht->ht_PatternBreak = 0;
-      ht->ht_PosNr        = ht->ht_PosJump;
-      ht->ht_NoteNr       = ht->ht_PosJumpNote;
-      if( ht->ht_PosNr == ht->ht_PositionNr )
-      {
-        ht->ht_SongEndReached = 1;
-        ht->ht_PosNr          = ht->ht_Restart;
-      }
-      ht->ht_PosJumpNote  = 0;
-      ht->ht_PosJump      = 0;
+                if( ht.ht_PatternBreak ){
+                    ht.ht_PatternBreak = 0;
+                    ht.ht_PosNr        = ht.ht_PosJump;
+                    ht.ht_NoteNr       = ht.ht_PosJumpNote;
+                    if( ht.ht_PosNr == ht.ht_PositionNr ){
+                        ht.ht_SongEndReached = 1;
+                        ht.ht_PosNr          = ht.ht_Restart;
+                    }
+                    ht.ht_PosJumpNote  = 0;
+                    ht.ht_PosJump      = 0;
 
-      ht->ht_GetNewPosition = 1;
-    }
-  }
+                    ht.ht_GetNewPosition = 1;
+                }
+            }
 
-  for( i=0; i<ht->ht_Channels; i++ )
-    hvl_set_audio( &ht->ht_Voices[i], ht->ht_Frequency );
-}
+            for( i=0; i<ht.ht_Channels; i++ ){
+                hvl_set_audio( ht.ht_Voices[i], ht.ht_Frequency );
+            }
+        }
 
-void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, int32 bufmod )
+void hvl_mixchunk( ht:hvl_tune, samples:uint, /*int8 *buf1, int8 *buf2, int32 bufmod*/ )
 {
   int8   *src[MAX_CHANNELS];
   int8   *rsrc[MAX_CHANNELS];
@@ -1898,9 +1895,9 @@ void hvl_mixchunk( struct hvl_tune *ht, uint32 samples, int8 *buf1, int8 *buf2, 
   }
 }
 
-void hvl_DecodeFrame( struct hvl_tune *ht, int8 *buf1, int8 *buf2, int32 bufmod )
+public function hvl_DecodeFrame( ht:hvl_tune, int8 *buf1, int8 *buf2, int32 bufmod ):void
 {
-  uint32 samples, loops;
+  var samples:uint, loops:uint;       //uint32
   
   samples = ht->ht_Frequency/50/ht->ht_SpeedMultiplier;
   loops   = ht->ht_SpeedMultiplier;

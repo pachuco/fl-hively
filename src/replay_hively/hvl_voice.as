@@ -72,7 +72,8 @@ package replay_hively {
         public var vc_AudioPeriod:int;                              //int16
         public var vc_AudioVolume:int;                              //int16
         public var vc_WNRandom:int;                                 //int32
-        public var vc_MixSource:uint;                               //*int8
+        //public var vc_MixSource:uint;                               //*int8
+        public var vc_MixSource:Vector.<int>;
         public var vc_SquareTempBuffer:Vector.<int>;                //int8[0x80]
         public var vc_VoiceBuffer:Vector.<int>;                     //int8[0x282*4]
         public var vc_VoiceNum:uint;                                //uint8
@@ -85,7 +86,8 @@ package replay_hively {
         public var vc_PanMultRight:uint;                            //uint32
         public var vc_RingSamplePos:uint;                           //uint32
         public var vc_RingDelta:uint;                               //uint32
-        public var vc_RingMixSource:uint;                           //*int8
+        //public var vc_RingMixSource:uint;                           //*int8
+        public var vc_RingMixSource:Vector.<int>;
         public var vc_RingPlantPeriod:uint;                         //uint8
         public var vc_RingInstrPeriod:int;                          //int16
         public var vc_RingBasePeriod:int;                           //int16

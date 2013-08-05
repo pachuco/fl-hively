@@ -7,4 +7,4 @@ FlashDevelop project.
 
 Current status: non-functional and incomplete.
 
-Thanks go out to eightbitbubsy, Jan_Flanders, Henke37, Xeron and anyone else I've incessantly pestered for advice.
+Thanks go out to eightbitbubsy, Jan_Flanders, Henke37, kode54, Xeron and anyone else I've incessantly pestered for advice.

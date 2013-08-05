@@ -5,7 +5,7 @@ package replay_hively {
         public var ht_Frequency:uint;                           //uint32
         public var ht_FreqF:Number;                             //float64
         public var ht_WaveformTab:Vector.<uint>;                //*int8[MAX_CHANNELS]
-        public var ht_WaveformTab_i2:uint>;
+        public var ht_WaveformTab_i2:Vector.<int>;
         public var ht_Restart:uint;                             //uint16
         public var ht_PositionNr:uint;                          //uint16
         public var ht_SpeedMultiplier:uint;                     //uint8
@@ -39,6 +39,8 @@ package replay_hively {
         public function hvl_tune():void{
             
             ht_WaveformTab = Vector.<uint>(cons.MAX_CHANNELS, true);
+            ht_WaveformTab_i2 = Vector.<int>();
+
             ht_Positions = Vector.<hvl_position>();                                     //malloc();
             
             ht_Tracks = Vector.<Vector.<hvl_step>>(256, true);

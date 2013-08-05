@@ -54,10 +54,10 @@ hvl_voice
     //used in if statement. Classtype
     ------
     *int8 vc_AudioPointer       //odd enough, it's unused
-    *int8 vc_AudioSource
-    *int8 vc_MixSource
-    *int8 vc_RingMixSource
-    *int8 vc_RingAudioSource
+    *int8 vc_AudioSource        //offset in Waves[]
+    *int8 vc_MixSource          //this is used with vc_VoiceBuffer;     becomes reference
+    *int8 vc_RingMixSource      //this is used with vc_RingVoiceBuffer; becomes reference
+    *int8 vc_RingAudioSource    //offset in Waves[]
     
 --------------------------------------------
 Things that might/will explode:
@@ -66,3 +66,16 @@ Things that might/will explode:
     We would need to overhaul pointy stuff to make use of uint.MAX_VALUE, which is kinda retarded
     MAX_VALUE is assumed unreachable. That might not always be the case.
 -ht_WaveformTab[] is in a sorry state. Maybe we should convert it to a Vector.<Vector.<int>>
+--------------------------------------------
+Local treatment of pointers:
+
+hvl_process_frame()
+      *int8 SquarePtr
+      *int8 rasrc
+      *int8 AudioSource
+      *int8 src
+      *int8 src
+
+
+
+
