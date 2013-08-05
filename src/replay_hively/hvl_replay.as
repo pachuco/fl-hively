@@ -1372,7 +1372,7 @@ package replay_hively {
             }
           
             // PList
-            if( voice.vc_PerfList != 0 ){
+            if( voice.vc_PerfList ){
                 if( voice.vc_Instrument && voice.vc_PerfCurrent < voice.vc_Instrument.ins_PList.pls_Length ){
                     if( --voice.vc_PerfWait <= 0 ){
                         var i:uint;       //uint32
@@ -1582,7 +1582,7 @@ package replay_hively {
           
             // Ring modulation period calculation
             //TODO: We use uint.MAX_VALUE instead of NULL
-            if( voice.vc_RingAudioSource ){
+            if( voice.vc_RingAudioSource == uint.MAX_VALUE ){
                 voice.vc_RingAudioPeriod = voice.vc_RingBasePeriod;
           
                 if( !(voice.vc_RingFixedPeriod) ){

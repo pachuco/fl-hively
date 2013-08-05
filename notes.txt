@@ -37,20 +37,23 @@ hvl_position
 hvl_step
 
 hvl_tune
-    *hvl_position               //Vector.<hvl_position>   malloc_positions()
-    *hvl_instrument             //Vector.<hvl_instrument> malloc_instruments()
+    *hvl_position               //Vector.<hvl_position>   malloc_positions()        .
+    *hvl_instrument             //Vector.<hvl_instrument> malloc_instruments()      .
     hvl_step[256][64]
     hvl_voice[MAX_CHANNELS]
     ------
-    *int8 ht_WaveformTab        //Vector.<uint>           uint offsets
-    *uint16 ht_Subsongs         //Vector.<uint>           malloc_subsongs()     //TODO: check usage
+    *int8 ht_WaveformTab        //Vector.<uint>   uint offsets
+    *uint16 ht_Subsongs         //Vector.<uint>   malloc_subsongs()     //TODO: check usage
     
 hvl_voice
     hvl_envelope
     *hvl_instrument             //Already in hvl_tune;        becomes reference
+    //used in if statement. Classtype
+
     *hvl_plist                  //Already in hvl_instrument;  becomes reference
+    //used in if statement. Classtype
     ------
-    *int8 vc_AudioPointer
+    *int8 vc_AudioPointer       //odd enough, it's unused
     *int8 vc_AudioSource
     *int8 vc_MixSource
     *int8 vc_RingMixSource
@@ -60,5 +63,6 @@ hvl_voice
 Things that might/will explode:
 -we have a lot of 'if( myint )' or 'if( *mypoint )' in here. Pointers are commonly set as either NULL or 0.
     Unfortunatelly, these pointers tend to be converted to offsets and 0 is a valid offset.
-    We would need to overhaul pointy stuff to make use of uint.MAX_VALUE.
+    We would need to overhaul pointy stuff to make use of uint.MAX_VALUE, which is kinda retarded
+    MAX_VALUE is assumed unreachable. That might not always be the case.
 -ht_WaveformTab[] is in a sorry state. Maybe we should convert it to a Vector.<Vector.<int>>
