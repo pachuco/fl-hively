@@ -410,13 +410,14 @@ package replay_hively {
             }
 
             // Instruments
-            for( i=1; i<=ht.ht_InstrumentNr; i++ ){
+            //for( i=1; i<=ht.ht_InstrumentNr; i++ ){
+            for( i=0; i<ht.ht_InstrumentNr; i++ ){
                 if( nptr < buflen){
                     //strncpy( ht.ht_Instruments[i].ins_Name, nptr, 128 );
                     ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.ht_Instruments[i].ins_Name[0] = "";
+                    ht.ht_Instruments[i].ins_Name = "";
                 }
 
                 ht.ht_Instruments[i].ins_Volume      = buf[bptr];
@@ -446,7 +447,7 @@ package replay_hively {
 
                 //ht.ht_Instruments[i].ins_PList.pls_Entries    = ple;
                 ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
-                ple += buf[bptr+21]; //TODO: ple is not really used at this point.
+                //ple += buf[bptr+21]; //TODO: ple is not really used at this point.
                                      //      check and see if we remove or fix.
 
                 bptr += 22;
