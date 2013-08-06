@@ -5,6 +5,8 @@ package replay_hively {
     import flash.utils.ByteArray;
     
     public class front_panel{
+        private const buf_size:uint = 4092;
+        
         private var ht:hvl_tune;
 		private var replayer:hvl_replay;
         private var is_playing:Boolean;
@@ -61,7 +63,9 @@ package replay_hively {
         
         private function audio_loop( event:SampleDataEvent ):void{
             while( is_playing ){
-                replayer.hvl_DecodeFrame( ht, event.data );
+                for(var i:uint=0; i < buf_size; i++){
+                    replayer.hvl_DecodeFrame( ht, event.data );
+                }
             }
         }
     }

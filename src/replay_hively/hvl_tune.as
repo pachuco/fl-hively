@@ -57,7 +57,7 @@ package replay_hively {
             ht_Instruments = new Vector.<hvl_instrument>();                  //malloc();
             
             ht_Voices = new Vector.<hvl_voice>(cons.MAX_CHANNELS, true);
-            for( var i=0; i<cons.MAX_CHANNELS; i++ ){
+            for( var i:uint=0; i<cons.MAX_CHANNELS; i++ ){
                 var temp_voice:hvl_voice = new hvl_voice();
                 ht_Voices[i] = temp_voice;
             }
