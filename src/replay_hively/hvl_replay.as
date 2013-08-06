@@ -14,6 +14,7 @@ package replay_hively {
     import flash.events.*;
     import flash.media.*;
     import flash.utils.*;
+    
     public class hvl_replay{
         private var waves_t:ButtArray = new ButtArray();
         private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
@@ -284,7 +285,7 @@ package replay_hively {
         }
         
     //TODO    
-        private function hvl_load_ahx( buf:ByteArray, buflen:uint, defstereo:uint, freq:uint ):hvl_tune{
+        private function hvl_load_ahx( buf:ByteArray, buflen:uint, defstereo:uint ):hvl_tune{
             var bptr:uint;      //*uint8
             var nptr:uint;      //*TEXT
             var i:uint, j:uint, k:uint, l:uint, posn:uint, insn:uint, ssn:uint, hs:uint, trkn:uint, trkl:uint;
@@ -315,8 +316,8 @@ package replay_hively {
 
             ht = new hvl_tune();
 
-            ht.ht_Frequency       = freq;
-            ht.ht_FreqF           = Number(freq);
+            ht.ht_Frequency       = sample_rate;
+            ht.ht_FreqF           = Number(sample_rate);
 
             ht.malloc_positions(posn);
             ht.malloc_instruments(insn);
@@ -482,7 +483,8 @@ package replay_hively {
             return ht;
 }
 
-        public function hvl_LoadTune( buf:ButtArray, freq:uint, defstereo:uint ):hvl_tune{
+        public function hvl_LoadTune( buf:ButtArray, defstereo:uint ):hvl_tune{
+            
             var ht:hvl_tune;              //*
             var bptr:uint;      //*uint8
             var nptr:String;              //*TEXT
@@ -556,8 +558,8 @@ package replay_hively {
             }
 
             ht.ht_Version         = buf[3]; // 1.5
-            ht.ht_Frequency       = freq;
-            ht.ht_FreqF           = (float64)freq;
+            ht.ht_Frequency       = sample_rate;
+            ht.ht_FreqF           = (float64)sample_rate;
 
             ht.ht_Positions       = (struct hvl_position *)(&ht[1]);
             ht.ht_Instruments     = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
@@ -1797,120 +1799,133 @@ package replay_hively {
             }
         }
 
-void hvl_mixchunk( ht:hvl_tune, samples:uint, /*int8 *buf1, int8 *buf2, int32 bufmod*/ )
-{
-  int8   *src[MAX_CHANNELS];
-  int8   *rsrc[MAX_CHANNELS];
-  uint32  delta[MAX_CHANNELS];
-  uint32  rdelta[MAX_CHANNELS];
-  int32   vol[MAX_CHANNELS];
-  uint32  pos[MAX_CHANNELS];
-  uint32  rpos[MAX_CHANNELS];
-  uint32  cnt;
-  int32   panl[MAX_CHANNELS];
-  int32   panr[MAX_CHANNELS];
-//  uint32  vu[MAX_CHANNELS];
-  int32   a=0, b=0, j;
-  uint32  i, chans, loops;
+        //void hvl_mixchunk( ht:hvl_tune, samples:uint, int8 *buf1, int8 *buf2, int32 bufmod ){
+        private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
+            //int8   *src[MAX_CHANNELS];      //*int8
+            //int8   *rsrc[MAX_CHANNELS];     //*int8
+            var src:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);
+            var delta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
+            var rdelta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
+            var vol:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
+            var pos:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                  //uint32
+            var rpos:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                 //uint32
+            var cnt:uint;                                                                    //uint32
+            var panl:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
+            var panr:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
+            var vu:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                   //uint32
+            var a:int=0, b:int=0, j:int;                                                     //int32
+            var af:Number, bf:Number;
+            var i:uint, chans:uint, loops:uint;                                              //unit32
   
-  chans = ht->ht_Channels;
-  for( i=0; i<chans; i++ )
-  {
-    delta[i] = ht->ht_Voices[i].vc_Delta;
-    vol[i]   = ht->ht_Voices[i].vc_VoiceVolume;
-    pos[i]   = ht->ht_Voices[i].vc_SamplePos;
-    src[i]   = ht->ht_Voices[i].vc_MixSource;
-    panl[i]  = ht->ht_Voices[i].vc_PanMultLeft;
-    panr[i]  = ht->ht_Voices[i].vc_PanMultRight;
+            chans = ht.ht_Channels;
+            for( i=0; i<chans; i++ ){
+                delta[i] = ht.ht_Voices[i].vc_Delta;
+                vol[i]   = ht.ht_Voices[i].vc_VoiceVolume;
+                pos[i]   = ht.ht_Voices[i].vc_SamplePos;
+                src[i]   = ht.ht_Voices[i].vc_MixSource;
+                panl[i]  = ht.ht_Voices[i].vc_PanMultLeft;
+                panr[i]  = ht.ht_Voices[i].vc_PanMultRight;
     
-    /* Ring Modulation */
-    rdelta[i]= ht->ht_Voices[i].vc_RingDelta;
-    rpos[i]  = ht->ht_Voices[i].vc_RingSamplePos;
-    rsrc[i]  = ht->ht_Voices[i].vc_RingMixSource;
+                /* Ring Modulation */
+                rdelta[i]= ht.ht_Voices[i].vc_RingDelta;
+                rpos[i]  = ht.ht_Voices[i].vc_RingSamplePos;
+                rsrc[i]  = ht.ht_Voices[i].vc_RingMixSource;
     
-//    vu[i] = 0;
-  }
+                vu[i] = 0;
+            }
   
-  do
-  {
-    loops = samples;
-    for( i=0; i<chans; i++ )
-    {
-      if( pos[i] >= (0x280 << 16)) pos[i] -= 0x280<<16;
-      cnt = ((0x280<<16) - pos[i] - 1) / delta[i] + 1;
-      if( cnt < loops ) loops = cnt;
+            do{
+                loops = samples;
+                for( i=0; i<chans; i++ ){
+                    if( pos[i] >= (0x280 << 16)) pos[i] -= 0x280<<16;
+                    cnt = ((0x280<<16) - pos[i] - 1) / delta[i] + 1;
+                    if( cnt < loops ) loops = cnt;
       
-      if( rsrc[i] )
-      {
-        if( rpos[i] >= (0x280<<16)) rpos[i] -= 0x280<<16;
-        cnt = ((0x280<<16) - rpos[i] - 1) / rdelta[i] + 1;
-        if( cnt < loops ) loops = cnt;
-      }
+                    if( rsrc[i] ){
+                        if( rpos[i] >= (0x280<<16)) rpos[i] -= 0x280<<16;
+                        cnt = ((0x280<<16) - rpos[i] - 1) / rdelta[i] + 1;
+                        if( cnt < loops ) loops = cnt;
+                    }
       
-    }
+                }
     
-    samples -= loops;
+                samples -= loops;
     
-    // Inner loop
-    do
-    {
-      a=0;
-      b=0;
-      for( i=0; i<chans; i++ )
-      {
-        if( rsrc[i] )
-        {
-          /* Ring Modulation */
-          j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];
-          rpos[i] += rdelta[i];
-        } else {
-          j = src[i][pos[i]>>16]*vol[i];
+                // Inner loop
+                do{
+                    a=0;
+                    b=0;
+                    for( i=0; i<chans; i++ ){
+                        /*
+                        if( rsrc[i] ){
+                            /* Ring Modulation */
+                            j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];
+                            rpos[i] += rdelta[i];
+                        } else {
+                            j = src[i][pos[i]>>16]*vol[i];
+                        }
+                        */
+                        if( Math.abs( j ) > vu[i] ) vu[i] = Math.abs( j );
+
+                        a += (j * panl[i]) >> 7;
+                        b += (j * panr[i]) >> 7;
+                        pos[i] += delta[i];
+                    }
+      
+                    a = (a*ht.ht_mixgain)>>8;
+                    b = (b*ht.ht_mixgain)>>8;
+      
+                    //*(int16 *)buf1 = a;
+                    //*(int16 *)buf2 = b;
+                    af = a;
+                    bf = b;
+                    if( a >= 0 ){
+                        af /= int.MAX_VALUE;
+                    }else{
+                        af /= int.MIN_VALUE;
+                    }
+                    
+                    if( b >= 0 ){
+                        bf /= int.MAX_VALUE;
+                    }else{
+                        bf /= int.MIN_VALUE;
+                    }
+                    
+                    buf12.writeFloat(af);
+                    buf12.writeFloat(bf);
+      
+                    loops--;
+      
+                    //buf1 += bufmod;
+                    //buf2 += bufmod;
+                } while( loops > 0 );
+            } while( samples > 0 );
+
+            for( i=0; i<chans; i++ ){
+                ht.ht_Voices[i].vc_SamplePos = pos[i];
+                ht.ht_Voices[i].vc_RingSamplePos = rpos[i];
+                ht.ht_Voices[i].vc_VUMeter = vu[i];
+            }
         }
         
-//        if( abs( j ) > vu[i] ) vu[i] = abs( j );
-
-        a += (j * panl[i]) >> 7;
-        b += (j * panr[i]) >> 7;
-        pos[i] += delta[i];
-      }
-      
-      a = (a*ht->ht_mixgain)>>8;
-      b = (b*ht->ht_mixgain)>>8;
-      
-      *(int16 *)buf1 = a;
-      *(int16 *)buf2 = b;
-      
-      loops--;
-      
-      buf1 += bufmod;
-      buf2 += bufmod;
-    } while( loops > 0 );
-  } while( samples > 0 );
-
-  for( i=0; i<chans; i++ )
-  {
-    ht->ht_Voices[i].vc_SamplePos = pos[i];
-    ht->ht_Voices[i].vc_RingSamplePos = rpos[i];
-//    ht->ht_Voices[i].vc_VUMeter = vu[i];
-  }
-}
-
-public function hvl_DecodeFrame( ht:hvl_tune, int8 *buf1, int8 *buf2, int32 bufmod ):void
-{
-  var samples:uint, loops:uint;       //uint32
+        
+        //event.data as buf12; ByteArray
+        //public function hvl_DecodeFrame( ht:hvl_tune, int8 *buf1, int8 *buf2, int32 bufmod ):void
+        public function hvl_DecodeFrame( ht:hvl_tune, buf12:ByteArray ):void{
+            var samples:uint, loops:uint;       //uint32
   
-  samples = ht->ht_Frequency/50/ht->ht_SpeedMultiplier;
-  loops   = ht->ht_SpeedMultiplier;
+            samples = ht.ht_Frequency/50/ht.ht_SpeedMultiplier;
+            loops   = ht.ht_SpeedMultiplier;
   
-  do
-  {
-    hvl_play_irq( ht );
-    hvl_mixchunk( ht, samples, buf1, buf2, bufmod );
-    buf1 += samples * bufmod;
-    buf2 += samples * bufmod;
-    loops--;
-  } while( loops );
-}
+            do{
+                hvl_play_irq( ht );
+                //hvl_mixchunk( ht, samples, buf1, buf2, bufmod );
+                hvl_mixchunk( ht, samples, buf12 );
+                //buf1 += samples * bufmod;
+                //buf2 += samples * bufmod;
+                loops--;
+            } while( loops );
+        }
 
 
 

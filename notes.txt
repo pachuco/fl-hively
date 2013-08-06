@@ -10,8 +10,10 @@ Todo:
 
 Considered optimisations:
 -compact Tracks[][] into single array and use offset multiplication instead of array nesting
--dynamically allocate Tracks[] instead of using fixed array
--tidy up the code
+-dynamically allocate Tracks[] instead of using fixed array(no actually, don't)
+-tidy up the code, repackage and rename the classes/functions
+-have panning changable on the fly
+-try VU meters
 
 
 
@@ -76,6 +78,8 @@ hvl_process_frame()
       *int8 src
       *int8 src
 
-
+hvl_mixchunk()
+      *int8 src[MAX_CHANNELS];      
+      *int8 rsrc[MAX_CHANNELS];
 
 

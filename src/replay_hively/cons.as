@@ -57,5 +57,7 @@ package replay_hively {
         public static AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10);
         public static AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
         public static AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
+        
+        public static sample_rate:uint = 44100;
     }
 }

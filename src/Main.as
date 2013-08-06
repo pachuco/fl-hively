@@ -2,9 +2,11 @@ package
 {
     import flash.display.Sprite;
     import flash.events.Event;
+	import flash.events.SampleDataEvent;
+	import flash.media.Sound;
     import flash.net.FileReference;
     import flash.utils.ByteArray;
-    import replay_hively.hvl_replay;
+    import replay_hively.front_panel;
     
     /**
      * ...
@@ -23,11 +25,15 @@ package
         {
             removeEventListener(Event.ADDED_TO_STAGE, init);
             // entry point
-            var replayer:hvl_replay = new hvl_replay();
+            [Embed(source="ahx.blondie", mimeType="application/octet-stream")] const hvl_data:Class;
+            
+            var replayer:front_panel = new front_panel();
+            replayer.load( new hvl_data() as ByteArray );
+            replayer.play();
             
             //wavegen
-            var fr:FileReference = new FileReference();
-            fr.save(replayer.getdemwaves(), "fl_hively.waves");
+            //var fr:FileReference = new FileReference();
+            //fr.save(replayer.getdemwaves(), "fl_hively.waves");
             
             //
             
