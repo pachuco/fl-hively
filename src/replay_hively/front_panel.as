@@ -32,9 +32,9 @@ package replay_hively {
 
         public function play():void{
             if( ht ){
+                is_playing = true;
                 audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
                 audio_out.play();
-                is_playing = true;
             }else{
                 
             }
