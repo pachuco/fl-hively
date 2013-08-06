@@ -49,15 +49,15 @@ package replay_hively {
         
         
         //might come in handy later, thanks bubsy
-        public static AMIGA_PAL_XTAL:uint            =  28375160;
-        public static AMIGA_NTSC_XTAL:uint           =  28636360;
-        public static AMIGA_CPU_PAL_CLK:uint         =  (AMIGA_PAL_XTAL / 4);
-        public static AMIGA_CPU_NTSC_CLK:uint        =  (AMIGA_NTSC_XTAL / 4);
-        public static AMIGA_CIA_PAL_CLK:uint         =  (AMIGA_CPU_PAL_CLK / 10);
-        public static AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10);
-        public static AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
-        public static AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
+        public static const AMIGA_PAL_XTAL:uint            =  28375160;
+        public static const AMIGA_NTSC_XTAL:uint           =  28636360;
+        public static const AMIGA_CPU_PAL_CLK:uint         =  (AMIGA_PAL_XTAL / 4);
+        public static const AMIGA_CPU_NTSC_CLK:uint        =  (AMIGA_NTSC_XTAL / 4);
+        public static const AMIGA_CIA_PAL_CLK:uint         =  (AMIGA_CPU_PAL_CLK / 10);
+        public static const AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10);
+        public static const AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
+        public static const AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
         
-        public static sample_rate:uint = 44100;
+        public static const sample_rate:uint = 44100;
     }
 }

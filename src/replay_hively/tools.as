@@ -1,4 +1,5 @@
-package replay_hively{
+package replay_hively {
+	import flash.utils.ByteArray;
     public class tools{
         public static function bitRotate(x:int, n:int, bits:uint):int{
             //Thanks go to Raymond Basque.

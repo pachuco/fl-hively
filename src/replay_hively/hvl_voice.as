@@ -98,6 +98,8 @@ package replay_hively {
         public var vc_RingFixedPeriod:uint;                         //uint8
         public var vc_RingVoiceBuffer:Vector.<int>;                 //int8[0x282*4]
         
+        public var vc_VUMeter:uint;                                 //uint32
+        
         public function hvl_voice():void{
             vc_ADSR = new hvl_envelope();
             //vc_Instrument = new hvl_instrument();

@@ -4,7 +4,8 @@ package replay_hively {
     import flash.utils.ByteArray;
     
     public class front_panel{
-        private var ht:hvltune;
+        private var ht:hvl_tune;
+		private var replayer:hvl_replay;
         private var is_playing:Boolean;
         private var resume_position:uint;
         private var resume_step:uint;
@@ -13,13 +14,15 @@ package replay_hively {
         
         public function front_panel():void{
             audio_out = new Sound();
+			replayer = new hvl_replay();
         }
 
-        public function load( ba:ByteArray ):Boolean{
-            ht = hvl_replayer.hvl_load_tune( ba, 0 );
+        public function load( ba:ButtArray ):Boolean{
+            ht = replayer.hvl_LoadTune( ba, 0 );
+			return true;
         }
         
-        public function unload(){
+        public function unload():void{
             
         }
 
@@ -55,7 +58,9 @@ package replay_hively {
         
         
         private function audio_loop( event:SampleDataEvent ):void{
-            
+            while( is_playing ){
+                replayer.hvl_DecodeFrame( ht, event.data );
+            }
         }
     }
 }

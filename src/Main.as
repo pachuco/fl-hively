@@ -5,7 +5,7 @@ package
 	import flash.events.SampleDataEvent;
 	import flash.media.Sound;
     import flash.net.FileReference;
-    import flash.utils.ByteArray;
+    import replay_hively.ButtArray;
     import replay_hively.front_panel;
     
     /**
@@ -28,7 +28,7 @@ package
             [Embed(source="ahx.blondie", mimeType="application/octet-stream")] const hvl_data:Class;
             
             var replayer:front_panel = new front_panel();
-            replayer.load( new hvl_data() as ByteArray );
+            replayer.load( new hvl_data() as ButtArray );
             replayer.play();
             
             //wavegen

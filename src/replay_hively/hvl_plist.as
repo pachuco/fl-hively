@@ -10,7 +10,7 @@ package replay_hively {
 
         public function ple_malloc( len:uint ):void{
             for( var i:uint=0; i<len; i++ ){
-                var ple = new hvl_plsentry();
+                var ple:hvl_plsentry = new hvl_plsentry();
                 pls_Entries.push( ple );
             }
         }

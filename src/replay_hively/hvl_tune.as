@@ -39,24 +39,25 @@ package replay_hively {
         public function hvl_tune():void{
             
             ht_WaveformTab = Vector.<uint>(cons.MAX_CHANNELS, true);
-            ht_WaveformTab_i2 = Vector.<int>();
+
+            ht_WaveformTab_i2 = Vector.<int>();
 
             ht_Positions = Vector.<hvl_position>();                                     //malloc();
             
             ht_Tracks = Vector.<Vector.<hvl_step>>(256, true);
-            for(i=0;i<256;i++){
+            for(var i:uint=0;i<256;i++){
                 var track_temp:Vector.<hvl_step> = Vector.<hvl_step>(64, true);
                 ht_Tracks[i]=track_temp;
             }
             
-            ht_Instruments = ht_Instruments:Vector.<hvl_instrument>();                  //malloc();
+            ht_Instruments = Vector.<hvl_instrument>();                  //malloc();
             ht_Voices = Vector.<hvl_voice>(cons.MAX_CHANNELS, true);
         }
         
         public function hvl_reset_some_stuff():void{
             var i:uint;
 
-            for( i=0; i<MAX_CHANNELS; i++ ){
+            for( i=0; i<cons.MAX_CHANNELS; i++ ){
                 ht_Voices[i].vc_Delta=1;
                 ht_Voices[i].vc_OverrideTranspose=1000;  // 1.5
                 ht_Voices[i].vc_SamplePos=0;
@@ -139,7 +140,7 @@ package replay_hively {
                 ht_Voices[i].vc_NoteDelayWait=0;
                 ht_Voices[i].vc_NoteCutWait=0;
                 
-                ht_Voices[i].vc_PerfList=0;
+                ht_Voices[i].vc_PerfList=null;
                 
                 ht_Voices[i].vc_RingSamplePos=0;
                 ht_Voices[i].vc_RingDelta=0;
@@ -151,7 +152,7 @@ package replay_hively {
                 ht_Voices[i].vc_RingBasePeriod=0;
 
                 ht_Voices[i].vc_RingMixSource = null;
-                ht_Voices[i].vc_RingAudioSource = null;
+                ht_Voices[i].vc_RingAudioSource = uint.MAX_VALUE;
                 
                 var j:uint;
                 for(j=0;j<0x80;j++){
@@ -173,7 +174,7 @@ package replay_hively {
                 }
             }
 
-            for( i=0; i<MAX_CHANNELS; i++ ){
+            for( i=0; i<cons.MAX_CHANNELS; i++ ){
                 ht_Voices[i].vc_WNRandom          = 0x280;
                 ht_Voices[i].vc_VoiceNum          = i;
                 ht_Voices[i].vc_TrackMasterVolume = 0x40;
@@ -183,14 +184,14 @@ package replay_hively {
         }
         
         public function malloc_positions( ind:uint ):void{
-            for(i=0;i<ind;i++){
+            for(var i:uint=0;i<ind;i++){
                 var pos_temp:hvl_position = new hvl_position();
                 ht_Positions.push(pos_temp);
             }
         }
         
         public function malloc_instruments( ind:uint ):void{
-            for(i=0;i<ind;i++){
+            for(var i:uint=0;i<ind;i++){
                 var ins_temp:hvl_instrument = new hvl_instrument();
                 ht_Instruments.push(ins_temp);
             }

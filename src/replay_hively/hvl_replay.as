@@ -239,7 +239,7 @@ package replay_hively {
             var PosNr:uint, i:uint;
 
             if( nr > ht.ht_SubsongNr ){
-                return FALSE;
+                return false;
             }
 
             ht.ht_SongNum = nr;
@@ -260,7 +260,7 @@ package replay_hively {
             ht.ht_SongEndReached = 0;
             ht.ht_PlayingTime    = 0;
 
-            for( i=0; i<MAX_CHANNELS; i+=4 ){
+            for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
                 ht.ht_Voices[i+0].vc_Pan          = ht.ht_defpanleft;
                 ht.ht_Voices[i+0].vc_SetPan       = ht.ht_defpanleft; // 1.4
                 ht.ht_Voices[i+0].vc_PanMultLeft  = panning_left[ht.ht_defpanleft];
@@ -281,7 +281,7 @@ package replay_hively {
 
             ht.hvl_reset_some_stuff();
 
-            return TRUE;
+            return true;
         }
         
     //TODO    
@@ -316,13 +316,13 @@ package replay_hively {
 
             ht = new hvl_tune();
 
-            ht.ht_Frequency       = sample_rate;
-            ht.ht_FreqF           = Number(sample_rate);
+            ht.ht_Frequency       = cons.sample_rate;
+            ht.ht_FreqF           = Number(cons.sample_rate);
 
             ht.malloc_positions(posn);
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
-            ple                = 0; //TODO: check ple
+            //ple                = 0; //TODO: check ple
 
             //ht.ht_Positions   = (struct hvl_position *)(&ht[1]);   // :-/
             //ht.ht_Instruments = (struct hvl_instrument *)(&ht.ht_Positions[posn]);
@@ -342,8 +342,8 @@ package replay_hively {
             ht.ht_InstrumentNr    = insn;
             ht.ht_SubsongNr       = ssn;
             ht.ht_defstereo       = defstereo;
-            ht.ht_defpanleft      = stereopan_left[ht.ht_defstereo];
-            ht.ht_defpanright     = stereopan_right[ht.ht_defstereo];
+            ht.ht_defpanleft      = cons.stereopan_left[ht.ht_defstereo];
+            ht.ht_defpanright     = cons.stereopan_right[ht.ht_defstereo];
             ht.ht_mixgain         = (defgain[ht.ht_defstereo]*256)/100;
 
             if( ht.ht_Restart >= ht.ht_PositionNr ){
@@ -358,7 +358,7 @@ package replay_hively {
                     ht=null;
                     buf=null;
                     trace( "Invalid file.\n" );
-                    return NULL;
+                    return null;
             }
             
             ht.ht_Name = tools.strncpy(buf, (buf[4]<<8)|buf[5], 128);
@@ -411,7 +411,7 @@ package replay_hively {
 
             // Instruments
             for( i=1; i<=ht.ht_InstrumentNr; i++ ){
-                if( nptr < buflen) ){
+                if( nptr < buflen){
                     //strncpy( ht.ht_Instruments[i].ins_Name, nptr, 128 );
                     ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
@@ -459,7 +459,7 @@ package replay_hively {
                     if( l == 7 ) l = 15;
                     ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1]      = k;
                     ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0]      = l;
-                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform   = (buf[bptr]<<1)&6) | (buf[bptr+1]>>7);
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform   = ((buf[bptr]<<1)&6) | (buf[bptr+1]>>7);
                     ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed      = (buf[bptr+1]>>6)&1;
                     ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note       = buf[bptr+1]&0x3f;
                     ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = buf[bptr+2];
@@ -497,8 +497,9 @@ package replay_hively {
                 ( buf[1] == 'H' ) &&
                 ( buf[2] == 'X' ) &&
                 ( buf[3] < 3 ) ){
-                    return hvl_load_ahx( buf, buflen, defstereo, freq );
+                    return hvl_load_ahx( buf, buflen, defstereo);
                 }
+				return null; //////////////////////////
             /*
             if( ( buf[0] != 'H' ) ||
               ( buf[1] != 'V' ) ||
@@ -802,12 +803,12 @@ package replay_hively {
                         if( FXParam != 0 ){
                             voice.vc_PeriodSlideSpeed = FXParam;
                         }
-              
-                        if( Note ){ //TODO: Deal with Note pointer
+                        //TODO: Check *Note usage.
+                        if( Note ){
                             var mew:int, diff:int;
 
-                            mew   = period_tab[*Note];
-                            diff  = period_tab[voice.vc_TrackPeriod];
+                            mew   = cons.period_tab[Note];
+                            diff  = cons.period_tab[voice.vc_TrackPeriod];
                             diff -= mew;
                             mew   = diff + voice.vc_PeriodSlidePeriod;
                 
@@ -817,14 +818,14 @@ package replay_hively {
                         }
                         voice.vc_PeriodSlideOn        = 1;
                         voice.vc_PeriodSlideWithLimit = 1;
-                        *Note = 0;
+                        Note = 0;
                         break;      
             }
             return Note;
         }
 
-        private function hvl_process_stepfx_3( ht:hvl_tune, voice:hvl_voice, int32 FX, int32 FXParam ):void{
-            i:int;
+        private function hvl_process_stepfx_3( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int ):void{
+            var i:int;
           
             switch( FX ){
                 case 0x01: // Portamento up (period slide down)
@@ -1072,7 +1073,7 @@ package replay_hively {
                 
                 //WARNING: "unreachable" value
                 //voice.vc_RingMixSource   = null;   // No ring modulation
-                voice.vc_RingMixSource   = uint.MAX_VALUE;   // No ring modulation
+                voice.vc_RingMixSource   = null;   // No ring modulation
                 voice.vc_RingSamplePos   = 0;
                 voice.vc_RingPlantPeriod = 0;
                 voice.vc_RingNewWaveform = 0;
@@ -1168,7 +1169,7 @@ package replay_hively {
                         //voice.vc_RingAudioSource = NULL; // turn it off
                         //voice.vc_RingMixSource   = NULL;
                         voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
-                        voice.vc_RingMixSource   = uint.MAX_VALUE;
+                        voice.vc_RingMixSource   = null;
                         break;
                     }    
                     voice.vc_RingWaveform    = 0;
@@ -1191,7 +1192,7 @@ package replay_hively {
                         //voice.vc_RingAudioSource = NULL; // turn it off
                         //voice.vc_RingMixSource   = NULL;
                         voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
-                        voice.vc_RingMixSource   = uint.MAX_VALUE;
+                        voice.vc_RingMixSource   = null;
                         break;
                     }
 
@@ -1364,7 +1365,7 @@ package replay_hively {
             // Vibrato
             if( voice.vc_VibratoDepth ){
                 if( voice.vc_VibratoDelay <= 0 ){
-                    voice.vc_VibratoPeriod = (vib_tab[voice.vc_VibratoCurrent] * voice.vc_VibratoDepth) >> 7;
+                    voice.vc_VibratoPeriod = (cons.vib_tab[voice.vc_VibratoCurrent] * voice.vc_VibratoDepth) >> 7;
                     voice.vc_PlantPeriod = 1;
                     voice.vc_VibratoCurrent = (voice.vc_VibratoCurrent + voice.vc_VibratoSpeed) & 0x3f;
                 } else {
@@ -1508,7 +1509,7 @@ package replay_hively {
                 var X:int;               //int32
             
                 //SquarePtr = &waves[WO_SQUARES+(voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3)];
-                SquarePtr = WO_SQUARES+(voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
+                SquarePtr = cons.WO_SQUARES+(voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
                 X = voice.vc_SquarePos << (5 - voice.vc_WaveLength);
             
                 if( X > 0x20 ){
@@ -1575,7 +1576,7 @@ package replay_hively {
                     // GoOnRandom
                     voice.vc_WNRandom += 2239384;
                     //voice.vc_WNRandom  = ((((voice.vc_WNRandom >> 8) | (voice.vc_WNRandom << 24)) + 782323) ^ 75) - 6735;
-                    voice.vc_WNRandom  = ((tools.bitRotate(ays, voice.vc_WNRandom, 32) + 782323) ^ 75) - 6735;
+                    voice.vc_WNRandom  = ((tools.bitRotate(8, voice.vc_WNRandom, 32) + 782323) ^ 75) - 6735;
                 }
 
                 voice.vc_AudioSource = AudioSource;
@@ -1602,7 +1603,7 @@ package replay_hively {
                     voice.vc_RingAudioPeriod = 0;
                 }
           
-                voice.vc_RingAudioPeriod = period_tab[voice.vc_RingAudioPeriod];
+                voice.vc_RingAudioPeriod = cons.period_tab[voice.vc_RingAudioPeriod];
 
                 if( !(voice.vc_RingFixedPeriod) ){
                     voice.vc_RingAudioPeriod += voice.vc_PeriodSlidePeriod;
@@ -1638,7 +1639,7 @@ package replay_hively {
                 voice.vc_AudioPeriod = 0;
             }
           
-            voice.vc_AudioPeriod = period_tab[voice.vc_AudioPeriod];
+            voice.vc_AudioPeriod = cons.period_tab[voice.vc_AudioPeriod];
           
             if( !(voice.vc_FixedNote) ){
                 voice.vc_AudioPeriod += voice.vc_PeriodSlidePeriod;
@@ -1714,7 +1715,8 @@ package replay_hively {
     
                 voice.vc_RingPlantPeriod = 0;
                 freq2 = Period2Freq( voice.vc_RingAudioPeriod );
-                delta = (uint32)(freq2 / freqf);
+                //delta = (uint32)(freq2 / freqf);
+				delta = uint(freq2 / freqf);
     
                 if( delta > (0x280<<16) ) delta -= (0x280<<16);
                 if( delta == 0 ) delta = 1;
@@ -1803,7 +1805,8 @@ package replay_hively {
         private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
             //int8   *src[MAX_CHANNELS];      //*int8
             //int8   *rsrc[MAX_CHANNELS];     //*int8
-            var src:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);
+            var src:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
+			var rsrc:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
             var delta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
             var rdelta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
             var vol:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
@@ -1858,7 +1861,7 @@ package replay_hively {
                     for( i=0; i<chans; i++ ){
                         /*
                         if( rsrc[i] ){
-                            /* Ring Modulation */
+                            // Ring Modulation
                             j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];
                             rpos[i] += rdelta[i];
                         } else {
