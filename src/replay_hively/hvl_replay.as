@@ -16,7 +16,7 @@ package replay_hively {
     import flash.utils.*;
     
     public class hvl_replay{
-        private var waves_t:ButtArray = new ButtArray();
+        private var waves_t:ByteArray = new ByteArray();
         private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
@@ -483,7 +483,7 @@ package replay_hively {
             return ht;
 }
 
-        public function hvl_LoadTune( buf:ButtArray, defstereo:uint ):hvl_tune{
+        public function hvl_LoadTune( buf:ByteArray, defstereo:uint ):hvl_tune{
             
             var ht:hvl_tune;              //*
             var bptr:uint;      //*uint8

@@ -1,6 +1,7 @@
 package replay_hively {
 	import flash.events.SampleDataEvent;
 	import flash.media.Sound;
+	import flash.utils.Endian;
     import flash.utils.ByteArray;
     
     public class front_panel{
@@ -17,7 +18,8 @@ package replay_hively {
 			replayer = new hvl_replay();
         }
 
-        public function load( ba:ButtArray ):Boolean{
+        public function load( ba:ByteArray ):Boolean {
+			ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.hvl_LoadTune( ba, 0 );
 			return true;
         }
