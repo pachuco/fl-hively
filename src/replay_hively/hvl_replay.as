@@ -988,7 +988,8 @@ package replay_hively {
             hvl_process_stepfx_1( ht, voice, Step.stp_FX&0xf,  Step.stp_FXParam );  
             hvl_process_stepfx_1( ht, voice, Step.stp_FXb&0xf, Step.stp_FXbParam );
           
-            if( ( Instr ) && ( Instr <= ht.ht_InstrumentNr ) ){
+            //if( ( Instr ) && ( Instr <= ht.ht_InstrumentNr ) ){
+            if( ( Instr ) && ( Instr <  ht.ht_InstrumentNr ) ){
                 var Ins:hvl_instrument;
                 var SquareLower:int, SquareUpper:int, d6:int, d3:int, d4:int; //int16
             
