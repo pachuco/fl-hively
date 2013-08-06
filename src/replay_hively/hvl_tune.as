@@ -38,20 +38,24 @@ package replay_hively {
         
         public function hvl_tune():void{
             
-            ht_WaveformTab = Vector.<uint>(cons.MAX_CHANNELS, true);
+            ht_WaveformTab = new Vector.<uint>(cons.MAX_CHANNELS, true);
 
-            ht_WaveformTab_i2 = Vector.<int>();
+            ht_WaveformTab_i2 = new Vector.<int>();
 
-            ht_Positions = Vector.<hvl_position>();                                     //malloc();
+            ht_Positions = new Vector.<hvl_position>();                                     //malloc();
             
-            ht_Tracks = Vector.<Vector.<hvl_step>>(256, true);
+            ht_Tracks = new Vector.<Vector.<hvl_step>>(256, true);
             for(var i:uint=0;i<256;i++){
-                var track_temp:Vector.<hvl_step> = Vector.<hvl_step>(64, true);
+                var track_temp:Vector.<hvl_step> = new Vector.<hvl_step>(64, true);
+                for(var j:uint=0; j<64; j++){
+                    var step_temp:hvl_step = new hvl_step();
+                    track_temp[j] = step_temp;
+                }
                 ht_Tracks[i]=track_temp;
             }
             
-            ht_Instruments = Vector.<hvl_instrument>();                  //malloc();
-            ht_Voices = Vector.<hvl_voice>(cons.MAX_CHANNELS, true);
+            ht_Instruments = new Vector.<hvl_instrument>();                  //malloc();
+            ht_Voices = new Vector.<hvl_voice>(cons.MAX_CHANNELS, true);
         }
         
         public function hvl_reset_some_stuff():void{
@@ -198,7 +202,7 @@ package replay_hively {
         }
         
         public function malloc_subsongs( ind:uint ):void{
-            ht_Subsongs = Vector.<uint>(ind, true);
+            ht_Subsongs = new Vector.<uint>(ind, true);
         }
     }
 }

@@ -104,9 +104,9 @@ package replay_hively {
             vc_ADSR = new hvl_envelope();
             //vc_Instrument = new hvl_instrument();
             //vc_PerfList = new hvl_plist();
-            vc_SquareTempBuffer = Vector.<int>(0x80, true);
-            vc_VoiceBuffer = Vector.<int>(0x282*4, true);
-            vc_RingVoiceBuffer = Vector.<int>(0x282*4, true);
+            vc_SquareTempBuffer = new Vector.<int>(0x80, true);
+            vc_VoiceBuffer = new Vector.<int>(0x282*4, true);
+            vc_RingVoiceBuffer = new Vector.<int>(0x282*4, true);
         }
     }
 }

@@ -5,7 +5,7 @@ package replay_hively {
         public var pls_Entries:Vector.<hvl_plsentry>;    //struct hvl_plsentry *pls_Entries;
         
         public function hvl_plist():void{
-            pls_Entries = Vector.<hvl_plsentry>;
+            pls_Entries = new Vector.<hvl_plsentry>;
         }
 
         public function ple_malloc( len:uint ):void{

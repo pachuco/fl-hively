@@ -492,18 +492,20 @@ package replay_hively {
             var ple:hvl_plsentry;         //*
 
             buflen = buf.length;
-  
-            if( ( buf[0] == 'T' ) &&
-                ( buf[1] == 'H' ) &&
-                ( buf[2] == 'X' ) &&
+			
+			//THX
+            if( ( buf[0] == 84 ) &&
+                ( buf[1] == 72 ) &&
+                ( buf[2] == 88 ) &&
                 ( buf[3] < 3 ) ){
                     return hvl_load_ahx( buf, buflen, defstereo);
                 }
 				return null; //////////////////////////
             /*
-            if( ( buf[0] != 'H' ) ||
-              ( buf[1] != 'V' ) ||
-              ( buf[2] != 'L' ) ||
+			//HVL
+            if( ( buf[0] != 72 ) ||
+              ( buf[1] != 86 ) ||
+              ( buf[2] != 76 ) ||
               ( buf[3] > 1 ) )
             {
             free( buf );
@@ -1805,20 +1807,20 @@ package replay_hively {
         private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
             //int8   *src[MAX_CHANNELS];      //*int8
             //int8   *rsrc[MAX_CHANNELS];     //*int8
-            var src:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
-			var rsrc:Vector.<Vector.<int>> = Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
-            var delta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
-            var rdelta:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
-            var vol:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
-            var pos:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                  //uint32
-            var rpos:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                 //uint32
-            var cnt:uint;                                                                    //uint32
-            var panl:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
-            var panr:Vector.<int> = Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
-            var vu:Vector.<uint> = Vector.<uint>(cons.MAX_CHANNELS, true);                   //uint32
-            var a:int=0, b:int=0, j:int;                                                     //int32
+            var src:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
+			var rsrc:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
+            var delta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
+            var rdelta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
+            var vol:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
+            var pos:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                  //uint32
+            var rpos:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                 //uint32
+            var cnt:uint;                                                                        //uint32
+            var panl:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
+            var panr:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
+            var vu:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                   //uint32
+            var a:int=0, b:int=0, j:int;                                                         //int32
             var af:Number, bf:Number;
-            var i:uint, chans:uint, loops:uint;                                              //unit32
+            var i:uint, chans:uint, loops:uint;                                                  //unit32
   
             chans = ht.ht_Channels;
             for( i=0; i<chans; i++ ){

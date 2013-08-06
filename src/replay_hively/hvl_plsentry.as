@@ -7,8 +7,8 @@ package replay_hively {
         public var ple_FXParam:Vector.<int>;    //int8
         
         public function hvl_plsentry():void{
-            ple_FX = Vector.<int>( 2, true );
-            ple_FXParam = Vector.<int>( 2, true );
+            ple_FX = new Vector.<int>( 2, true );
+            ple_FXParam = new Vector.<int>( 2, true );
         }
     }
 }
