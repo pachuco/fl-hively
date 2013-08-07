@@ -13,10 +13,7 @@ package replay_hively {
         private var resume_position:uint;
         private var resume_step:uint;
         
-        private var audio_out:Sound;
-        
         public function front_panel():void{
-            audio_out = new Sound();
 			replayer = new hvl_replay();
         }
 
@@ -33,6 +30,7 @@ package replay_hively {
         public function play():void{
             if( ht ){
                 is_playing = true;
+				var audio_out:Sound = new Sound();
                 audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
                 audio_out.play();
             }else{
@@ -62,7 +60,7 @@ package replay_hively {
         
         
         private function audio_loop( event:SampleDataEvent ):void{
-            while( is_playing ){
+            if( is_playing ){
                 for(var i:uint=0; i < buf_size; i++){
                     replayer.hvl_DecodeFrame( ht, event.data );
                 }
