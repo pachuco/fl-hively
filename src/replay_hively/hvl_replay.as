@@ -1806,7 +1806,7 @@ package replay_hively {
         }
 
         //void hvl_mixchunk( ht:hvl_tune, samples:uint, int8 *buf1, int8 *buf2, int32 bufmod ){
-        private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
+        private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray, buf_size:uint ):void{
             //int8   *src[MAX_CHANNELS];      //*int8
             //int8   *rsrc[MAX_CHANNELS];     //*int8
             var src:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
@@ -1857,7 +1857,6 @@ package replay_hively {
                 }
     
                 samples -= loops;
-    
                 // Inner loop
                 do{
                     a=0;
@@ -1918,7 +1917,7 @@ package replay_hively {
         
         //event.data as buf12; ByteArray
         //public function hvl_DecodeFrame( ht:hvl_tune, int8 *buf1, int8 *buf2, int32 bufmod ):void
-        public function hvl_DecodeFrame( ht:hvl_tune, buf12:ByteArray ):void{
+        public function hvl_DecodeFrame( ht:hvl_tune, buf12:ByteArray, buf_size:uint ):void{
             var samples:uint, loops:uint;       //uint32
   
             samples = ht.ht_Frequency/50/ht.ht_SpeedMultiplier;
@@ -1927,7 +1926,7 @@ package replay_hively {
             do{
                 hvl_play_irq( ht );
                 //hvl_mixchunk( ht, samples, buf1, buf2, bufmod );
-                hvl_mixchunk( ht, samples, buf12 );
+                hvl_mixchunk( ht, samples, buf12, buf_size/loops );
                 //buf1 += samples * bufmod;
                 //buf2 += samples * bufmod;
                 loops--;
