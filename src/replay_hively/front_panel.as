@@ -61,9 +61,9 @@ package replay_hively {
         
         private function audio_loop( event:SampleDataEvent ):void {
             if ( is_playing ) {
-                //for(var i:uint=0; i < buf_size; i++){
-                    replayer.hvl_DecodeFrame( ht, event.data, buf_size );
-                //}
+                while (event.data.position <= buf_size*8 ){
+                    replayer.hvl_DecodeFrame( ht, event.data );
+                }
             }
         }
     }
