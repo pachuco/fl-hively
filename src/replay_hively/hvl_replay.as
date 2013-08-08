@@ -1862,7 +1862,7 @@ package replay_hively {
                     a=0;
                     b=0;
                     for( i=0; i<chans; i++ ){
-                        /*
+                        
                         if( rsrc[i] ){
                             // Ring Modulation
                             j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];
@@ -1870,7 +1870,7 @@ package replay_hively {
                         } else {
                             j = src[i][pos[i]>>16]*vol[i];
                         }
-                        */
+                        
                         if( Math.abs( j ) > vu[i] ) vu[i] = Math.abs( j );
 
                         a += (j * panl[i]) >> 7;
@@ -1880,23 +1880,19 @@ package replay_hively {
       
                     a = (a*ht.ht_mixgain)>>8;
                     b = (b*ht.ht_mixgain)>>8;
-      
                     //*(int16 *)buf1 = a;
                     //*(int16 *)buf2 = b;
-                    af = a;
-                    bf = b;
                     if( a >= 0 ){
-                        af /= int.MAX_VALUE;
+                        af = a / 32767; 
                     }else{
-                        af /= int.MIN_VALUE;
+                        af = a / 32768;
                     }
                     
                     if( b >= 0 ){
-                        bf /= int.MAX_VALUE;
+                        bf = a / 32767;
                     }else{
-                        bf /= int.MIN_VALUE;
+                        bf = a / 32768;
                     }
-                    
                     buf12.writeFloat(af);
                     buf12.writeFloat(bf);
       

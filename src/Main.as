@@ -1,11 +1,10 @@
 package 
 {
     import flash.display.Sprite;
-    import flash.events.Event;
-	import flash.events.MouseEvent;
-	import flash.events.SampleDataEvent;
+    import flash.events.*;
 	import flash.media.Sound;
     import flash.net.FileReference;
+	import flash.net.FileFilter;
     import flash.text.TextField;
     import flash.utils.ByteArray;
     import replay_hively.front_panel;
@@ -21,6 +20,8 @@ package
     {
         private var button:Sprite;
         private var replayer:front_panel;
+        private var fr:FileReference;
+		private var ff:FileFilter;
 		
         public function Main():void 
         {
@@ -36,12 +37,17 @@ package
             replayer = new front_panel();
             replayer.load( new choon() as ByteArray );
             
-            draw_buttan( 50, 50, "Play", play );
-            draw_buttan( 300, 50, "Stop", stop );
+            var fr:FileReference = new FileReference();
+			//fr.addEventListener(Event.SELECT, onFileSelected);
+			//var ff:FileFilter = new FileFilter("AHX tunes", "*.ahx;ahx.*");;
+            
+            draw_buttan( 50, 300, "PLAY", play );
+            draw_buttan( 300, 300, "PAUSE", stop );
+            //draw_buttan( 50, 50, "LOAD", load );
             
             
             //wavegen
-            //var fr:FileReference = new FileReference();
+            
             //fr.save(replayer.getdemwaves(), "fl_hively.waves");
             
             //
@@ -69,6 +75,24 @@ package
             
             button.addEventListener(MouseEvent.CLICK, func);
             
+        }
+		
+		private function onFileSelected(evt:Event):void{ 
+            fr.addEventListener(Event.COMPLETE, onComplete); 
+            fr.load(); 
+        } 
+		
+		private function onComplete(event:Event):void { 
+			replayer.load( fr.data );; 
+        }
+		
+		
+		
+		
+		
+        
+        private function load( event:MouseEvent ):void {
+			//fr.browse([ff]);
         }
         
         private function play( event:MouseEvent ):void{
