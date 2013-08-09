@@ -18,6 +18,7 @@ package replay_hively {
         }
 
         public function load( ba:ByteArray ):Boolean {
+			is_playing = false;
 			ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.hvl_LoadTune( ba, 0 );
 			return true;
@@ -27,15 +28,18 @@ package replay_hively {
             
         }
 
-        public function play():void{
-            if( ht ){
-                is_playing = true;
-				var audio_out:Sound = new Sound();
-                audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
-                audio_out.play();
-            }else{
-                
-            }
+        public function play():void {
+			//leave this here for fun
+			if( true ){		//!is_playing
+				if( ht ){
+					is_playing = true;
+					var audio_out:Sound = new Sound();
+					audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
+					audio_out.play();
+				}else{
+					
+				}
+			}
         }
 
         public function pause(     ):void{
@@ -44,6 +48,7 @@ package replay_hively {
         
         public function stop(     ):void{
             is_playing = false;
+			replayer.hvl_InitSubsong(ht, 0);
         }
 
         public function seek(     ):void{

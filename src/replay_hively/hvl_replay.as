@@ -1692,8 +1692,8 @@ package replay_hively {
     
                 if( voice.vc_Waveform == 4-1 ){
                     //memcpy( &voice->vc_VoiceBuffer[0], src, 0x280 );
-                    for( var i:uint=0;i<0x280; i++ ){
-                        voice.vc_VoiceBuffer[i] = waves[src+i];
+                    for ( var ii:uint = 0; ii < 0x280; ii++ ) {
+                         voice.vc_VoiceBuffer[ii] = waves[src + ii];
                     }
                 } else {
                     var i:uint, WaveLoops:uint;        //uint32

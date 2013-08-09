@@ -37,13 +37,15 @@ package
             replayer = new front_panel();
             replayer.load( new choon() as ByteArray );
             
-            var fr:FileReference = new FileReference();
-			//fr.addEventListener(Event.SELECT, onFileSelected);
-			//var ff:FileFilter = new FileFilter("AHX tunes", "*.ahx;ahx.*");;
+            fr = new FileReference();
+			fr.addEventListener(Event.SELECT, onFileSelected);
+			ff = new FileFilter("AHX tunes", "*.ahx;ahx.*");;
             
             draw_buttan( 50, 300, "PLAY", play );
-            draw_buttan( 300, 300, "PAUSE", stop );
-            //draw_buttan( 50, 50, "LOAD", load );
+            draw_buttan( 300, 300, "PAUSE", pause );
+			draw_buttan( 500, 300, "SOTP", stop );
+            draw_buttan( 50, 50, "LOAD", load );
+			//spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
             //wavegen
@@ -54,6 +56,17 @@ package
             
         }
         
+		private function spit_text( x:int, y:int, data:String):void {
+			var text:TextField = new TextField();
+            text.selectable = false;
+            
+            text.text = data;
+            text.x = x;
+            text.y = y;
+			//text.border = true;
+            this.addChild(text);
+		}
+		
         private function draw_buttan( x:int, y:int, label:String, func:Function ):void{
             button = new Sprite();
             button.graphics.beginFill(0xFFCC00);
@@ -66,7 +79,9 @@ package
             
             text.text = label;
             text.x = x+10;
-            text.y = y+2;
+            text.y = y + 2;
+			//text.border = true;
+			text.length;
             button.addChild(text);
             
             button.buttonMode = true;
@@ -92,7 +107,7 @@ package
 		
         
         private function load( event:MouseEvent ):void {
-			//fr.browse([ff]);
+			fr.browse([ff]);
         }
         
         private function play( event:MouseEvent ):void{
@@ -103,6 +118,9 @@ package
             replayer.stop();
         }
         
+		private function pause( event:MouseEvent ):void{
+            replayer.pause();
+        }
     }
     
 }

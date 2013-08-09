@@ -1,0 +1,70 @@
+Waveform generator is well and tested.
+Everything else, not.
+
+Functions:
+void hvl_GenPanningTables()
+
+void hvl_GenSawtooth()
+
+void hvl_GenTriangle()
+
+void hvl_GenSquare()
+
+static inline float64 clip()
+
+void hvl_GenFilterWaves()
+
+void hvl_GenWhiteNoise()
+
+
+
+
+void hvl_InitReplayer()
+
+void hvl_reset_some_stuff()
+
+BOOL hvl_InitSubsong()
+
+struct hvl_tune *hvl_load_ahx()
+
+struct hvl_tune *hvl_LoadTune()
+	HVL loading is commented out for now.
+
+void hvl_FreeTune()
+
+void hvl_process_stepfx_1()
+
+void hvl_process_stepfx_2()
+
+void hvl_process_stepfx_3()
+
+void hvl_process_step()
+
+void hvl_plist_command_parse()
+
+void hvl_process_frame()
+
+void hvl_set_audio()
+
+void hvl_play_irq()
+
+void hvl_mixchunk()
+
+void hvl_DecodeFrame()
+
+
+
+Structures:
+struct hvl_envelope
+struct hvl_plsentry
+struct hvl_plist
+struct hvl_instrument
+struct hvl_position
+struct hvl_step
+struct hvl_voice
+struct hvl_tune
+
+
+Bugs:
+-Some AHX tunes trigger
+	RangeError: Error #1125: The index 4294961907 is out of range 410760.
