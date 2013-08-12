@@ -72,5 +72,9 @@ package replay_hively {
 				
             }
         }
+		
+		public function getwaves():ByteArray {
+			return replayer.getdemwaves();
+		}
     }
 }

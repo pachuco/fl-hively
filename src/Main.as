@@ -39,7 +39,7 @@ package
             
             fr = new FileReference();
 			fr.addEventListener(Event.SELECT, onFileSelected);
-			ff = new FileFilter("AHX tunes", "*.ahx;ahx.*");;
+			ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");;
             
             draw_buttan( 50, 300, "PLAY", play );
             draw_buttan( 300, 300, "PAUSE", pause );
@@ -50,7 +50,7 @@ package
             
             //wavegen
             
-            //fr.save(replayer.getdemwaves(), "fl_hively.waves");
+            //fr.save(replayer.getwaves(), "fl_hively.waves");
             
             //
             

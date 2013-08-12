@@ -200,7 +200,7 @@ package replay_hively {
         }
         
         public function malloc_instruments( ind:uint ):void{
-            for(var i:uint=0;i<ind;i++){
+            for(var i:uint=0;i<=ind;i++){
                 var ins_temp:hvl_instrument = new hvl_instrument();
                 ht_Instruments.push(ins_temp);
             }

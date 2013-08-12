@@ -42,9 +42,23 @@ package replay_hively {
 			}
 		}
         
-        public static function ui2i8(x:int):int{
+        public static function ui2i8(x:uint):int{
             if(x>=128){
                 x-=256;
+            }
+            return x;
+        }
+		
+        public static function ui2i16(x:uint):int{
+            if(x>=32768){
+                x-=65536;
+            }
+            return x;
+        }
+		public static function ui2i32(x:uint):int{
+            if(x>=2147483646){
+                x-=4294967295;
+				x++
             }
             return x;
         }
