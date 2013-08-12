@@ -1528,13 +1528,15 @@ package replay_hively {
             
                 Delta = 32 >> voice.vc_WaveLength;
                 //TODO: fix this!
+				
                 ht.ht_WaveformTab_i2 = voice.vc_SquareTempBuffer;
+				ht.ht_WaveformTab[2] = 0;
             
                 for( i=0; i<(1<<voice.vc_WaveLength)*4; i++ ){
                     voice.vc_SquareTempBuffer[i] = waves[SquarePtr];
                     SquarePtr += Delta;
                 }
-            
+				
                 voice.vc_NewWaveform = 1;
                 voice.vc_Waveform    = 3-1;
                 voice.vc_PlantSquare = 0;
@@ -1551,8 +1553,7 @@ package replay_hively {
                     voice.vc_RingWaveform = 1;
                 }
                 //TODO: check this!
-                //rasrc = ht.ht_WaveformTab[voice.vc_RingWaveform];
-                rasrc = voice.vc_RingWaveform;
+                rasrc = ht.ht_WaveformTab[voice.vc_RingWaveform];
                 rasrc += Offsets[voice.vc_WaveLength];
             
                 voice.vc_RingAudioSource = rasrc;
@@ -1562,9 +1563,8 @@ package replay_hively {
             if( voice.vc_NewWaveform ){
                 var AudioSource:uint;       //*int8
 
-                //AudioSource = ht.ht_WaveformTab[voice.vc_Waveform];
-                AudioSource = voice.vc_Waveform;
-
+                AudioSource = ht.ht_WaveformTab[voice.vc_Waveform];
+                
                 if( voice.vc_Waveform != 3-1 ){
                     AudioSource += (voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
                 }
@@ -1662,7 +1662,7 @@ package replay_hively {
             voice.vc_AudioVolume = (((((((voice.vc_ADSRVolume >> 8) * voice.vc_NoteMaxVolume) >> 6) * voice.vc_PerfSubVolume) >> 6) * voice.vc_TrackMasterVolume) >> 6);
         }
 
-        private function hvl_set_audio( voice:hvl_voice, freqf:Number ):void{
+        private function hvl_set_audio( ht:hvl_tune, voice:hvl_voice, freqf:Number ):void{
             if( voice.vc_TrackOn == 0 ){
                 voice.vc_VoiceVolume = 0;
                 return;
@@ -1687,13 +1687,18 @@ package replay_hively {
   
             if( voice.vc_NewWaveform ){
                 var src:uint;        //*int8
-    
+				var ref:Vector.<int>;
+				if (voice.vc_Waveform == 2) {
+					ref = ht.ht_WaveformTab_i2;
+				}else {
+					ref = waves;
+				}
                 src = voice.vc_AudioSource;
     
                 if( voice.vc_Waveform == 4-1 ){
                     //memcpy( &voice->vc_VoiceBuffer[0], src, 0x280 );
                     for ( var ii:uint = 0; ii < 0x280; ii++ ) {
-                         voice.vc_VoiceBuffer[ii] = waves[src + ii];
+                         voice.vc_VoiceBuffer[ii] = ref[src + ii];
                     }
                 } else {
                     var i:uint, WaveLoops:uint;        //uint32
@@ -1703,7 +1708,7 @@ package replay_hively {
                     for( i=0; i<WaveLoops; i++ ){
                         //memcpy( &voice->vc_VoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
                         for( var j:uint=0; j<4*(1<<voice.vc_WaveLength); j++ ){
-                            voice.vc_VoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = waves[src+j];
+                            voice.vc_VoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = ref[src+j];
                         }
                     }
                 }
@@ -1730,7 +1735,13 @@ package replay_hively {
             if( voice.vc_RingNewWaveform ){
                 var src:uint;                  //*int8
                 var i:uint, WaveLoops:uint;    //uint32
-    
+				var ref:Vector.<int>;
+				if (voice.vc_Waveform == 2) {
+					ref = ht.ht_WaveformTab_i2;
+				}else {
+					ref = waves;
+				}
+				
                 src = voice.vc_RingAudioSource;
 
                 WaveLoops = (1 << (5 - voice.vc_WaveLength)) * 5;
@@ -1738,7 +1749,7 @@ package replay_hively {
                 for( i=0; i<WaveLoops; i++ ){
                     //memcpy( &voice->vc_RingVoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
                     for( var j:uint=0; j<4*(1<<voice.vc_WaveLength);j++ ){
-                        voice.vc_RingVoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = waves[src+j];
+                        voice.vc_RingVoiceBuffer[i*4*(1<<voice.vc_WaveLength)+j] = ref[src+j];
                     }
                 }
 
@@ -1801,7 +1812,7 @@ package replay_hively {
             }
 
             for( i=0; i<ht.ht_Channels; i++ ){
-                hvl_set_audio( ht.ht_Voices[i], ht.ht_Frequency );
+                hvl_set_audio( ht, ht.ht_Voices[i], ht.ht_Frequency );
             }
         }
 
@@ -1832,6 +1843,9 @@ package replay_hively {
                 src[i]   = ht.ht_Voices[i].vc_MixSource;
                 panl[i]  = ht.ht_Voices[i].vc_PanMultLeft;
                 panr[i]  = ht.ht_Voices[i].vc_PanMultRight;
+				
+				//ref[i] = ht.ht_Voices[i].vc_Waveform;
+				
     
                 /* Ring Modulation */
                 rdelta[i]= ht.ht_Voices[i].vc_RingDelta;
@@ -1862,7 +1876,6 @@ package replay_hively {
                     a=0;
                     b=0;
                     for( i=0; i<chans; i++ ){
-                        
                         if( rsrc[i] ){
                             // Ring Modulation
                             j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];

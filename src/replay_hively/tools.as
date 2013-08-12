@@ -34,6 +34,13 @@ package replay_hively {
             }
             return i;
         }
+		
+		public static function memcpy(dest:Vector.<int>, source:Vector.<int>, off:uint, size:uint):void {
+			dest = new Vector.<int>( size, true );
+			for (var i:uint = 0; i < size; i++ ) {
+				dest[i] = source[off+i];
+			}
+		}
         
         public static function ui2i8(x:int):int{
             if(x>=128){
