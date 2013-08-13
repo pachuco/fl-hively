@@ -1,6 +1,7 @@
 package replay_hively {
 	import flash.events.SampleDataEvent;
 	import flash.media.Sound;
+	import flash.media.SoundChannel;
 	import flash.utils.Endian;
     import flash.utils.ByteArray;
     
@@ -12,9 +13,12 @@ package replay_hively {
         private var is_playing:Boolean;
         private var resume_position:uint;
         private var resume_step:uint;
+		private var audio_out:Sound;
+		private var sc:SoundChannel;
         
         public function front_panel():void{
 			replayer = new hvl_replay();
+			audio_out = new Sound();
         }
 
         public function load( ba:ByteArray ):Boolean {
@@ -29,26 +33,30 @@ package replay_hively {
         }
 
         public function play():void {
-			//leave this here for fun
-			if( true ){		//!is_playing
+			if( true ){		//if( !is_playing )
 				if( ht ){
 					is_playing = true;
-					var audio_out:Sound = new Sound();
 					audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
-					audio_out.play();
+					sc = audio_out.play();
 				}else{
 					
 				}
 			}
         }
 
-        public function pause(     ):void{
-            is_playing = false;
+        public function pause(     ):void {
+			if ( is_playing ) {
+				sc.stop();
+				is_playing = false;
+			}
         }
         
-        public function stop(     ):void{
-            is_playing = false;
-			replayer.hvl_InitSubsong(ht, 0);
+        public function stop(     ):void {
+			if ( is_playing ) {
+				sc.stop();
+				is_playing = false;
+				replayer.hvl_InitSubsong(ht, 0);
+			}
         }
 
         public function seek(     ):void{
