@@ -1760,50 +1760,27 @@ package replay_hively {
         private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
             //int8   *src[MAX_CHANNELS];      //*int8
             //int8   *rsrc[MAX_CHANNELS];     //*int8
-            var src:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
-            var rsrc:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
-            var delta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
-            var rdelta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
-            var vol:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
-            var pos:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                  //uint32
-            var rpos:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                 //uint32
             var cnt:uint;                                                                        //uint32
-            var panl:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
-            var panr:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                   //int32
-            var vu:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                   //uint32
-            var a:int=0, b:int=0, j:int;                                                         //int32
+            var a:int=0, b:int=0, j:int, absj:int;                                                         //int32
             var af:Number, bf:Number;
             var i:uint, chans:uint, loops:uint;                                                  //unit32
   
             chans = ht.ht_Channels;
-            for( i=0; i<chans; i++ ){
-                delta[i] = ht.ht_Voices[i].vc_Delta;
-                vol[i]   = ht.ht_Voices[i].vc_VoiceVolume;
-                pos[i]   = ht.ht_Voices[i].vc_SamplePos;
-                src[i]   = ht.ht_Voices[i].vc_MixSource;
-                panl[i]  = ht.ht_Voices[i].vc_PanMultLeft;
-                panr[i]  = ht.ht_Voices[i].vc_PanMultRight;
-                
-                
-    
-                /* Ring Modulation */
-                rdelta[i]= ht.ht_Voices[i].vc_RingDelta;
-                rpos[i]  = ht.ht_Voices[i].vc_RingSamplePos;
-                rsrc[i]  = ht.ht_Voices[i].vc_RingMixSource;
-    
-                vu[i] = 0;
-            }
   
             do{
                 loops = samples;
                 for( i=0; i<chans; i++ ){
-                    if( pos[i] >= (0x280 << 16)) pos[i] -= 0x280<<16;
-                    cnt = ((0x280<<16) - pos[i] - 1) / delta[i] + 1;
+                    if ( ht.ht_Voices[i].vc_SamplePos >= (0x280 << 16)) {
+                        ht.ht_Voices[i].vc_SamplePos -= 0x280<<16;
+                    }
+                    cnt = ((0x280<<16) - ht.ht_Voices[i].vc_SamplePos - 1) / ht.ht_Voices[i].vc_Delta + 1;
                     if( cnt < loops ) loops = cnt;
       
-                    if( rsrc[i] ){
-                        if( rpos[i] >= (0x280<<16)) rpos[i] -= 0x280<<16;
-                        cnt = ((0x280<<16) - rpos[i] - 1) / rdelta[i] + 1;
+                    if( ht.ht_Voices[i].vc_RingMixSource ){
+                        if ( ht.ht_Voices[i].vc_RingSamplePos >= (0x280 << 16)) {
+                            ht.ht_Voices[i].vc_RingSamplePos -= 0x280<<16;
+                        }
+                        cnt = ((0x280<<16) - ht.ht_Voices[i].vc_RingSamplePos - 1) / ht.ht_Voices[i].vc_RingDelta + 1;
                         if( cnt < loops ) loops = cnt;
                     }
       
@@ -1815,19 +1792,20 @@ package replay_hively {
                     a=0;
                     b=0;
                     for( i=0; i<chans; i++ ){
-                        if( rsrc[i] ){
+                        if( ht.ht_Voices[i].vc_RingMixSource ){
                             // Ring Modulation
-                            j = ((src[i][pos[i]>>16]*rsrc[i][rpos[i]>>16])>>7)*vol[i];
-                            rpos[i] += rdelta[i];
+                            j = ((ht.ht_Voices[i].vc_MixSource[ht.ht_Voices[i].vc_SamplePos>>16]*ht.ht_Voices[i].vc_RingMixSource[ht.ht_Voices[i].vc_RingSamplePos>>16])>>7)*ht.ht_Voices[i].vc_VoiceVolume;
+                            ht.ht_Voices[i].vc_RingSamplePos += ht.ht_Voices[i].vc_RingDelta;
                         } else {
-                            j = src[i][pos[i]>>16]*vol[i];
+                            j = ht.ht_Voices[i].vc_MixSource[ht.ht_Voices[i].vc_SamplePos>>16]*ht.ht_Voices[i].vc_VoiceVolume;
                         }
                         
-                        if( Math.abs( j ) > vu[i] ) vu[i] = Math.abs( j );
+                        absj=(j^(j>>31))-(j>>31);
+                        if( absj > ht.ht_Voices[i].vc_VUMeter ) ht.ht_Voices[i].vc_VUMeter = absj;
 
-                        a += (j * panl[i]) >> 7;
-                        b += (j * panr[i]) >> 7;
-                        pos[i] += delta[i];
+                        a += (j * ht.ht_Voices[i].vc_PanMultLeft) >> 7;
+                        b += (j * ht.ht_Voices[i].vc_PanMultRight) >> 7;
+                        ht.ht_Voices[i].vc_SamplePos += ht.ht_Voices[i].vc_Delta;
                     }
       
                     a = (a*ht.ht_mixgain)>>8;
@@ -1852,12 +1830,6 @@ package replay_hively {
       
                 } while( loops > 0 );
             } while( samples > 0 );
-
-            for( i=0; i<chans; i++ ){
-                ht.ht_Voices[i].vc_SamplePos = pos[i];
-                ht.ht_Voices[i].vc_RingSamplePos = rpos[i];
-                ht.ht_Voices[i].vc_VUMeter = vu[i];
-            }
         }
         
         

@@ -51,7 +51,8 @@
   </includeLibraries>
   <!-- SWC Libraries -->
   <libraryPaths>
-    <!-- example: <element path="..." /> -->
+    <element path="lib\MonsterDebugger.swc" />
+    <element path="lib\TheMiner_en.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

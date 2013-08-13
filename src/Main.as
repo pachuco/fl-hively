@@ -11,6 +11,9 @@ package
     
     import flash.display.Graphics;
     
+    //import com.demonsters.debugger.MonsterDebugger;
+    //import com.sociodox.theminer.*;
+    
     /**
      * ...
      * @author me!
@@ -34,18 +37,25 @@ package
         {
             removeEventListener(Event.ADDED_TO_STAGE, init);
             // entry point
+            //MonsterDebugger.initialize(this);
+            //this.addChild(new TheMiner());
+            
+            
+            
+            
             [Embed(source="ahx.blondie", mimeType="application/octet-stream")] const choon:Class;
             replayer = new front_panel();
             replayer.load( new choon() as ByteArray, taipan );
             
             fr = new FileReference();
             fr.addEventListener(Event.SELECT, onFileSelected);
-            ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");;
+            ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");
             
-            draw_buttan( 50, 300, "PLAY", play );
-            draw_buttan( 300, 300, "PAUSE", pause );
-            draw_buttan( 500, 300, "SOTP", stop );
             draw_buttan( 50, 50, "LOAD", load );
+            
+            draw_buttan( 50, 100, "PLAY", play );
+            draw_buttan( 110, 100, "PAUSE", pause );
+            draw_buttan( 170, 100, "SOTP", stop );
             //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
@@ -79,10 +89,11 @@ package
             text.selectable = false;
             
             text.text = label;
-            text.x = x+10;
+            text.x = x + 5;
             text.y = y + 2;
             //text.border = true;
-            text.length;
+            text.width  = 45;
+            text.height = 20;
             button.addChild(text);
             
             button.buttonMode = true;
