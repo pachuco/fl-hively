@@ -21,10 +21,10 @@ package replay_hively {
 			audio_out = new Sound();
         }
 
-        public function load( ba:ByteArray ):Boolean {
-			is_playing = false;
+        public function load( ba:ByteArray, stereo_separation:uint = 4 ):Boolean {
+			this.pause();
 			ba.endian = Endian.LITTLE_ENDIAN;
-            ht = replayer.hvl_LoadTune( ba, 0 );
+            ht = replayer.hvl_LoadTune( ba, stereo_separation );
 			return true;
         }
         
@@ -53,8 +53,7 @@ package replay_hively {
         
         public function stop(     ):void {
 			if ( is_playing ) {
-				sc.stop();
-				is_playing = false;
+				this.pause();
 				replayer.hvl_InitSubsong(ht, 0);
 			}
         }

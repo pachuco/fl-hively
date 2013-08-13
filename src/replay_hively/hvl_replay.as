@@ -1859,9 +1859,9 @@ package replay_hively {
                     }
                     
                     if( b >= 0 ){
-                        bf = a / 32767;
+                        bf = b / 32767;
                     }else{
-                        bf = a / 32768;
+                        bf = b / 32768;
                     }
                     buf12.writeFloat(af);
                     buf12.writeFloat(bf);
