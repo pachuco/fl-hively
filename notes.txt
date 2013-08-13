@@ -1,12 +1,15 @@
 Done:
 -Precalculated waveform generator
+-The player itself
 
 Todo:
--Everything else
 -Get license.txt
 -Turn everything that is public into protected and make a front_panel class
 -Synchro class(animation can be synchronised to music events)
--Optimisation
+-Optimisation. Currently, complex hvl tunes can get up to 40% CPU usage on a P4 630 @ 3ghz
+-Regarding above, steal blep synthesis from kode54's foo_hively.
+-Maybe tear the hvl mixer apart and use SoundChannels in hopes that it will take load off CPU? I dunno.
+-Clean up warnings.
 
 Considered optimisations:
 -compact Tracks[][] into single array and use offset multiplication instead of array nesting

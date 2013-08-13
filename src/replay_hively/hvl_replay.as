@@ -15,7 +15,7 @@ package replay_hively {
     import flash.media.*;
     import flash.utils.*;
     
-    public class hvl_replay{
+    internal class hvl_replay{
         private var waves_t:ByteArray = new ByteArray();
         private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
@@ -50,7 +50,7 @@ package replay_hively {
             //waves_t=null;
         }
         
-        public function getdemwaves():ByteArray{
+        internal function getdemwaves():ByteArray{
             return waves_t;
         }
         
@@ -235,7 +235,7 @@ package replay_hively {
             }while( len );
         }
         
-        public function hvl_InitSubsong( ht:hvl_tune, nr:uint ):Boolean{
+        internal function hvl_InitSubsong( ht:hvl_tune, nr:uint ):Boolean{
             var PosNr:uint, i:uint;
 
             if( nr > ht.ht_SubsongNr ){
@@ -284,7 +284,6 @@ package replay_hively {
             return true;
         }
         
-    //TODO    
         private function hvl_load_ahx( buf:ByteArray, buflen:uint, defstereo:uint ):hvl_tune{
             var bptr:uint;      //*uint8
             var nptr:uint;      //*TEXT
@@ -293,207 +292,207 @@ package replay_hively {
             var ple:hvl_plsentry;
             const defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]);
 
-			posn = ((buf[6]&0x0f)<<8)|buf[7];
-			insn = buf[12];
-			ssn  = buf[13];
-			trkl = buf[10];
-			trkn = buf[11];
+            posn = ((buf[6]&0x0f)<<8)|buf[7];
+            insn = buf[12];
+            ssn  = buf[13];
+            trkl = buf[10];
+            trkn = buf[11];
 
-			// Calculate the size of all instrument PList buffers
-			bptr = 14;
-			bptr += ssn*2;    // Skip past the subsong list
-			bptr += posn*4*2; // Skip past the positions
-			bptr += trkn*trkl*3;
-			if((buf[6]&0x80)==0) bptr += trkl*3;
+            // Calculate the size of all instrument PList buffers
+            bptr = 14;
+            bptr += ssn*2;    // Skip past the subsong list
+            bptr += posn*4*2; // Skip past the positions
+            bptr += trkn*trkl*3;
+            if((buf[6]&0x80)==0) bptr += trkl*3;
   
-			// *NOW* we can finally calculate PList space
-			for( i=1; i<=insn; i++ ){
-				bptr += 22 + buf[bptr+21]*4;
-			}
+            // *NOW* we can finally calculate PList space
+            for( i=1; i<=insn; i++ ){
+                bptr += 22 + buf[bptr+21]*4;
+            }
 
-			ht = new hvl_tune();
+            ht = new hvl_tune();
   
-			ht.ht_Frequency       = cons.sample_rate;
-			ht.ht_FreqF           = Number(cons.sample_rate);
+            ht.ht_Frequency       = cons.sample_rate;
+            ht.ht_FreqF           = Number(cons.sample_rate);
   
             ht.malloc_positions(posn);
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
 
-			ht.ht_WaveformTab[0]  = cons.WO_TRIANGLE_04;
-			ht.ht_WaveformTab[1]  = cons.WO_SAWTOOTH_04;
-			ht.ht_WaveformTab[3]  = cons.WO_WHITENOISE;
+            ht.ht_WaveformTab[0]  = cons.WO_TRIANGLE_04;
+            ht.ht_WaveformTab[1]  = cons.WO_SAWTOOTH_04;
+            ht.ht_WaveformTab[3]  = cons.WO_WHITENOISE;
 
-			ht.ht_Channels        = 4;
-			ht.ht_PositionNr      = posn;
-			ht.ht_Restart         = (buf[8]<<8)|buf[9];
-			ht.ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
-			ht.ht_TrackLength     = trkl;
-			ht.ht_TrackNr         = trkn;
-			ht.ht_InstrumentNr    = insn;
-			ht.ht_SubsongNr       = ssn;
-			ht.ht_defstereo       = defstereo;
-			ht.ht_defpanleft      = cons.stereopan_left[ht.ht_defstereo];
-			ht.ht_defpanright     = cons.stereopan_right[ht.ht_defstereo];
-			ht.ht_mixgain         = (defgain[ht.ht_defstereo]*256)/100;
+            ht.ht_Channels        = 4;
+            ht.ht_PositionNr      = posn;
+            ht.ht_Restart         = (buf[8]<<8)|buf[9];
+            ht.ht_SpeedMultiplier = ((buf[6]>>5)&3)+1;
+            ht.ht_TrackLength     = trkl;
+            ht.ht_TrackNr         = trkn;
+            ht.ht_InstrumentNr    = insn;
+            ht.ht_SubsongNr       = ssn;
+            ht.ht_defstereo       = defstereo;
+            ht.ht_defpanleft      = cons.stereopan_left[ht.ht_defstereo];
+            ht.ht_defpanright     = cons.stereopan_right[ht.ht_defstereo];
+            ht.ht_mixgain         = (defgain[ht.ht_defstereo]*256)/100;
   
-			if( ht.ht_Restart >= ht.ht_PositionNr ){
-					ht.ht_Restart = ht.ht_PositionNr - 1;
-			}
+            if( ht.ht_Restart >= ht.ht_PositionNr ){
+                    ht.ht_Restart = ht.ht_PositionNr - 1;
+            }
 
-			// Do some validation  
-			if( ( ht.ht_PositionNr > 1000 ) ||
-				( ht.ht_TrackLength > 64 ) ||
-				( ht.ht_InstrumentNr > 64 ) ){
-					trace( ht.ht_PositionNr+","+ht.ht_TrackLength+","+ht.ht_InstrumentNr );
-					ht = null;
-					buf.clear();
-					trace( "Invalid file.\n" );
-					return null;
-			}
+            // Do some validation  
+            if( ( ht.ht_PositionNr > 1000 ) ||
+                ( ht.ht_TrackLength > 64 ) ||
+                ( ht.ht_InstrumentNr > 64 ) ){
+                    trace( ht.ht_PositionNr+","+ht.ht_TrackLength+","+ht.ht_InstrumentNr );
+                    ht = null;
+                    buf.clear();
+                    trace( "Invalid file.\n" );
+                    return null;
+            }
 
-			ht.ht_Name = tools.strncpy(buf, (buf[4]<<8)|buf[5], 128);
-			nptr = ((buf[4]<<8)|buf[5])+ht.ht_Name.length+1;
+            ht.ht_Name = tools.strncpy(buf, (buf[4]<<8)|buf[5], 128);
+            nptr = ((buf[4]<<8)|buf[5])+ht.ht_Name.length+1;
 
-			bptr = 14;
+            bptr = 14;
   
-			// Subsongs
-			for( i=0; i<ht.ht_SubsongNr; i++ ){
-				ht.ht_Subsongs[i] = (buf[bptr+0]<<8)|buf[bptr+1];
-				if( ht.ht_Subsongs[i] >= ht.ht_PositionNr ){
-					ht.ht_Subsongs[i] = 0;
-				}
-				bptr += 2;
-			}
+            // Subsongs
+            for( i=0; i<ht.ht_SubsongNr; i++ ){
+                ht.ht_Subsongs[i] = (buf[bptr+0]<<8)|buf[bptr+1];
+                if( ht.ht_Subsongs[i] >= ht.ht_PositionNr ){
+                    ht.ht_Subsongs[i] = 0;
+                }
+                bptr += 2;
+            }
   
-			// Position list
-			for( i=0; i<ht.ht_PositionNr; i++ ){
-				for( j=0; j<4; j++ ){
-					ht.ht_Positions[i].pos_Track[j]     = buf[bptr++];
-					ht.ht_Positions[i].pos_Transpose[j] = tools.ui2i8(buf[bptr++]);
-				}
-			}
+            // Position list
+            for( i=0; i<ht.ht_PositionNr; i++ ){
+                for( j=0; j<4; j++ ){
+                    ht.ht_Positions[i].pos_Track[j]     = buf[bptr++];
+                    ht.ht_Positions[i].pos_Transpose[j] = tools.ui2i8(buf[bptr++]);
+                }
+            }
   
-			// Tracks
-			for( i=0; i<=ht.ht_TrackNr; i++ ){
-				if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
-					for( j=0; j<ht.ht_TrackLength; j++ ){
-						ht.ht_Tracks[i][j].stp_Note       = 0;
-						ht.ht_Tracks[i][j].stp_Instrument = 0;
-						ht.ht_Tracks[i][j].stp_FX         = 0;
-						ht.ht_Tracks[i][j].stp_FXParam    = 0;
-						ht.ht_Tracks[i][j].stp_FXb        = 0;
-						ht.ht_Tracks[i][j].stp_FXbParam   = 0;
-					}
-					continue;
-				}
+            // Tracks
+            for( i=0; i<=ht.ht_TrackNr; i++ ){
+                if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
+                    for( j=0; j<ht.ht_TrackLength; j++ ){
+                        ht.ht_Tracks[i][j].stp_Note       = 0;
+                        ht.ht_Tracks[i][j].stp_Instrument = 0;
+                        ht.ht_Tracks[i][j].stp_FX         = 0;
+                        ht.ht_Tracks[i][j].stp_FXParam    = 0;
+                        ht.ht_Tracks[i][j].stp_FXb        = 0;
+                        ht.ht_Tracks[i][j].stp_FXbParam   = 0;
+                    }
+                    continue;
+                }
     
-				for( j=0; j<ht.ht_TrackLength; j++ ){
-					ht.ht_Tracks[i][j].stp_Note       = (buf[bptr+0]>>2)&0x3f;
-					ht.ht_Tracks[i][j].stp_Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
-					ht.ht_Tracks[i][j].stp_FX         = buf[bptr+1]&0xf;
-					ht.ht_Tracks[i][j].stp_FXParam    = buf[bptr+2];
-					ht.ht_Tracks[i][j].stp_FXb        = 0;
-					ht.ht_Tracks[i][j].stp_FXbParam   = 0;
-					bptr += 3;
-				}
-			}
+                for( j=0; j<ht.ht_TrackLength; j++ ){
+                    ht.ht_Tracks[i][j].stp_Note       = (buf[bptr+0]>>2)&0x3f;
+                    ht.ht_Tracks[i][j].stp_Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
+                    ht.ht_Tracks[i][j].stp_FX         = buf[bptr+1]&0xf;
+                    ht.ht_Tracks[i][j].stp_FXParam    = buf[bptr+2];
+                    ht.ht_Tracks[i][j].stp_FXb        = 0;
+                    ht.ht_Tracks[i][j].stp_FXbParam   = 0;
+                    bptr += 3;
+                }
+            }
   
-			// Instruments
-			for( i=1; i<=ht.ht_InstrumentNr; i++ ){
-				if ( nptr < buf + buflen ) {
-					ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
-					nptr += tools.strlen( buf, nptr )+1;
-				} else {
-					ht.ht_Instruments[i].ins_Name = "";
-				}
+            // Instruments
+            for( i=1; i<=ht.ht_InstrumentNr; i++ ){
+                if ( nptr < buf + buflen ) {
+                    ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
+                    nptr += tools.strlen( buf, nptr )+1;
+                } else {
+                    ht.ht_Instruments[i].ins_Name = "";
+                }
     
-				ht.ht_Instruments[i].ins_Volume      = buf[bptr+0];
-				ht.ht_Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-				ht.ht_Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
+                ht.ht_Instruments[i].ins_Volume      = buf[bptr+0];
+                ht.ht_Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                ht.ht_Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
 
-				ht.ht_Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
-				ht.ht_Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
-				ht.ht_Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
-				ht.ht_Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
-				ht.ht_Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
-				ht.ht_Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
-				ht.ht_Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
-				
-				ht.ht_Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
-				ht.ht_Instruments[i].ins_VibratoDelay         = buf[bptr+13];
-				ht.ht_Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-				ht.ht_Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
-				ht.ht_Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
-				ht.ht_Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
-				ht.ht_Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
-				ht.ht_Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
-				ht.ht_Instruments[i].ins_SquareSpeed          = buf[bptr+18];
-				ht.ht_Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
-				ht.ht_Instruments[i].ins_PList.pls_Speed      = buf[bptr+20];
-				ht.ht_Instruments[i].ins_PList.pls_Length     = buf[bptr+21];
-				
-				ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
+                ht.ht_Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
+                ht.ht_Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
+                ht.ht_Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
+                ht.ht_Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
+                ht.ht_Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
+                ht.ht_Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
+                ht.ht_Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
+                
+                ht.ht_Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
+                ht.ht_Instruments[i].ins_VibratoDelay         = buf[bptr+13];
+                ht.ht_Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                ht.ht_Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                ht.ht_Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
+                ht.ht_Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
+                ht.ht_Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
+                ht.ht_Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
+                ht.ht_Instruments[i].ins_SquareSpeed          = buf[bptr+18];
+                ht.ht_Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
+                ht.ht_Instruments[i].ins_PList.pls_Speed      = buf[bptr+20];
+                ht.ht_Instruments[i].ins_PList.pls_Length     = buf[bptr+21];
+                
+                ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
     
-				bptr += 22;
-				for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ ){
-					k = (buf[bptr+0]>>5)&7;
-					if( k == 6 ) k = 12;
-					if( k == 7 ) k = 15;
-					l = (buf[bptr+0]>>2)&7;
-					if( l == 6 ) l = 12;
-					if( l == 7 ) l = 15;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1]      = k;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0]      = l;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed      = (buf[bptr+1]>>6)&1;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note       = buf[bptr+1]&0x3f;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = buf[bptr+2];
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = buf[bptr+3];
+                bptr += 22;
+                for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ ){
+                    k = (buf[bptr+0]>>5)&7;
+                    if( k == 6 ) k = 12;
+                    if( k == 7 ) k = 15;
+                    l = (buf[bptr+0]>>2)&7;
+                    if( l == 6 ) l = 12;
+                    if( l == 7 ) l = 15;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1]      = k;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0]      = l;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed      = (buf[bptr+1]>>6)&1;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note       = buf[bptr+1]&0x3f;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = buf[bptr+2];
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = buf[bptr+3];
 
-					// 1.6: Strip "toggle filter" commands if the module is
-					//      version 0 (pre-filters). This is what AHX also does.
-					if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) )
-						ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] &= 0x0f;
-					if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) )
-						ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] &= 0x0f; // 1.8
+                    // 1.6: Strip "toggle filter" commands if the module is
+                    //      version 0 (pre-filters). This is what AHX also does.
+                    if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) )
+                        ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] &= 0x0f;
+                    if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) )
+                        ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] &= 0x0f; // 1.8
 
-					bptr += 4;
-				}
-			}
+                    bptr += 4;
+                }
+            }
   
-			hvl_InitSubsong( ht, 0 );
-			buf.clear();
-			return ht;
-		}
+            hvl_InitSubsong( ht, 0 );
+            buf.clear();
+            return ht;
+        }
 
-        public function hvl_LoadTune( buf:ByteArray, defstereo:uint ):hvl_tune{
+        internal function hvl_LoadTune( buf:ByteArray, defstereo:uint ):hvl_tune{
             
-            var ht:hvl_tune;              //*
-            var bptr:uint;      //*uint8
+            var ht:hvl_tune;            //*
+            var bptr:uint;              //*uint8
             var nptr:uint;              //*TEXT
             var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
             //var ple:hvl_plsentry;         //*
 
             buflen = buf.length;
-			
-			//THX
+            
+            //THX
             if( ( buf[0] == 84 ) &&
                 ( buf[1] == 72 ) &&
                 ( buf[2] == 88 ) &&
                 ( buf[3] < 3 ) ){
                     return hvl_load_ahx( buf, buflen, defstereo);
                 }
-			//HVL
+            //HVL
             if( ( buf[0] != 72 ) ||
-				( buf[1] != 86 ) ||
-				( buf[2] != 76 ) ||
-				( buf[3] > 1 ) ){
-					buf.clear();
-					trace( "Invalid file.\n" );
-					return null;
+                ( buf[1] != 86 ) ||
+                ( buf[2] != 76 ) ||
+                ( buf[3] > 1 ) ){
+                    buf.clear();
+                    trace( "Invalid file.\n" );
+                    return null;
             }
-			
+            
             posn = ((buf[6]&0x0f)<<8)|buf[7];
             insn = buf[12];
             ssn  = buf[13];
@@ -516,19 +515,19 @@ package replay_hively {
             //      out if the module had a blank first track (which is how
             //      come they were missed.
             for( i=((buf[6]&0x80)==0x80)?1:0; i<=trkn; i++ ){
-				for( j=0; j<trkl; j++ ){
-					if( buf[bptr+0] == 0x3f ){
-						bptr++;
-						continue;
-					}
-					bptr += 5;
-				}
-			}
+                for( j=0; j<trkl; j++ ){
+                    if( buf[bptr+0] == 0x3f ){
+                        bptr++;
+                        continue;
+                    }
+                    bptr += 5;
+                }
+            }
 
             // *NOW* we can finally calculate PList space
             for( i=1; i<=insn; i++ ){
-				//hs += bptr[21] * sizeof( struct hvl_plsentry );
-				bptr += 22 + buf[bptr+21]*5;
+                //hs += bptr[21] * sizeof( struct hvl_plsentry );
+                bptr += 22 + buf[bptr+21]*5;
             }
 
             ht = new hvl_tune();
@@ -559,130 +558,129 @@ package replay_hively {
             ht.ht_defpanright     = cons.stereopan_right[ht.ht_defstereo];
 
             if( ht.ht_Restart >= ht.ht_PositionNr ){
-				ht.ht_Restart = ht.ht_PositionNr - 1;
-			}
+                ht.ht_Restart = ht.ht_PositionNr - 1;
+            }
 
             // Do some validation  
             if( ( ht.ht_PositionNr > 1000 ) ||
-				( ht.ht_TrackLength > 64 ) ||
-				( ht.ht_InstrumentNr > 64 ) ){
-					trace( ht.ht_PositionNr+","+ht.ht_TrackLength+","+ht.ht_InstrumentNr+"\n");
-					ht = null;
-					buf.clear();
-					trace( "Invalid file.\n" );
-					return null;
+                ( ht.ht_TrackLength > 64 ) ||
+                ( ht.ht_InstrumentNr > 64 ) ){
+                    trace( ht.ht_PositionNr+","+ht.ht_TrackLength+","+ht.ht_InstrumentNr+"\n");
+                    ht = null;
+                    buf.clear();
+                    trace( "Invalid file.\n" );
+                    return null;
             }
 
-			ht.ht_Name = tools.strncpy(buf, (buf[4]<<8)|buf[5], 128);
+            ht.ht_Name = tools.strncpy(buf, (buf[4]<<8)|buf[5], 128);
             nptr = ((buf[4]<<8)|buf[5])+ht.ht_Name.length+1;
 
             bptr = 16;
 
             // Subsongs
             for( i=0; i<ht.ht_SubsongNr; i++ ){
-				ht.ht_Subsongs[i] = (buf[bptr+0]<<8)|buf[bptr+1];
-				bptr += 2;
+                ht.ht_Subsongs[i] = (buf[bptr+0]<<8)|buf[bptr+1];
+                bptr += 2;
             }
 
             // Position list
             for( i=0; i<ht.ht_PositionNr; i++ ){
-				for( j=0; j<ht.ht_Channels; j++ ){
-					ht.ht_Positions[i].pos_Track[j]     = buf[bptr++];
-					ht.ht_Positions[i].pos_Transpose[j] = tools.ui2i8(buf[bptr++]);
-				}
+                for( j=0; j<ht.ht_Channels; j++ ){
+                    ht.ht_Positions[i].pos_Track[j]     = buf[bptr++];
+                    ht.ht_Positions[i].pos_Transpose[j] = tools.ui2i8(buf[bptr++]);
+                }
             }
 
             // Tracks
             for( i=0; i<=ht.ht_TrackNr; i++ ){
-				if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
-					for( j=0; j<ht.ht_TrackLength; j++ ){
-						ht.ht_Tracks[i][j].stp_Note       = 0;
-						ht.ht_Tracks[i][j].stp_Instrument = 0;
-						ht.ht_Tracks[i][j].stp_FX         = 0;
-						ht.ht_Tracks[i][j].stp_FXParam    = 0;
-						ht.ht_Tracks[i][j].stp_FXb        = 0;
-						ht.ht_Tracks[i][j].stp_FXbParam   = 0;
-					}
-					continue;
-				}
+                if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
+                    for( j=0; j<ht.ht_TrackLength; j++ ){
+                        ht.ht_Tracks[i][j].stp_Note       = 0;
+                        ht.ht_Tracks[i][j].stp_Instrument = 0;
+                        ht.ht_Tracks[i][j].stp_FX         = 0;
+                        ht.ht_Tracks[i][j].stp_FXParam    = 0;
+                        ht.ht_Tracks[i][j].stp_FXb        = 0;
+                        ht.ht_Tracks[i][j].stp_FXbParam   = 0;
+                    }
+                    continue;
+                }
 
-				for( j=0; j<ht.ht_TrackLength; j++ ){
-					if( buf[bptr+0] == 0x3f ){
-						ht.ht_Tracks[i][j].stp_Note       = 0;
-						ht.ht_Tracks[i][j].stp_Instrument = 0;
-						ht.ht_Tracks[i][j].stp_FX         = 0;
-						ht.ht_Tracks[i][j].stp_FXParam    = 0;
-						ht.ht_Tracks[i][j].stp_FXb        = 0;
-						ht.ht_Tracks[i][j].stp_FXbParam   = 0;
-						bptr++;
-						continue;
-					}
-				  
-					ht.ht_Tracks[i][j].stp_Note       = buf[bptr+0];
-					ht.ht_Tracks[i][j].stp_Instrument = buf[bptr+1];
-					ht.ht_Tracks[i][j].stp_FX         = buf[bptr+2]>>4;
-					ht.ht_Tracks[i][j].stp_FXParam    = buf[bptr+3];
-					ht.ht_Tracks[i][j].stp_FXb        = buf[bptr+2]&0xf;
-					ht.ht_Tracks[i][j].stp_FXbParam   = buf[bptr+4];
-					bptr += 5;
-				}
+                for( j=0; j<ht.ht_TrackLength; j++ ){
+                    if( buf[bptr+0] == 0x3f ){
+                        ht.ht_Tracks[i][j].stp_Note       = 0;
+                        ht.ht_Tracks[i][j].stp_Instrument = 0;
+                        ht.ht_Tracks[i][j].stp_FX         = 0;
+                        ht.ht_Tracks[i][j].stp_FXParam    = 0;
+                        ht.ht_Tracks[i][j].stp_FXb        = 0;
+                        ht.ht_Tracks[i][j].stp_FXbParam   = 0;
+                        bptr++;
+                        continue;
+                    }
+                  
+                    ht.ht_Tracks[i][j].stp_Note       = buf[bptr+0];
+                    ht.ht_Tracks[i][j].stp_Instrument = buf[bptr+1];
+                    ht.ht_Tracks[i][j].stp_FX         = buf[bptr+2]>>4;
+                    ht.ht_Tracks[i][j].stp_FXParam    = buf[bptr+3];
+                    ht.ht_Tracks[i][j].stp_FXb        = buf[bptr+2]&0xf;
+                    ht.ht_Tracks[i][j].stp_FXbParam   = buf[bptr+4];
+                    bptr += 5;
+                }
             }
 
 
             // Instruments
             for( i=1; i<=ht.ht_InstrumentNr; i++ ){
-				if( nptr < buf+buflen ){
-					ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
-					nptr += tools.strlen( buf, nptr )+1;
-				} else {
-					ht.ht_Instruments[i].ins_Name = "";
-				}
+                if( nptr < buf+buflen ){
+                    ht.ht_Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
+                    nptr += tools.strlen( buf, nptr )+1;
+                } else {
+                    ht.ht_Instruments[i].ins_Name = "";
+                }
 
-				ht.ht_Instruments[i].ins_Volume      = buf[bptr+0];
-				ht.ht_Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-				ht.ht_Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
+                ht.ht_Instruments[i].ins_Volume      = buf[bptr+0];
+                ht.ht_Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                ht.ht_Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
 
-				ht.ht_Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
-				ht.ht_Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
-				ht.ht_Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
-				ht.ht_Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
-				ht.ht_Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
-				ht.ht_Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
-				ht.ht_Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
+                ht.ht_Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
+                ht.ht_Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
+                ht.ht_Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
+                ht.ht_Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
+                ht.ht_Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
+                ht.ht_Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
+                ht.ht_Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
 
-				ht.ht_Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
-				ht.ht_Instruments[i].ins_VibratoDelay         = buf[bptr+13];
-				ht.ht_Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-				ht.ht_Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
-				ht.ht_Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
-				ht.ht_Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
-				ht.ht_Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
-				ht.ht_Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
-				ht.ht_Instruments[i].ins_SquareSpeed          = buf[bptr+18];
-				ht.ht_Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
-				ht.ht_Instruments[i].ins_PList.pls_Speed      = buf[bptr+20];
-				ht.ht_Instruments[i].ins_PList.pls_Length     = buf[bptr+21];
+                ht.ht_Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
+                ht.ht_Instruments[i].ins_VibratoDelay         = buf[bptr+13];
+                ht.ht_Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                ht.ht_Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                ht.ht_Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
+                ht.ht_Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
+                ht.ht_Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
+                ht.ht_Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
+                ht.ht_Instruments[i].ins_SquareSpeed          = buf[bptr+18];
+                ht.ht_Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
+                ht.ht_Instruments[i].ins_PList.pls_Speed      = buf[bptr+20];
+                ht.ht_Instruments[i].ins_PList.pls_Length     = buf[bptr+21];
 
-				ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
-				//ple += bptr[21];
+                ht.ht_Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
 
-				bptr += 22;
-				for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ ){
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0] = buf[bptr+0]&0xf;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1] = (buf[bptr+1]>>3)&0xf;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform = buf[bptr+1]&7;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed = (buf[bptr+2]>>6)&1;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note  = buf[bptr+2]&0x3f;
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = buf[bptr+3];
-					ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = buf[bptr+4];
-					bptr += 5;
-				}
+                bptr += 22;
+                for( j=0; j<ht.ht_Instruments[i].ins_PList.pls_Length; j++ ){
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[0] = buf[bptr+0]&0xf;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FX[1] = (buf[bptr+1]>>3)&0xf;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Waveform = buf[bptr+1]&7;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Fixed = (buf[bptr+2]>>6)&1;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_Note  = buf[bptr+2]&0x3f;
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[0] = buf[bptr+3];
+                    ht.ht_Instruments[i].ins_PList.pls_Entries[j].ple_FXParam[1] = buf[bptr+4];
+                    bptr += 5;
+                }
             }
 
             hvl_InitSubsong( ht, 0 );
             buf.clear();
             return ht;
-			
+            
 }   
 
         private function hvl_process_stepfx_1( ht:hvl_tune, voice:hvl_voice, FX:int, FXParam:int ):void{
@@ -764,7 +762,6 @@ package replay_hively {
                         if( FXParam != 0 ){
                             voice.vc_PeriodSlideSpeed = FXParam;
                         }
-                        //TODO: Check *Note usage.
                         if( Note ){
                             var mew:int, diff:int;
 
@@ -896,8 +893,6 @@ package replay_hively {
           
             voice.vc_VolumeSlideUp = voice.vc_VolumeSlideDown = 0;
           
-            //TODO: a bit of a headache to read. Make sure we are doing things right.
-            //Step = &ht->ht_Tracks[ht->ht_Positions[ht->ht_PosNr].pos_Track[voice->vc_VoiceNum]][ht->ht_NoteNr];
             Step = ht.ht_Tracks[ ht.ht_Positions[ ht.ht_PosNr ].pos_Track[ voice.vc_VoiceNum ] ]     [ ht.ht_NoteNr ];
           
             Note    = Step.stp_Note;
@@ -961,7 +956,6 @@ package replay_hively {
 
                 voice.vc_PerfSubVolume    = 0x40;
                 voice.vc_ADSRVolume       = 0;
-                //voice.vc_Instrument       = Ins = &ht.ht_Instruments[Instr];
                 voice.vc_Instrument       = Ins = ht.ht_Instruments[Instr];
                 voice.vc_SamplePos        = 0;
             
@@ -1029,7 +1023,6 @@ package replay_hively {
                 voice.vc_PerfWait    = 0;
                 voice.vc_PerfCurrent = 0;
                 voice.vc_PerfSpeed = Ins.ins_PList.pls_Speed;
-                //voice.vc_PerfList  = &voice.vc_Instrument.ins_PList;
                 voice.vc_PerfList  = voice.vc_Instrument.ins_PList;
                 
                 //WARNING: "unreachable" value
@@ -1127,8 +1120,6 @@ package replay_hively {
                         voice.vc_RingFixedPeriod = 0;
                         voice.vc_RingNewWaveform = 0;
                         //WARNING: "unreachable" value
-                        //voice.vc_RingAudioSource = NULL; // turn it off
-                        //voice.vc_RingMixSource   = NULL;
                         voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
                         voice.vc_RingMixSource   = null;
                         break;
@@ -1150,8 +1141,6 @@ package replay_hively {
                         voice.vc_RingFixedPeriod = 0;
                         voice.vc_RingNewWaveform = 0;
                         //WARNING: "unreachable" value
-                        //voice.vc_RingAudioSource = NULL; // turn it off
-                        //voice.vc_RingMixSource   = NULL;
                         voice.vc_RingAudioSource = uint.MAX_VALUE; // turn it off
                         voice.vc_RingMixSource   = null;
                         break;
@@ -1418,7 +1407,7 @@ package replay_hively {
                 }
             }
           
-            if( voice.vc_FilterOn && --voice.vc_FilterWait <= 0 ){ //TODO: check C vs AS3 operator precedence!
+            if( voice.vc_FilterOn && --voice.vc_FilterWait <= 0 ){ 
                 var i:uint, FMax:uint;            //uint32
                 var d1:int, d2:int, d3:int;       //int32
             
@@ -1469,7 +1458,6 @@ package replay_hively {
                 var SquarePtr:uint;      //*int8
                 var X:int;               //int32
             
-                //SquarePtr = &waves[WO_SQUARES+(voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3)];
                 SquarePtr = cons.WO_SQUARES+(voice.vc_FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
                 X = voice.vc_SquarePos << (5 - voice.vc_WaveLength);
             
@@ -1484,16 +1472,15 @@ package replay_hively {
                 }
             
                 Delta = 32 >> voice.vc_WaveLength;
-                //TODO: fix this!
-				
+                
                 ht.ht_WaveformTab_i2 = voice.vc_SquareTempBuffer;
-				ht.ht_WaveformTab[2] = 0;
+                ht.ht_WaveformTab[2] = 0;
             
                 for( i=0; i<(1<<voice.vc_WaveLength)*4; i++ ){
                     voice.vc_SquareTempBuffer[i] = waves[SquarePtr];
                     SquarePtr += Delta;
                 }
-				
+                
                 voice.vc_NewWaveform = 1;
                 voice.vc_Waveform    = 3-1;
                 voice.vc_PlantSquare = 0;
@@ -1509,7 +1496,6 @@ package replay_hively {
                 if( voice.vc_RingWaveform > 1 ){
                     voice.vc_RingWaveform = 1;
                 }
-                //TODO: check this!
                 rasrc = ht.ht_WaveformTab[voice.vc_RingWaveform];
                 rasrc += Offsets[voice.vc_WaveLength];
             
@@ -1544,7 +1530,6 @@ package replay_hively {
             }
           
             // Ring modulation period calculation
-            //TODO: Check! We use uint.MAX_VALUE instead of NULL.
             if( voice.vc_RingAudioSource != uint.MAX_VALUE ){
                 voice.vc_RingAudioPeriod = voice.vc_RingBasePeriod;
           
@@ -1644,12 +1629,12 @@ package replay_hively {
   
             if( voice.vc_NewWaveform ){
                 var src:uint;        //*int8
-				var ref:Vector.<int>;
-				if (voice.vc_Waveform == 2) {
-					ref = voice.vc_SquareTempBuffer;
-				}else {
-					ref = waves;
-				}
+                var ref:Vector.<int>;
+                if (voice.vc_Waveform == 2) {
+                    ref = voice.vc_SquareTempBuffer;
+                }else {
+                    ref = waves;
+                }
                 src = voice.vc_AudioSource;
     
                 if( voice.vc_Waveform == 4-1 ){
@@ -1681,8 +1666,7 @@ package replay_hively {
     
                 voice.vc_RingPlantPeriod = 0;
                 freq2 = Period2Freq( voice.vc_RingAudioPeriod );
-                //delta = (uint32)(freq2 / freqf);
-				delta = uint(freq2 / freqf);
+                delta = uint(freq2 / freqf);
     
                 if( delta > (0x280<<16) ) delta -= (0x280<<16);
                 if( delta == 0 ) delta = 1;
@@ -1692,13 +1676,13 @@ package replay_hively {
             if( voice.vc_RingNewWaveform ){
                 var src:uint;                  //*int8
                 var i:uint, WaveLoops:uint;    //uint32
-				var ref:Vector.<int>;
-				if (voice.vc_Waveform == 2) {
-					ref = voice.vc_SquareTempBuffer;
-				}else {
-					ref = waves;
-				}
-				
+                var ref:Vector.<int>;
+                if (voice.vc_Waveform == 2) {
+                    ref = voice.vc_SquareTempBuffer;
+                }else {
+                    ref = waves;
+                }
+                
                 src = voice.vc_RingAudioSource;
 
                 WaveLoops = (1 << (5 - voice.vc_WaveLength)) * 5;
@@ -1773,12 +1757,11 @@ package replay_hively {
             }
         }
 
-        //void hvl_mixchunk( ht:hvl_tune, samples:uint, int8 *buf1, int8 *buf2, int32 bufmod ){
         private function hvl_mixchunk( ht:hvl_tune, samples:uint, buf12:ByteArray ):void{
             //int8   *src[MAX_CHANNELS];      //*int8
             //int8   *rsrc[MAX_CHANNELS];     //*int8
             var src:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true);  //*int8
-			var rsrc:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
+            var rsrc:Vector.<Vector.<int>> = new Vector.<Vector.<int>>(cons.MAX_CHANNELS, true); //*int8
             var delta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);                //uint32
             var rdelta:Vector.<uint> = new Vector.<uint>(cons.MAX_CHANNELS, true);               //uint32
             var vol:Vector.<int> = new Vector.<int>(cons.MAX_CHANNELS, true);                    //int32
@@ -1800,9 +1783,8 @@ package replay_hively {
                 src[i]   = ht.ht_Voices[i].vc_MixSource;
                 panl[i]  = ht.ht_Voices[i].vc_PanMultLeft;
                 panr[i]  = ht.ht_Voices[i].vc_PanMultRight;
-				
-				//ref[i] = ht.ht_Voices[i].vc_Waveform;
-				
+                
+                
     
                 /* Ring Modulation */
                 rdelta[i]= ht.ht_Voices[i].vc_RingDelta;
@@ -1868,8 +1850,6 @@ package replay_hively {
       
                     loops--;
       
-                    //buf1 += bufmod;
-                    //buf2 += bufmod;
                 } while( loops > 0 );
             } while( samples > 0 );
 
@@ -1881,9 +1861,7 @@ package replay_hively {
         }
         
         
-        //event.data as buf12; ByteArray
-        //public function hvl_DecodeFrame( ht:hvl_tune, int8 *buf1, int8 *buf2, int32 bufmod ):void
-        public function hvl_DecodeFrame( ht:hvl_tune, buf12:ByteArray ):void{
+        internal function hvl_DecodeFrame( ht:hvl_tune, buf12:ByteArray ):void{
             var samples:uint, loops:uint;       //uint32
   
             samples = ht.ht_Frequency/50/ht.ht_SpeedMultiplier;
@@ -1891,22 +1869,10 @@ package replay_hively {
   
             do{
                 hvl_play_irq( ht );
-                //hvl_mixchunk( ht, samples, buf1, buf2, bufmod );
                 hvl_mixchunk( ht, samples, buf12 );
-                //buf1 += samples * bufmod;
-                //buf2 += samples * bufmod;
                 loops--;
             } while( loops );
         }
-
-
-
-
-
-
-
-
-
     }
 }
         

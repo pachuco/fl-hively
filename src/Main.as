@@ -2,9 +2,9 @@ package
 {
     import flash.display.Sprite;
     import flash.events.*;
-	import flash.media.Sound;
+    import flash.media.Sound;
     import flash.net.FileReference;
-	import flash.net.FileFilter;
+    import flash.net.FileFilter;
     import flash.text.TextField;
     import flash.utils.ByteArray;
     import replay_hively.front_panel;
@@ -21,8 +21,9 @@ package
         private var button:Sprite;
         private var replayer:front_panel;
         private var fr:FileReference;
-		private var ff:FileFilter;
-		
+        private var ff:FileFilter;
+        private var taipan:uint = 2;
+        
         public function Main():void 
         {
             if (stage) init();
@@ -35,17 +36,17 @@ package
             // entry point
             [Embed(source="ahx.blondie", mimeType="application/octet-stream")] const choon:Class;
             replayer = new front_panel();
-            replayer.load( new choon() as ByteArray );
+            replayer.load( new choon() as ByteArray, taipan );
             
             fr = new FileReference();
-			fr.addEventListener(Event.SELECT, onFileSelected);
-			ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");;
+            fr.addEventListener(Event.SELECT, onFileSelected);
+            ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");;
             
             draw_buttan( 50, 300, "PLAY", play );
             draw_buttan( 300, 300, "PAUSE", pause );
-			draw_buttan( 500, 300, "SOTP", stop );
+            draw_buttan( 500, 300, "SOTP", stop );
             draw_buttan( 50, 50, "LOAD", load );
-			//spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
+            //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
             //wavegen
@@ -56,17 +57,17 @@ package
             
         }
         
-		private function spit_text( x:int, y:int, data:String):void {
-			var text:TextField = new TextField();
+        private function spit_text( x:int, y:int, data:String):void {
+            var text:TextField = new TextField();
             text.selectable = false;
             
             text.text = data;
             text.x = x;
             text.y = y;
-			//text.border = true;
+            //text.border = true;
             this.addChild(text);
-		}
-		
+        }
+        
         private function draw_buttan( x:int, y:int, label:String, func:Function ):void{
             button = new Sprite();
             button.graphics.beginFill(0xFFCC00);
@@ -80,8 +81,8 @@ package
             text.text = label;
             text.x = x+10;
             text.y = y + 2;
-			//text.border = true;
-			text.length;
+            //text.border = true;
+            text.length;
             button.addChild(text);
             
             button.buttonMode = true;
@@ -91,23 +92,23 @@ package
             button.addEventListener(MouseEvent.CLICK, func);
             
         }
-		
-		private function onFileSelected(evt:Event):void{ 
+        
+        private function onFileSelected(evt:Event):void{ 
             fr.addEventListener(Event.COMPLETE, onComplete); 
             fr.load(); 
         } 
-		
-		private function onComplete(event:Event):void { 
-			replayer.load( fr.data );; 
+        
+        private function onComplete(event:Event):void { 
+            replayer.load( fr.data, taipan ); 
         }
-		
-		
-		
-		
-		
+        
+        
+        
+        
+        
         
         private function load( event:MouseEvent ):void {
-			fr.browse([ff]);
+            fr.browse([ff]);
         }
         
         private function play( event:MouseEvent ):void{
@@ -118,7 +119,7 @@ package
             replayer.stop();
         }
         
-		private function pause( event:MouseEvent ):void{
+        private function pause( event:MouseEvent ):void{
             replayer.pause();
         }
     }
