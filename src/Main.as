@@ -7,7 +7,7 @@ package
     import flash.net.FileFilter;
     import flash.text.TextField;
     import flash.utils.ByteArray;
-    import replay_hively.front_panel;
+    import hvl.front_panel;
     
     import flash.display.Graphics;
     

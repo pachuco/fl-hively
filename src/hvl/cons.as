@@ -1,4 +1,4 @@
-package replay_hively {
+package hvl {
     internal class cons{
         internal static const stereopan_left:Vector.<int> = Vector.<int>([ 128,  96,  64,  32,   0 ]);
         internal static const stereopan_right:Vector.<int> = Vector.<int>([ 128, 160, 193, 225, 255 ]);

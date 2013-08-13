@@ -1,5 +1,5 @@
-package replay_hively {
-    internal class hvl_envelope{
+package hvl {
+    internal class envelope{
         internal var aFrames:int, aVolume:int;    //int16
         internal var dFrames:int, dVolume:int;    //int16
         internal var sFrames:int;                 //int16
