@@ -21,7 +21,7 @@ package hvl {
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
         
-        private static const stepW = 64;
+        private static const stepW:uint = 64;
         
         public function replay():void{
             GenPanningTables();
@@ -479,16 +479,16 @@ package hvl {
             buflen = buf.length;
             
             //THX
-            if( ( buf[0] == 84 ) &&
-                ( buf[1] == 72 ) &&
-                ( buf[2] == 88 ) &&
+            if( ( buf[0] == 0x54 ) &&
+                ( buf[1] == 0x48 ) &&
+                ( buf[2] == 0x58 ) &&
                 ( buf[3] < 3 ) ){
                     return load_ahx( buf, buflen, defstereo);
                 }
             //HVL
-            if( ( buf[0] != 72 ) ||
-                ( buf[1] != 86 ) ||
-                ( buf[2] != 76 ) ||
+            if( ( buf[0] != 0x48 ) ||
+                ( buf[1] != 0x56 ) ||
+                ( buf[2] != 0x4C ) ||
                 ( buf[3] > 1 ) ){
                     buf.clear();
                     trace( "Invalid file.\n" );
@@ -888,6 +888,7 @@ package hvl {
         private function process_step( ht:tune, vc:voice ):void{
             var Note:int, Instr:int, donenotedel:int; //int32
             var Step:step;                        //struct hvl_step *Step;
+            var t:int;
           
             if( vc.TrackOn == 0 ){
                 return;
@@ -988,7 +989,7 @@ package hvl {
                 SquareUpper = Ins.ins_SquareUpperLimit >> (5 - vc.WaveLength);
             
                 if( SquareUpper < SquareLower ){
-                    var t:int = SquareUpper;            //int16
+                    t = SquareUpper;            //int16
                     SquareUpper = SquareLower;
                     SquareLower = t;
                 }
@@ -1013,7 +1014,7 @@ package hvl {
                 d4 &= ~0x80;
             
                 if( d3 > d4 ){
-                    var t:int = d3;                     //int16
+                    t = d3;                     //int16
                     d3 = d4;
                     d4 = t;
                 }
@@ -1189,7 +1190,9 @@ package hvl {
             } 
         }
 
-        private function process_frame( ht:tune, vc:voice ):void{
+        private function process_frame( ht:tune, vc:voice ):void {
+            var d0:int, d1:int, d2:int, d3:int;     //int32
+            
             const Offsets:Vector.<uint> = Vector.<uint>([0x00, 0x04, 0x04+0x08, 0x04+0x08+0x10, 0x04+0x08+0x10+0x20, 0x04+0x08+0x10+0x20+0x40]);
 
             if( vc.TrackOn == 0 ){
@@ -1214,7 +1217,6 @@ package hvl {
                 }
             
                 if( nextinst ){
-                    var d1:int;         //int32
                   
                     d1 = ht.Tempo - vc.HardCut;
                   
@@ -1287,7 +1289,6 @@ package hvl {
             // Portamento
             if( vc.PeriodSlideOn ){
                 if( vc.PeriodSlideWithLimit ){
-                    var d0:int, d2:int;      //int32
                   
                     d0 = vc.PeriodSlidePeriod - vc.PeriodSlideLimit;
                     d2 = vc.PeriodSlideSpeed;
@@ -1295,7 +1296,6 @@ package hvl {
                     if( d0 > 0 ) d2 = -d2;
               
                     if( d0 ){
-                        var d3:int;          //int32
                  
                         d3 = (d0 + d2) ^ d0;
                 
@@ -1375,7 +1375,6 @@ package hvl {
           
             if( vc.Waveform == 3-1 && vc.SquareOn ){
                 if( --vc.SquareWait <= 0 ){
-                    var d1:int, d2:int, d3:int;     //int32
               
                     d1 = vc.SquareLowerLimit;
                     d2 = vc.SquareUpperLimit;
@@ -1410,8 +1409,7 @@ package hvl {
             }
           
             if( vc.FilterOn && --vc.FilterWait <= 0 ){ 
-                var i:uint, FMax:uint;            //uint32
-                var d1:int, d2:int, d3:int;       //int32
+                var FMax:uint;            //uint32
             
                 d1 = vc.FilterLowerLimit;
                 d2 = vc.FilterUpperLimit;
@@ -1455,7 +1453,6 @@ package hvl {
 
             if( vc.Waveform == 3-1 || vc.PlantSquare ){
                 // CalcSquare
-                var i:uint;              //uint32
                 var Delta:int;           //int32
                 var SquarePtr:uint;      //*int8
                 var X:int;               //int32
@@ -1663,8 +1660,6 @@ package hvl {
 
             /* Ring Modulation */
             if( vc.RingPlantPeriod ){
-                var freq2:Number;     //float64
-                var delta:uint;       //uint32
     
                 vc.RingPlantPeriod = 0;
                 freq2 = Period2Freq( vc.RingAudioPeriod );
@@ -1676,9 +1671,6 @@ package hvl {
             }
   
             if( vc.RingNewWaveform ){
-                var src:uint;                  //*int8
-                var i:uint, WaveLoops:uint;    //uint32
-                var ref:Vector.<int>;
                 if (vc.Waveform == 2) {
                     ref = vc.SquareTempBuffer;
                 }else {
@@ -1691,7 +1683,7 @@ package hvl {
 
                 for( i=0; i<WaveLoops; i++ ){
                     //memcpy( &voice->vc_RingVoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
-                    for( var j:uint=0; j<4*(1<<vc.WaveLength);j++ ){
+                    for( j=0; j<4*(1<<vc.WaveLength);j++ ){
                         vc.RingVoiceBuffer[i*4*(1<<vc.WaveLength)+j] = ref[src+j];
                     }
                 }
@@ -1759,80 +1751,74 @@ package hvl {
             }
         }
 
-        private function mixchunk( ht:tune, samples:uint, buf12:ByteArray ):void{
-            //int8   *src[MAX_CHANNELS];      //*int8
-            //int8   *rsrc[MAX_CHANNELS];     //*int8
-            var cnt:uint;                                                                        //uint32
-            var a:int=0, b:int=0, j:int, absj:int;                                                         //int32
-            var af:Number, bf:Number;
-            var i:uint, chans:uint, loops:uint;                                                  //unit32
-  
-            chans = ht.Channels;
-  
-            do{
-                loops = samples;
-                for( i=0; i<chans; i++ ){
-                    if ( ht.Voices[i].SamplePos >= (0x280 << 16)) {
-                        ht.Voices[i].SamplePos -= 0x280<<16;
-                    }
-                    cnt = ((0x280<<16) - ht.Voices[i].SamplePos - 1) / ht.Voices[i].Delta + 1;
-                    if( cnt < loops ) loops = cnt;
-      
-                    if( ht.Voices[i].RingMixSource ){
-                        if ( ht.Voices[i].RingSamplePos >= (0x280 << 16)) {
-                            ht.Voices[i].RingSamplePos -= 0x280<<16;
-                        }
-                        cnt = ((0x280<<16) - ht.Voices[i].RingSamplePos - 1) / ht.Voices[i].RingDelta + 1;
-                        if( cnt < loops ) loops = cnt;
-                    }
-      
-                }
-    
-                samples -= loops;
-                // Inner loop
-                do{
-                    a=0;
-                    b=0;
-                    for( i=0; i<chans; i++ ){
-                        if( ht.Voices[i].RingMixSource ){
-                            // Ring Modulation
-                            j = ((ht.Voices[i].MixSource[ht.Voices[i].SamplePos>>16]*ht.Voices[i].RingMixSource[ht.Voices[i].RingSamplePos>>16])>>7)*ht.Voices[i].VoiceVolume;
-                            ht.Voices[i].RingSamplePos += ht.Voices[i].RingDelta;
-                        } else {
-                            j = ht.Voices[i].MixSource[ht.Voices[i].SamplePos>>16]*ht.Voices[i].VoiceVolume;
-                        }
-                        
-                        absj=(j^(j>>31))-(j>>31);
-                        if( absj > ht.Voices[i].VUMeter ) ht.Voices[i].VUMeter = absj;
+	
 
-                        a += (j * ht.Voices[i].PanMultLeft) >> 7;
-                        b += (j * ht.Voices[i].PanMultRight) >> 7;
-                        ht.Voices[i].SamplePos += ht.Voices[i].Delta;
-                    }
-      
-                    a = (a*ht.mixgain)>>8;
-                    b = (b*ht.mixgain)>>8;
-                    //*(int16 *)buf1 = a;
-                    //*(int16 *)buf2 = b;
-                    if( a >= 0 ){
-                        af = a / 32767; 
+    private function mixchunk(ht:tune, samples:uint, buf12:ByteArray):void{
+        var cnt:uint, absj:int;
+        var a:int, b:int, j:int;
+        var i:uint, chans:uint, loops:uint;
+     
+        chans = ht.Channels;
+     
+        do{
+            loops = samples;
+            for (i = 0; i < chans; ++i){
+                if (ht.Voices[i].SamplePos >= (0x280 << 16))
+                    ht.Voices[i].SamplePos -= (0x280 << 16);
+                   
+                cnt = (((0x280 << 16) - (ht.Voices[i].SamplePos - 1))
+                      / ht.Voices[i].Delta) + 1;            
+                if (cnt < loops) loops = cnt;
+     
+                if (ht.Voices[i].RingMixSource){
+                    if (ht.Voices[i].RingSamplePos >= (0x280 << 16))
+                        ht.Voices[i].RingSamplePos -= (0x280 << 16);
+                       
+                    cnt = (((0x280 << 16) - (ht.Voices[i].RingSamplePos - 1))
+                          / ht.Voices[i].RingDelta) + 1;                    
+                    if (cnt < loops) loops = cnt;
+                }
+            }
+     
+            samples -= loops;
+           
+            do{
+                a=0;
+                b=0;
+               
+                for (i = 0; i < chans; ++i){
+                    if (ht.Voices[i].RingMixSource){
+                        j = ((ht.Voices[i].MixSource[ht.Voices[i].SamplePos >> 16]
+                            * ht.Voices[i].RingMixSource[ht.Voices[i].RingSamplePos >> 16]) >> 7)
+                            * ht.Voices[i].VoiceVolume;
+                           
+                        ht.Voices[i].RingSamplePos += ht.Voices[i].RingDelta;
                     }else{
-                        af = a / 32768;
+                        j = ht.Voices[i].MixSource[ht.Voices[i].SamplePos >> 16]
+                            * ht.Voices[i].VoiceVolume;
                     }
                     
-                    if( b >= 0 ){
-                        bf = b / 32767;
-                    }else{
-                        bf = b / 32768;
-                    }
-                    buf12.writeFloat(af);
-                    buf12.writeFloat(bf);
-      
-                    loops--;
-      
-                } while( loops > 0 );
-            } while( samples > 0 );
-        }
+                    absj=(j^(j>>31))-(j>>31);
+                    if ( absj > ht.Voices[i].VUMeter ) ht.Voices[i].VUMeter = absj;
+                    
+                    a += ((j * ht.Voices[i].PanMultLeft)  >> 7);
+                    b += ((j * ht.Voices[i].PanMultRight) >> 7);
+                   
+                    ht.Voices[i].SamplePos += ht.Voices[i].Delta;
+                }
+     
+                a = (a * ht.mixgain) >> 8;
+                b = (b * ht.mixgain) >> 8;
+                
+                buf12.writeFloat( a&0x80000000 ? a/32768 : a/32767 );
+                buf12.writeFloat( b&0x80000000 ? b/32768 : b/32767 );
+     
+                loops--;
+            }while (loops > 0);
+        }while (samples > 0);
+    }
+
+
         
         
         internal function DecodeFrame( ht:tune, buf12:ByteArray ):void{

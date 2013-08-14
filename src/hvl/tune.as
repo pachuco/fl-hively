@@ -36,20 +36,20 @@ package hvl {
         internal var mixgain:int;                              //int32
         internal var Version:uint;                             //uint8
         
-        private static const xy = 256 * 64;
+        private static const xy:uint = 256 * 64;
         
-        public function tune():void{
-            
+        public function tune():void {
+            var i:uint;
             WaveformTab = new Vector.<uint>(cons.MAX_CHANNELS, true);
             WaveformTab_i2 = new Vector.<int>();
             Positions = new Vector.<position>();                                     //malloc();
             Tracks = new Vector.<step>(xy, true);
-            for(var i:uint=0; i<xy; i++){
+            for(i=0; i<xy; i++){
                 Tracks[i] = new step();
             }
             Instruments = new Vector.<instrument>();                  //malloc();
             Voices = new Vector.<voice>(cons.MAX_CHANNELS, true);
-            for( var i:uint=0; i<cons.MAX_CHANNELS; i++ ){
+            for(i=0; i<cons.MAX_CHANNELS; i++ ){
                 Voices[i] = new voice();;
             }
         }
