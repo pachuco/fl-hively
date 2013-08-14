@@ -30,7 +30,7 @@ package tools {
         private static const buf_extra:uint   = half_width*2 + end_frame_extra;
         private static const phase_bits:uint  = 5;
         private static const phase_count:uint = 1 << phase_bits;
-        private static const delta_bits:uint  = 15 };
+        private static const delta_bits:uint  = 15;
         private static const delta_unit:uint  = 1 << delta_bits;
         private static const frac_bits:uint   = time_bits - pre_shift;
         
