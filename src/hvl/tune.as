@@ -27,7 +27,7 @@ package hvl {
         internal var Subsongs:Vector.<uint>;                   //*uint16
         internal var Channels:uint;                            //uint16
         internal var Positions:Vector.<position>;          //struct hvl_position *ht_Positions;
-        internal var ht_Tracks:Vector.<Vector.<step>>;        //hvl_step[256][64]
+        internal var Tracks:Vector.<step>;        //hvl_step[256][64]
         internal var Instruments:Vector.<instrument>;      //struct hvl_instrument *ht_Instruments;
         internal var Voices:Vector.<voice>;                //hvl_voice[MAX_CHANNELS]
         internal var defstereo:int;                            //int32
@@ -36,25 +36,21 @@ package hvl {
         internal var mixgain:int;                              //int32
         internal var Version:uint;                             //uint8
         
+        private static const xy = 256 * 64;
+        
         public function tune():void{
             
             WaveformTab = new Vector.<uint>(cons.MAX_CHANNELS, true);
             WaveformTab_i2 = new Vector.<int>();
             Positions = new Vector.<position>();                                     //malloc();
-            ht_Tracks = new Vector.<Vector.<step>>(256, true);
-            for(var i:uint=0;i<256;i++){
-                var track_temp:Vector.<step> = new Vector.<step>(64, true);
-                for(var j:uint=0; j<64; j++){
-                    var step_temp:step = new step();
-                    track_temp[j] = step_temp;
-                }
-                ht_Tracks[i]=track_temp;
+            Tracks = new Vector.<step>(xy, true);
+            for(var i:uint=0; i<xy; i++){
+                Tracks[i] = new step();
             }
             Instruments = new Vector.<instrument>();                  //malloc();
             Voices = new Vector.<voice>(cons.MAX_CHANNELS, true);
             for( var i:uint=0; i<cons.MAX_CHANNELS; i++ ){
-                var temp_voice:voice = new voice();
-                Voices[i] = temp_voice;
+                Voices[i] = new voice();;
             }
         }
         
@@ -189,15 +185,13 @@ package hvl {
         
         internal function malloc_positions( ind:uint ):void{
             for(var i:uint=0;i<ind;i++){
-                var pos_temp:position = new position();
-                Positions.push(pos_temp);
+                Positions.push(new position());
             }
         }
         
         internal function malloc_instruments( ind:uint ):void{
             for(var i:uint=0;i<=ind;i++){
-                var ins_temp:instrument = new instrument();
-                Instruments.push(ins_temp);
+                Instruments.push(new instrument());
             }
         }
         

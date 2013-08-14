@@ -12,7 +12,7 @@ package
     import flash.display.Graphics;
     
     //import com.demonsters.debugger.MonsterDebugger;
-    //import com.sociodox.theminer.*;
+    import com.sociodox.theminer.*;
     
     /**
      * ...

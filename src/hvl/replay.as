@@ -54,6 +54,7 @@ package hvl {
             return waves_t;
         }
         
+
         private function Period2Freq(period:int):Number{
             return cons.AMIGA_PAULA_PAL_CLK * 65536.0 / period;
         }
@@ -140,7 +141,7 @@ package hvl {
                 }
             }
         }
-        
+
         private function clip( x:Number ):Number{
             if( x > 127.0 ){
                 x = 127.0;
@@ -377,23 +378,23 @@ package hvl {
             for( i=0; i<=ht.TrackNr; i++ ){
                 if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
                     for( j=0; j<ht.TrackLength; j++ ){
-                        ht.ht_Tracks[i][j].Note       = 0;
-                        ht.ht_Tracks[i][j].Instrument = 0;
-                        ht.ht_Tracks[i][j].FX         = 0;
-                        ht.ht_Tracks[i][j].FXParam    = 0;
-                        ht.ht_Tracks[i][j].FXb        = 0;
-                        ht.ht_Tracks[i][j].FXbParam   = 0;
+                        ht.Tracks[i*64+j].Note       = 0;
+                        ht.Tracks[i*64+j].Instrument = 0;
+                        ht.Tracks[i*64+j].FX         = 0;
+                        ht.Tracks[i*64+j].FXParam    = 0;
+                        ht.Tracks[i*64+j].FXb        = 0;
+                        ht.Tracks[i*64+j].FXbParam   = 0;
                     }
                     continue;
                 }
     
                 for( j=0; j<ht.TrackLength; j++ ){
-                    ht.ht_Tracks[i][j].Note       = (buf[bptr+0]>>2)&0x3f;
-                    ht.ht_Tracks[i][j].Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
-                    ht.ht_Tracks[i][j].FX         = buf[bptr+1]&0xf;
-                    ht.ht_Tracks[i][j].FXParam    = buf[bptr+2];
-                    ht.ht_Tracks[i][j].FXb        = 0;
-                    ht.ht_Tracks[i][j].FXbParam   = 0;
+                    ht.Tracks[i*64+j].Note       = (buf[bptr+0]>>2)&0x3f;
+                    ht.Tracks[i*64+j].Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
+                    ht.Tracks[i*64+j].FX         = buf[bptr+1]&0xf;
+                    ht.Tracks[i*64+j].FXParam    = buf[bptr+2];
+                    ht.Tracks[i*64+j].FXb        = 0;
+                    ht.Tracks[i*64+j].FXbParam   = 0;
                     bptr += 3;
                 }
             }
@@ -472,7 +473,6 @@ package hvl {
             var bptr:uint;              //*uint8
             var nptr:uint;              //*TEXT
             var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
-            //var ple:hvl_plsentry;         //*
 
             buflen = buf.length;
             
@@ -595,34 +595,34 @@ package hvl {
             for( i=0; i<=ht.TrackNr; i++ ){
                 if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
                     for( j=0; j<ht.TrackLength; j++ ){
-                        ht.ht_Tracks[i][j].Note       = 0;
-                        ht.ht_Tracks[i][j].Instrument = 0;
-                        ht.ht_Tracks[i][j].FX         = 0;
-                        ht.ht_Tracks[i][j].FXParam    = 0;
-                        ht.ht_Tracks[i][j].FXb        = 0;
-                        ht.ht_Tracks[i][j].FXbParam   = 0;
+                        ht.Tracks[i*64+j].Note       = 0;
+                        ht.Tracks[i*64+j].Instrument = 0;
+                        ht.Tracks[i*64+j].FX         = 0;
+                        ht.Tracks[i*64+j].FXParam    = 0;
+                        ht.Tracks[i*64+j].FXb        = 0;
+                        ht.Tracks[i*64+j].FXbParam   = 0;
                     }
                     continue;
                 }
 
                 for( j=0; j<ht.TrackLength; j++ ){
                     if( buf[bptr+0] == 0x3f ){
-                        ht.ht_Tracks[i][j].Note       = 0;
-                        ht.ht_Tracks[i][j].Instrument = 0;
-                        ht.ht_Tracks[i][j].FX         = 0;
-                        ht.ht_Tracks[i][j].FXParam    = 0;
-                        ht.ht_Tracks[i][j].FXb        = 0;
-                        ht.ht_Tracks[i][j].FXbParam   = 0;
+                        ht.Tracks[i*64+j].Note       = 0;
+                        ht.Tracks[i*64+j].Instrument = 0;
+                        ht.Tracks[i*64+j].FX         = 0;
+                        ht.Tracks[i*64+j].FXParam    = 0;
+                        ht.Tracks[i*64+j].FXb        = 0;
+                        ht.Tracks[i*64+j].FXbParam   = 0;
                         bptr++;
                         continue;
                     }
                   
-                    ht.ht_Tracks[i][j].Note       = buf[bptr+0];
-                    ht.ht_Tracks[i][j].Instrument = buf[bptr+1];
-                    ht.ht_Tracks[i][j].FX         = buf[bptr+2]>>4;
-                    ht.ht_Tracks[i][j].FXParam    = buf[bptr+3];
-                    ht.ht_Tracks[i][j].FXb        = buf[bptr+2]&0xf;
-                    ht.ht_Tracks[i][j].FXbParam   = buf[bptr+4];
+                    ht.Tracks[i*64+j].Note       = buf[bptr+0];
+                    ht.Tracks[i*64+j].Instrument = buf[bptr+1];
+                    ht.Tracks[i*64+j].FX         = buf[bptr+2]>>4;
+                    ht.Tracks[i*64+j].FXParam    = buf[bptr+3];
+                    ht.Tracks[i*64+j].FXb        = buf[bptr+2]&0xf;
+                    ht.Tracks[i*64+j].FXbParam   = buf[bptr+4];
                     bptr += 5;
                 }
             }
@@ -893,7 +893,7 @@ package hvl {
           
             vc.VolumeSlideUp = vc.VolumeSlideDown = 0;
           
-            Step = ht.ht_Tracks[ ht.Positions[ ht.PosNr ].Track[ vc.VoiceNum ] ]     [ ht.NoteNr ];
+            Step = ht.Tracks[ ht.Positions[ ht.PosNr ].Track[ vc.VoiceNum ]*64 + ht.NoteNr ];
           
             Note    = Step.Note;
             Instr   = Step.Instrument;
@@ -1206,9 +1206,9 @@ package hvl {
                 var nextinst:int;     //int32
             
                 if( ht.NoteNr+1 < ht.TrackLength ){
-                    nextinst = ht.ht_Tracks[vc.Track][ht.NoteNr+1].Instrument;
+                    nextinst = ht.Tracks[vc.Track][ht.NoteNr+1].Instrument;
                 } else {
-                    nextinst = ht.ht_Tracks[vc.NextTrack][0].Instrument;
+                    nextinst = ht.Tracks[vc.NextTrack][0].Instrument;
                 }
             
                 if( nextinst ){
