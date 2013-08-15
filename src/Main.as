@@ -26,6 +26,7 @@ package
         private var fr:FileReference;
         private var ff:FileFilter;
         private var taipan:uint = 2;
+        private var subnr:uint;
         
         public function Main():void 
         {
@@ -52,7 +53,7 @@ package
             ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");
             
             draw_buttan( 50, 50, "LOAD", load );
-            draw_buttan( 110, 50, "TEST", test );
+            draw_buttan( 110, 50, "SNG++", subsong );
             
             draw_buttan( 50, 100, "PLAY", play );
             draw_buttan( 110, 100, "PAUSE", pause );
@@ -107,8 +108,9 @@ package
             fr.load(); 
         } 
         
-        private function onComplete(event:Event):void { 
-            replayer.load( fr.data, taipan ); 
+        private function onComplete(event:Event):void {
+            subnr = 0;
+            replayer.load( fr.data, taipan );
         }
         
         
@@ -132,8 +134,9 @@ package
             replayer.pause();
         }
         
-        private function test( event:MouseEvent ):void{
-            trace(replayer.init_subsong(Math.random()*replayer.subsong_number));
+        private function subsong( event:MouseEvent ):void{
+            replayer.init_subsong(++subnr % (replayer.subsong_number + 1));
+            //subnr++;
         }
     }
     
