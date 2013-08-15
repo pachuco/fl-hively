@@ -22,7 +22,6 @@ package hvl {
         }
 
         public function load( ba:ByteArray, stereo_separation:uint = 4 ):Boolean {
-            this.pause();
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo_separation );
             return true;
