@@ -34,6 +34,9 @@ package tools {
         private static const delta_unit:uint  = 1 << delta_bits;
         private static const frac_bits:uint   = time_bits - pre_shift;
         
+
+        private function SAMPLES( buf ) ((buf_t*) ((buf) + 1))
+        
         /* We could eliminate avail and encode whole samples in offset, but that would
         limit the total buffered samples to blip_max_frame. That could only be
         increased by decreasing time_bits, which would reduce resample ratio accuracy.
@@ -69,7 +72,19 @@ package tools {
         public function hvl_blip_add_delta( hvl_blip_t*, unsigned int clock_time, int delta ):void;
 
         /** Same as blip_add_delta(), but uses faster, lower-quality synthesis. */
-        public function hvl_blip_add_delta_fast( hvl_blip_t*, unsigned int clock_time, int delta ):void;
+        public function hvl_blip_add_delta_fast( m:hvl_blip_t, time:uint, delta:int ):void{
+            var fixed:uint = (time * m-.factor + m-.offset) >> pre_shift;
+            buf_t* out = SAMPLES( m ) + m.avail + (fixed >> frac_bits);
+	
+            int interp = fixed >> (frac_bits - delta_bits) & (delta_unit - 1);
+            int delta2 = delta * interp;
+	
+            /* Fails if buffer size was exceeded */
+            assert( out <= &SAMPLES( m ) [m.size + end_frame_extra] );
+	
+            out [7] += delta * delta_unit - delta2;
+            out [8] += delta2;
+        }
 
         /** Length of time frame, in clocks, needed to make sample_count additional
         samples available. */

@@ -28,6 +28,14 @@ package hvl {
             return true;
         }
         
+        public function init_subsong( nr:uint ):Boolean {
+            if (ht) {
+                return replayer.InitSubsong( ht, nr );
+            }else {
+                return false;
+            }
+        }
+        
         public function unload():void{
             
         }
@@ -68,6 +76,22 @@ package hvl {
         
         }
         
+        public function get sample_names():Vector.<String> {
+            var temp:Vector.<String> = new Vector.<String>(ht.InstrumentNr+1, true);
+            for (var i:uint = 1; i <= ht.InstrumentNr; i++ ) {
+                temp[i] = ht.Instruments[i].ins_Name;
+            }
+            return temp;
+        }
+        
+        public function get song_title():String {
+            return ht.Name;
+        }
+        
+        public function get subsong_number():uint {
+            return ht.SubsongNr;
+        }
+        
         
         private function audio_loop( event:SampleDataEvent ):void {
             if ( is_playing ) {
@@ -77,8 +101,8 @@ package hvl {
             }
         }
         
-        public function getwaves():ByteArray {
-            return replayer.getdemwaves();
-        }
+        //public function get getwaves():ByteArray {
+            //return replayer.getdemwaves();
+        //}
     }
 }

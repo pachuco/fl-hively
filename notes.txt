@@ -11,10 +11,10 @@ Todo:
 -Optimisation. Currently, complex hvl tunes can get up to 20% CPU usage on a P4 630 @ 3ghz
 -Regarding above, steal blep synthesis from kode54's foo_hively.
 -Maybe tear the hvl mixer apart and use SoundChannels in hopes that it will take load off CPU? I dunno.
+-rewrite wavegen functions to work directly with the vector
 
 
 Considered optimisations:
--dynamically allocate Tracks[] instead of using fixed array(no actually, don't)
 -tidy up the code, repackage and rename the classes/functions
 -have panning changable on the fly
 -try VU meters

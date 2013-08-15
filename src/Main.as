@@ -52,6 +52,7 @@ package
             ff = new FileFilter("AHX/HVL tunes", "*.ahx;ahx.*;*.hvl;hvl.*");
             
             draw_buttan( 50, 50, "LOAD", load );
+            draw_buttan( 110, 50, "TEST", test );
             
             draw_buttan( 50, 100, "PLAY", play );
             draw_buttan( 110, 100, "PAUSE", pause );
@@ -59,11 +60,8 @@ package
             //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
-            //wavegen
             
-            //fr.save(replayer.getwaves(), "fl_hively.waves");
-            
-            //
+            //fr.save(replayer.getwaves, "fl_hively.waves");
             
         }
         
@@ -132,6 +130,10 @@ package
         
         private function pause( event:MouseEvent ):void{
             replayer.pause();
+        }
+        
+        private function test( event:MouseEvent ):void{
+            trace(replayer.init_subsong(Math.random()*replayer.subsong_number));
         }
     }
     

@@ -22,7 +22,7 @@ package hvl {
             var i:uint;
             var s:String="";
             for(i=0; ba[off+i]!=0x00 && i<range && (off+i)<ba.length; i++){
-                s+=ba[off+i];
+                s+=String.fromCharCode(ba[off+i]);
             }
             return s;//+0x00;
         }

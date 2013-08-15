@@ -49,7 +49,7 @@ package hvl {
                 //There is no point in using tools.ui2i8() to access our waves
                 //every bloody time.
             }
-            //waves_t=null;
+            waves_t.clear();
         }
         
         internal function getdemwaves():ByteArray{
@@ -287,14 +287,16 @@ package hvl {
             return true;
         }
         
-        private function load_ahx( buf:ByteArray, buflen:uint, defstereo:uint ):tune{
+        private function load_ahx( buf:ByteArray, defstereo:uint ):tune{
             var bptr:uint;      //*uint8
             var nptr:uint;      //*TEXT
-            var i:uint, j:uint, k:uint, l:uint, posn:uint, insn:uint, ssn:uint, hs:uint, trkn:uint, trkl:uint;
+            var buflen:uint, i:uint, j:uint, k:uint, l:uint, posn:uint, insn:uint, ssn:uint, hs:uint, trkn:uint, trkl:uint;
             var ht:tune;
             var ple:plsentry;
             const defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]);
-
+            
+            buflen = buf.length;
+            
             posn = ((buf[6]&0x0f)<<8)|buf[7];
             insn = buf[12];
             ssn  = buf[13];
@@ -403,7 +405,7 @@ package hvl {
   
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
-                if ( nptr < buf + buflen ) {
+                if ( nptr < buflen ) {
                     ht.Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
@@ -483,7 +485,7 @@ package hvl {
                 ( buf[1] == 0x48 ) &&
                 ( buf[2] == 0x58 ) &&
                 ( buf[3] < 3 ) ){
-                    return load_ahx( buf, buflen, defstereo);
+                    return load_ahx( buf, defstereo);
                 }
             //HVL
             if( ( buf[0] != 0x48 ) ||
@@ -632,7 +634,7 @@ package hvl {
 
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
-                if( nptr < buf+buflen ){
+                if( nptr < buflen ){
                     ht.Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
