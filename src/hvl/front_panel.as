@@ -9,6 +9,7 @@ package hvl {
         private const buf_size:uint = 4092 * 8;
         
         private var ht:tune;
+        private var subsong:uint;
         private var replayer:replay;
         private var is_playing:Boolean;
         private var resume_position:uint;
@@ -22,9 +23,16 @@ package hvl {
         }
 
         public function load( ba:ByteArray, stereo_separation:uint = 4 ):Boolean {
+            ht = null;
+            subsong = 0;
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo_separation );
-            return true;
+            if (ht) {
+                return true;
+            }else {
+                return false;
+            }
+            
         }
         
         public function init_subsong( nr:uint ):Boolean {
@@ -58,11 +66,12 @@ package hvl {
             is_playing = false;
         }
         
-        public function stop(     ):void {
+        public function stop():void {
             this.pause();
-            replayer.InitSubsong(ht, 0);
+            replayer.InitSubsong(ht, ht.SongNum);
         }
-
+        //! @param p_time target time in seconds.
+        //virtual void playback_seek(double p_time) = 0;
         public function seek(     ):void{
         
         }
@@ -75,24 +84,96 @@ package hvl {
         
         }
         
-        public function get sample_names():Vector.<String> {
-            var temp:Vector.<String> = new Vector.<String>(ht.InstrumentNr+1, true);
-            for (var i:uint = 1; i <= ht.InstrumentNr; i++ ) {
-                temp[i] = ht.Instruments[i].ins_Name;
+        public function get_VUmeter(index:uint):uint {
+            return ht.Voices[index].VUMeter;
+        }
+
+        public function decrement_VUmeters(factor:Number):void {
+            var i:uint;
+            for (i = 0; i < ht.Channels; i++ ) {
+                ht.Voices[i].VUMeter /=factor;
             }
-            return temp;
         }
         
-        public function get song_title():String {
-            return ht.Name;
+        public function get voice_number():int {
+            if(ht){
+                return ht.Channels;
+            }else {
+                return -1;
+            }
         }
         
-        public function get subsong_number():uint {
-            return ht.SubsongNr;
+        public function get format():String{
+            return ht.FormatString;
+        }
+        
+        public function get sample_names():Vector.<String>{
+            if(ht){
+                var temp:Vector.<String> = new Vector.<String>(ht.InstrumentNr, true);
+                for (var i:uint = 1; i <= ht.InstrumentNr; i++ ) {
+                    temp[i-1] = ht.Instruments[i].ins_Name;
+                }
+                return temp;
+            }else {
+                return null;
+            }
+        }
+        
+        public function get song_title():String{
+            if(ht){
+                return ht.Name;
+            }else {
+                return "";
+            }
+        }
+        
+        public function get subsong_number():int{
+            if(ht){
+                return ht.SubsongNr;
+            }else {
+                return -1;
+            }
+        }
+        
+        public function get subsong_current():int{
+            if(ht){
+                return ht.SongNum;
+            }else {
+                return -1;
+            }
+        }
+        
+        //in seconds
+        public function get total_time():Number{
+            if(ht){
+                var safety:uint = 2 * 60 * 60 * 50 * ht.SpeedMultiplier; // 2 hours, just like foo_dumb
+                
+                while ( ! ht.SongEndReached && safety ){
+                    replayer.play_irq( ht, false );
+                    --safety;
+                }
+                var temp:Number = ht.PlayingTime / ht.SpeedMultiplier / 50;
+                replayer.InitSubsong(ht, ht.SongNum);
+                return temp;
+            }else {
+                return NaN;
+            }
+        }
+        
+        public function get current_time():Number{
+            if (ht) {
+                return ht.PlayingTime / ht.SpeedMultiplier / 50;
+            }else {
+                return -1;
+            }
+        }
+        
+        public function get song_playing():Boolean{
+            return is_playing;
         }
         
         
-        private function audio_loop( event:SampleDataEvent ):void {
+        private function audio_loop( event:SampleDataEvent ):void{
             if ( is_playing ) {
                 while (event.data.position <= buf_size ){
                     replayer.DecodeFrame( ht, event.data );

@@ -316,7 +316,10 @@ package hvl {
             }
 
             ht = new tune();
-  
+            ht.FormatString = "AHX" + "v" + buf[3];
+            
+            //Xeron says we don't do this.
+            //ht.Version         = buf[3]; // 1.5
             ht.Frequency       = cons.sample_rate;
             ht.FreqF           = Number(cons.sample_rate);
   
@@ -535,6 +538,7 @@ package hvl {
             }
 
             ht = new tune();
+            ht.FormatString = "HVL" + "v" + buf[3];
 
             ht.Version         = buf[3]; // 1.5
             ht.Frequency       = cons.sample_rate;
@@ -1695,7 +1699,7 @@ package hvl {
             }
         }
 
-        private function play_irq( ht:tune ):void{
+        internal function play_irq( ht:tune, for_real:Boolean ):void{
             var i:uint;         //uint32
 
             if( ht.StepWaitFrames <= 0 ){
@@ -1717,11 +1721,13 @@ package hvl {
     
                 ht.StepWaitFrames = ht.Tempo;
             }
-  
-            for( i=0; i<ht.Channels; i++ ){
-                process_frame( ht, ht.Voices[i] );
+            //we skip this for performance resons when actual playback is not needed
+            if (for_real) {
+                for( i=0; i<ht.Channels; i++ ){
+                    process_frame( ht, ht.Voices[i] );
+                }
             }
-
+            
             ht.PlayingTime++;
             if( ht.Tempo > 0 && --ht.StepWaitFrames <= 0 ){
                 if( !ht.PatternBreak ){
@@ -1801,6 +1807,8 @@ package hvl {
                     }
                     
                     absj=(j^(j>>31))-(j>>31);
+                    absj=Math.abs(j);
+                    //ht.Voices[i].VUMeter = absj;
                     if ( absj > ht.Voices[i].VUMeter ) ht.Voices[i].VUMeter = absj;
                     
                     a += ((j * ht.Voices[i].PanMultLeft)  >> 7);
@@ -1830,7 +1838,7 @@ package hvl {
             loops   = ht.SpeedMultiplier;
   
             do{
-                play_irq( ht );
+                play_irq( ht, true );
                 mixchunk( ht, samples, buf12 );
                 loops--;
             } while( loops );

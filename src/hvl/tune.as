@@ -36,6 +36,8 @@ package hvl {
         internal var mixgain:int;                              //int32
         internal var Version:uint;                             //uint8
         
+        internal var FormatString:String;
+        
         private static const xy:uint = 256 * 64;
         
         public function tune():void {
