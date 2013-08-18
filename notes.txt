@@ -4,6 +4,7 @@ Done:
 -Compact Tracks[][] into single array and use offset multiplication instead of array nesting
 -Turn everything that is public into internal and make a front_panel class
 -Clean up warnings
+-try VU meters
 
 Todo:
 -Get license.txt
@@ -11,8 +12,8 @@ Todo:
 -Optimisation. Currently, complex hvl tunes can get up to 20% CPU usage on a P4 630 @ 3ghz(disregard that, debug player is heavy)
 -Regarding above, steal blep synthesis from kode54's foo_hively.
 -Maybe tear the hvl mixer apart and use SoundChannels in hopes that it will take load off CPU? I dunno(don't actually).
--rewrite wavegen functions to work directly with the vector.
--try VU meters
+-Rewrite wavegen functions to work directly with the vector.
+-Clean up test player because it's a bloody and horifying mess.
 
 
 Considered optimisations:

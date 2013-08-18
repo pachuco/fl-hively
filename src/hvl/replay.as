@@ -238,6 +238,135 @@ package hvl {
             }while( len );
         }
         
+        internal function reset_some_stuff(ht:tune):void{
+            var i:uint;
+
+            for( i=0; i<cons.MAX_CHANNELS; i++ ){
+                ht.Voices[i].Delta=1;
+                ht.Voices[i].OverrideTranspose=1000;  // 1.5
+                ht.Voices[i].SamplePos=0;
+                ht.Voices[i].Track=0;
+                ht.Voices[i].Transpose=0;
+                ht.Voices[i].NextTrack=0;
+                ht.Voices[i].NextTranspose=0;
+                
+                ht.Voices[i].ADSRVolume=0;
+                ht.Voices[i].InstrPeriod=0;
+                ht.Voices[i].TrackPeriod=0;
+                ht.Voices[i].VibratoPeriod=0;
+                ht.Voices[i].NoteMaxVolume=0;
+                ht.Voices[i].PerfSubVolume=0;
+                ht.Voices[i].TrackMasterVolume=0;
+                
+                ht.Voices[i].NewWaveform=0;
+                ht.Voices[i].Waveform=0;
+                ht.Voices[i].PlantSquare=0;
+                ht.Voices[i].PlantPeriod=0;
+                ht.Voices[i].IgnoreSquare=0;
+                
+                ht.Voices[i].TrackOn=0;
+                ht.Voices[i].FixedNote=0;
+                ht.Voices[i].VolumeSlideUp=0;
+                ht.Voices[i].VolumeSlideDown=0;
+                ht.Voices[i].HardCut=0;
+                ht.Voices[i].HardCutRelease=0;
+                ht.Voices[i].HardCutReleaseF=0;
+                
+                ht.Voices[i].PeriodSlideSpeed=0;
+                ht.Voices[i].PeriodSlidePeriod=0;
+                ht.Voices[i].PeriodSlideLimit=0;
+                ht.Voices[i].PeriodSlideOn=0;
+                ht.Voices[i].PeriodSlideWithLimit=0;
+                
+                ht.Voices[i].PeriodPerfSlideSpeed=0;
+                ht.Voices[i].PeriodPerfSlidePeriod=0;
+                ht.Voices[i].PeriodPerfSlideOn=0;
+                ht.Voices[i].VibratoDelay=0;
+                ht.Voices[i].VibratoCurrent=0;
+                ht.Voices[i].VibratoDepth=0;
+                ht.Voices[i].VibratoSpeed=0;
+                
+                ht.Voices[i].SquareOn=0;
+                ht.Voices[i].SquareInit=0;
+                ht.Voices[i].SquareLowerLimit=0;
+                ht.Voices[i].SquareUpperLimit=0;
+                ht.Voices[i].SquarePos=0;
+                ht.Voices[i].SquareSign=0;
+                ht.Voices[i].SquareSlidingIn=0;
+                ht.Voices[i].SquareReverse=0;
+                
+                ht.Voices[i].FilterOn=0;
+                ht.Voices[i].FilterInit=0;
+                ht.Voices[i].FilterLowerLimit=0;
+                ht.Voices[i].FilterUpperLimit=0;
+                ht.Voices[i].FilterPos=0;
+                ht.Voices[i].FilterSign=0;
+                ht.Voices[i].FilterSpeed=0;
+                ht.Voices[i].FilterSlidingIn=0;
+                ht.Voices[i].IgnoreFilter=0;
+                
+                ht.Voices[i].PerfCurrent=0;
+                ht.Voices[i].PerfSpeed=0;
+                ht.Voices[i].WaveLength=0;
+                ht.Voices[i].NoteDelayOn=0;
+                ht.Voices[i].NoteCutOn=0;
+                
+                ht.Voices[i].AudioPeriod=0;
+                ht.Voices[i].AudioVolume=0;
+                ht.Voices[i].VoiceVolume=0;
+                ht.Voices[i].VoicePeriod=0;
+                ht.Voices[i].VoiceNum=0;
+                ht.Voices[i].WNRandom=0;
+                
+                ht.Voices[i].SquareWait=0;
+                ht.Voices[i].FilterWait=0;
+                ht.Voices[i].PerfWait=0;
+                ht.Voices[i].NoteDelayWait=0;
+                ht.Voices[i].NoteCutWait=0;
+                
+                ht.Voices[i].PerfList=null;
+                
+                ht.Voices[i].RingSamplePos=0;
+                ht.Voices[i].RingDelta=0;
+                ht.Voices[i].RingPlantPeriod=0;
+                ht.Voices[i].RingAudioPeriod=0;
+                ht.Voices[i].RingNewWaveform=0;
+                ht.Voices[i].RingWaveform=0;
+                ht.Voices[i].RingFixedPeriod=0;
+                ht.Voices[i].RingBasePeriod=0;
+
+                ht.Voices[i].RingMixSource = null;
+                ht.Voices[i].RingAudioSource = uint.MAX_VALUE;
+                
+                var j:uint;
+                for(j=0;j<0x80;j++){
+                    ht.Voices[i].SquareTempBuffer[j]=0;
+                }
+                ht.Voices[i].ADSR.aFrames=0;
+                ht.Voices[i].ADSR.aVolume=0;
+                ht.Voices[i].ADSR.dFrames=0;
+                ht.Voices[i].ADSR.dVolume=0;
+                ht.Voices[i].ADSR.sFrames=0;
+                ht.Voices[i].ADSR.rFrames=0;
+                ht.Voices[i].ADSR.rVolume=0;
+                ht.Voices[i].ADSR.pad=0;
+                for(j=0;j<0x281;j++){ //Should be 0x282*4
+                    ht.Voices[i].VoiceBuffer[j]=0;
+                }
+                for(j=0;j<0x281;j++){ //same
+                    ht.Voices[i].RingVoiceBuffer[j]=0;
+                }
+            }
+
+            for( i=0; i<cons.MAX_CHANNELS; i++ ){
+                ht.Voices[i].WNRandom          = 0x280;
+                ht.Voices[i].VoiceNum          = i;
+                ht.Voices[i].TrackMasterVolume = 0x40;
+                ht.Voices[i].TrackOn           = 1;
+                ht.Voices[i].MixSource         = ht.Voices[i].VoiceBuffer;
+            }
+        }
+        
         internal function InitSubsong( ht:tune, nr:uint ):Boolean{
             var PosNr:uint, i:uint;
 
@@ -282,7 +411,7 @@ package hvl {
                 ht.Voices[i+3].PanMultRight = panning_right[ht.defpanleft];
             }
 
-            ht.reset_some_stuff();
+            reset_some_stuff(ht);
 
             return true;
         }
@@ -471,6 +600,7 @@ package hvl {
   
             InitSubsong( ht, 0 );
             buf.clear();
+            ht.init_VUMeters();
             return ht;
         }
 
@@ -687,6 +817,7 @@ package hvl {
 
             InitSubsong( ht, 0 );
             buf.clear();
+            ht.init_VUMeters();
             return ht;
             
 }   
@@ -1809,7 +1940,9 @@ package hvl {
                     absj=(j^(j>>31))-(j>>31);
                     absj=Math.abs(j);
                     //ht.Voices[i].VUMeter = absj;
-                    if ( absj > ht.Voices[i].VUMeter ) ht.Voices[i].VUMeter = absj;
+                    if ( absj > ht.VUMeters[i] ) {
+                        ht.VUMeters[i] = absj;
+                    }
                     
                     a += ((j * ht.Voices[i].PanMultLeft)  >> 7);
                     b += ((j * ht.Voices[i].PanMultRight) >> 7);

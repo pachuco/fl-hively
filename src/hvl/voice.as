@@ -96,13 +96,13 @@ package hvl {
         internal var RingFixedPeriod:uint;                         //uint8
         internal var RingVoiceBuffer:Vector.<int>;                 //int8[0x282*4]
         
-        internal var VUMeter:uint;                                 //uint32
+        //internal var VUMeter:uint;                                 //uint32
         
         public function voice():void{
             ADSR = new envelope();
             SquareTempBuffer = new Vector.<int>(0x80, true);
             VoiceBuffer = new Vector.<int>(0x282*4, true);
-            RingVoiceBuffer = new Vector.<int>(0x282*4, true);
+            RingVoiceBuffer = new Vector.<int>(0x282 * 4, true);
         }
     }
 }

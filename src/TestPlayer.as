@@ -17,19 +17,23 @@ package {
     import flash.text.TextFieldAutoSize;
     import flash.text.TextFormat;
     import flash.utils.ByteArray;
+    import hvl.cons;
     import hvl.front_panel;
     
     public class TestPlayer extends Sprite{
+        private static const taipan:uint = 2;
+        private static const VU_rolloff:Number = 1.04;
         
         private var replayer:front_panel;
         private var fr:FileReference;
         private var ff:FileFilter;
-        private var taipan:uint = 2;
         private var subnr:uint;
         private var total_time:Number;
         private var VU_shown:Boolean = true;
-        
-        private var frames_elapsed:uint;
+        private var VU_ringbuffers:Vector.<Vector.<uint>>;
+        private var VU_instant:Vector.<uint>;
+        private var VU_index:uint;
+        private var VU_delay:uint;
         
         
         private const
@@ -63,7 +67,7 @@ package {
         private var play_info:TextField;
         private var song_info:TextField;
         private var sample_names:Vector.<TextField>;
-        private var VU_meters:Vector.<Sprite>;
+        private var VU_rectangles:Vector.<Sprite>;
         
         public function TestPlayer() {
             if (stage) init();
@@ -145,43 +149,95 @@ package {
             update_totaltime();
             update_play();
             update_songinfo();
+            update_VUBuffers();
         }
         
         
         private function update_totaltime():void {
-            total_time = Math.floor(replayer.total_time);
+            total_time = Math.floor(replayer.info_tuneLength);
             update_play();
         }
         private function update_songtitle():void {
-            song_title.text = "Title: " + replayer.song_title;
+            song_title.text = "Title: " + replayer.info_title;
         }
         private function update_subsong():void {
-            gen_info.text = "Subsong: " + replayer.subsong_current+" / "+replayer.subsong_number;
+            gen_info.text = "Subsong: " + replayer.cur_subsong+" / "+replayer.info_subsongNr;
         }
         
         private function update_play():void {
-            play_info.text = "Time: " + (Math.floor(replayer.current_time)).toString() + " / " + (total_time).toString() + " s";
+            play_info.text = "Time: " + (Math.floor(replayer.cur_playTime)).toString() + " / " + (total_time).toString() + " s";
         }
         
         private function update_songinfo():void {
-            song_info.text = replayer.format + " / " + (replayer.voice_number).toString() + " channel";
+            song_info.text = replayer.info_format + " / " + (replayer.info_channels).toString() + " channel";
+        }
+        
+        private function update_VUBuffers():void {
+            VU_instant = replayer.get_VUmeters();
+            VU_delay = (cons.sample_rate / replayer.cur_bufLength) / 30 * stage.frameRate;
+            VU_index = 0;
+            var chans:uint=replayer.info_channels;
+            var i:uint;
+            VU_ringbuffers = new Vector.<Vector.<uint>>(chans, true);
+            for (i = 0; i< chans; i++) {
+                VU_ringbuffers[i] = new Vector.<uint>(VU_delay, true);
+            }
         }
         
         private function update_VUmeters():void {
             var i:uint;
-            for (i = 0; i < replayer.voice_number; i++ ) {
-                if(VU_min<replayer.get_VUmeter(i)){
-                    VU_meters[i].scaleX = replayer.get_VUmeter(i) / 190;
+            var activity:Boolean = false;
+            if (VU_shown) {
+                for (i = 0; i < replayer.info_channels; i++ ) {
+                    if (VU_min < VU_buffered(i)) {
+                        activity = true;
+                        VU_rectangles[i].scaleX = VU_buffered(i) / 190;
+                    }else {
+                        clear_VUmeter(i);
+                    }
+                    VU_instant[i] /=VU_rolloff;
+                }                
+            }else{
+                for (i = 0; i < replayer.info_channels; i++ ) {
+                    clear_VUmeter(i);
+                }
+            }
+            if (!replayer.cur_isPlaying && !activity) {
+                for (i = 0; i < replayer.info_channels; i++ ) {
+                    clear_VUmeter(i);
+                }
+                removeEventListener(Event.ENTER_FRAME, onEnterFrame);
+            }
+            if (replayer.cur_isPlaying) {
+                VU_index++;
+                if (VU_index>=VU_delay) {
+                    VU_index = 0;
                 }
             }
         }
         
-        private function clear_VUmeters():void {
-            var i:uint;
-            for (i = 0; i < replayer.voice_number; i++ ) {
-                VU_meters[i].scaleX = 1;
+        private function clear_VUmeter(index:uint):void {
+                VU_rectangles[index].scaleX = 1;
+        }
+        
+        
+        
+        
+        
+        
+        
+        public function VU_buffered(index:uint):uint {
+            VU_ringbuffers[index][(VU_index + VU_delay - 1) % VU_delay] = VU_instant[index];
+            if (replayer.cur_isPlaying) {
+                return VU_ringbuffers[index][(VU_index + VU_delay) % VU_delay];
+            }else{
+                return VU_instant[index];
             }
         }
+
+
+        
+        
         
         
         
@@ -200,25 +256,25 @@ package {
         
         private function draw_VUmeters(x:int, y:int):void {
             var i:uint, j:uint;
-            if (VU_meters) {
-                for (j = 0; j < VU_meters.length; j++ ) {
-                    this.removeChild(VU_meters[j]);
+            if (VU_rectangles) {
+                for (j = 0; j < VU_rectangles.length; j++ ) {
+                    this.removeChild(VU_rectangles[j]);
                 }
             }
-            VU_meters = new Vector.<Sprite>();
-            for (i = 0;i<replayer.voice_number; i++ ) {
+            VU_rectangles = new Vector.<Sprite>();
+            for (i = 0;i<replayer.info_channels; i++ ) {
                 var VU:Sprite = new Sprite();
                 VU.graphics.beginFill(color_head_0001);
                 VU.graphics.drawRect(x, y+20*i, 5, 15);
                 VU.graphics.endFill();
-                VU_meters.push(VU);
+                VU_rectangles.push(VU);
                 this.addChild(VU);
                 
             }
         }
         
         private function draw_sample_names():void {
-            var temp:Vector.<String> = replayer.sample_names;
+            var temp:Vector.<String> = replayer.info_sampleNames;
             var i:uint, j:uint;
             if (sample_names) {
                 for (j = 0; j < sample_names.length; j++ ) {
@@ -243,11 +299,15 @@ package {
         private function draw_all_buttans(x:int, y:int):void {
             draw_buttan( x      , y    , "LOAD"  , browse );
             draw_buttan( x+70   , y    , "SNG++" , subsong );
-            draw_buttan( x+70*2 , y    , "VU"    , toggle_VUmeters );
+            //draw_buttan( x+70*2 , y    , "VU"    , toggle_VUmeters );
+            draw_buttan( x+70*2 , y    , "TEST"  , test );
             
             draw_buttan( x      , y+30 , "PLAY"  , play );
             draw_buttan( x+70   , y+30 , "PAUSE" , pause );
             draw_buttan( x+70*2 , y+30 , "SOTP"  , stop );
+        }
+        private function test( event:MouseEvent ):void {
+            replayer.com_seek(50);
         }
         
         private function draw_buttan( x:int, y:int, label:String, func:Function ):void{
@@ -316,23 +376,8 @@ package {
             var temp:uint, i:uint;
             update_play();
             update_VUmeters();
-            frames_elapsed++;
-            //if (frames_elapsed%2 == 0) {
-                replayer.decrement_VUmeters(1.5);
-            //}
-            if(VU_shown){
-                for (i = 0; i < replayer.voice_number; i++ ) {
-                    temp += replayer.get_VUmeter(i);
-                }
-            }
-            if (temp < VU_min) {
-                clear_VUmeters();
-            }
         }
         
-        private function toggle_VUmeters(event:Event):void {
-            VU_shown = !VU_shown;
-        }
         
         
         
@@ -344,28 +389,35 @@ package {
         
         private function play( event:MouseEvent ):void {
             this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-            replayer.play();
+            replayer.com_play();
         }
         
         private function stop( event:MouseEvent ):void {
-            replayer.stop();
+            replayer.com_stop();
         }
         
         private function pause( event:MouseEvent ):void {
-            replayer.pause();
+            replayer.com_pause();
         }
         
         private function subsong( event:MouseEvent ):void {
-            if(replayer.subsong_number){
-                replayer.init_subsong(++subnr % (replayer.subsong_number + 1));
+            if(replayer.info_subsongNr){
+                replayer.com_initSubsong(++subnr % (replayer.info_subsongNr + 1));
                 update_subsong();
                 update_totaltime();
             }
         }
         
+        private function toggle_VUmeters( event:MouseEvent ):void {
+            VU_shown = !VU_shown;
+        }
+        
+        
+        
         private function load( data:ByteArray ):void {
             subnr = 0;
-            replayer.load( data, taipan );
+            replayer.com_loadTune( data, taipan );
+            VU_ringbuffers = null;
             draw_VUmeters(0, 150);
             update_all();
         }

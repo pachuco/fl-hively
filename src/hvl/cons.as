@@ -1,5 +1,5 @@
 package hvl {
-    internal class cons{
+    public class cons{
         internal static const stereopan_left:Vector.<int> = Vector.<int>([ 128,  96,  64,  32,   0 ]);
         internal static const stereopan_right:Vector.<int> = Vector.<int>([ 128, 160, 193, 225, 255 ]);
         
@@ -58,6 +58,6 @@ package hvl {
         internal static const AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
         internal static const AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
         
-        internal static const sample_rate:uint = 44100;
+        public static const sample_rate:uint = 44100;
     }
 }
