@@ -59,7 +59,7 @@ package hvl {
         
         /**Start playback.*/
         public function com_play():void {
-            if( true ){     //if( !is_playing )
+            if( !is_playing ){     //see if( true ) for a magic trick
                 if( ht ){
                     is_playing = true;
                     audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);

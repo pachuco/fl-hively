@@ -42,6 +42,8 @@ package {
         
         
         private static const
+        def_framerate:uint    = 60,
+        sleep_framerate:uint  = 1,
         taipan:uint = 2,
         VU_rolloff:Number = 1.04,
         //stolen from Yotsuba imageboard theme
@@ -83,6 +85,7 @@ package {
         private function init(e:Event = null):void {
             removeEventListener(Event.ADDED_TO_STAGE, init);
             // entry point
+            stage.frameRate = sleep_framerate;
             [Embed(source = "ahx.blondie", mimeType = "application/octet-stream")] const choon:Class;
             
             
@@ -192,7 +195,7 @@ package {
         
         private function update_VUBuffers():void {
             VU_instant = replayer.get_VUmeters();
-            VU_delay = (cons.sample_rate / replayer.cur_bufLength) / 30 * stage.frameRate;
+            VU_delay = (cons.sample_rate / replayer.cur_bufLength) / 30 * def_framerate;
             VU_index = 0;
             var chans:uint=replayer.info_channels;
             var i:uint;
@@ -229,6 +232,7 @@ package {
             if (!replayer.cur_isPlaying && !activity) {
                 for (i = 0; i < replayer.info_channels; i++ ) {
                     clear_VUmeter(i);
+                    stage.frameRate = sleep_framerate;
                 }
                 removeEventListener(Event.ENTER_FRAME, onEnterFrame);
             }
@@ -424,6 +428,7 @@ package {
         }
         
         private function play( event:MouseEvent ):void {
+            stage.frameRate = def_framerate;
             this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
             replayer.com_play();
         }
