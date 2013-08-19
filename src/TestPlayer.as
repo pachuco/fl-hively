@@ -8,6 +8,7 @@ package {
     import flash.display.Stage;
     import flash.events.*;
     import flash.geom.Matrix;
+    import flash.geom.Rectangle;
     import flash.media.Sound;
     import flash.net.FileReference;
     import flash.net.FileFilter;
@@ -21,6 +22,8 @@ package {
     import hvl.front_panel;
     
     //This thing is a bloody mess!
+    //TODO: stick it in its own package and split it into classes.
+    //If this is suppose to be made readable.
     
     public class TestPlayer extends Sprite{
         
@@ -34,25 +37,26 @@ package {
         private var VU_instant:Vector.<int>;
         private var VU_index:uint;
         private var VU_delay:uint;
+        private var isDragged_trackBar:Boolean;
+        private var bar_length:uint;
         
         
         private static const
         taipan:uint = 2,
         VU_rolloff:Number = 1.04,
         //stolen from Yotsuba imageboard theme
-        color_link_text:uint = 0x0000EE,
-        color_ttit_text:uint = 0xCC1105,
-        color_name_text:uint = 0x117743,
-        color_post_bckg:uint = 0xF0E0D6,
-        color_post_text:uint = 0x800000,
-        color_butt_bckg:uint = 0xC0C0C0,
-        color_butt_text:uint = 0x000000,
-        color_tfld_bckg:uint = 0xFFFFFF,
-        color_tfld_text:uint = 0x000000,
-        color_grad_top :uint = 0xFED6AF,
-        color_grad_bot :uint = 0xFFFFEE,
-        color_head_0001:uint = 0xFFCCAA,
-        color_head_0002:uint = 0xE04000;
+        col_blueLink                    :uint = 0x0000EE,
+        col_redPostTitle                :uint = 0xCC1105,
+        col_greenName                   :uint = 0x117743,
+        col_pinkishBackground           :uint = 0xF0E0D6,
+        col_redBrownText                :uint = 0x800000,
+        col_grayButton                  :uint = 0xC0C0C0,
+        col_blackText                   :uint = 0x000000,
+        col_whiteBackground             :uint = 0xFFFFFF,
+        col_peachGradientTop            :uint = 0xFED6AF,
+        col_lightLimeGradientBottom     :uint = 0xFFFFEE,
+        col_peachHeader                 :uint = 0xFFCCAA,
+        col_bloodHeader                 :uint = 0xE04000;
         
         private var style_link_text:TextFormat = new TextFormat();
         private var style_ttit_text:TextFormat = new TextFormat();
@@ -69,6 +73,7 @@ package {
         private var song_info:TextField;
         private var sample_names:Vector.<TextField>;
         private var VU_rectangles:Vector.<Sprite>;
+        private var _trackBar:Sprite;
         
         public function TestPlayer() {
             if (stage) init();
@@ -86,7 +91,8 @@ package {
             
             draw_bckg_gradient();
             draw_header(10, 2);
-            draw_all_buttans(10, 85);
+            draw_trackbar(10,85,185);
+            draw_all_buttans(10, 125);
             //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
@@ -104,39 +110,34 @@ package {
         private function style_me():void {
 
             style_ttit_text.font = "Arial";
-            style_ttit_text.color = color_ttit_text;
+            style_ttit_text.color = col_redPostTitle;
             style_ttit_text.kerning = true;
             style_ttit_text.bold = true;
             style_ttit_text.size = 13.3333;
             
             style_link_text.font = "Arial";
-            style_link_text.color = color_link_text;
+            style_link_text.color = col_blueLink;
             style_link_text.kerning = true;
             style_link_text.size = 13.3333;
             
             style_name_text.font = "Arial";
-            style_name_text.color = color_name_text;
+            style_name_text.color = col_greenName;
             style_name_text.kerning = true;
             style_name_text.bold = true;
             style_name_text.size = 13.3333;
             
             style_post_text.font = "Arial";
-            style_post_text.color = color_post_text;
+            style_post_text.color = col_redBrownText;
             style_post_text.kerning = true;
             style_post_text.size = 13.3333;
             
             style_butt_text.font = "Microsoft Sans Serif";
-            style_butt_text.color = color_butt_text;
+            style_butt_text.color = col_blackText;
             style_butt_text.kerning = true;
             style_butt_text.size = 13.3333;
             
-            style_tfld_text.font = "Microsoft Sans Serif";
-            style_tfld_text.color = color_tfld_text;
-            style_tfld_text.kerning = true;
-            style_tfld_text.size = 13.3333;
-            
             style_asci_text.font = "Courier";
-            style_asci_text.color = color_post_text;
+            style_asci_text.color = col_redBrownText;
             style_asci_text.kerning = true;
             style_asci_text.size = 5;
         }
@@ -145,14 +146,30 @@ package {
         
         private function update_all():void {
             update_songtitle();
-            draw_sample_names();
+            update_sample_names();
             update_subsong();
             update_totaltime();
             update_play();
             update_songinfo();
             update_VUBuffers();
+            update_trackbar();
         }
         
+        
+        private function update_sample_names():void {
+            var temp:Vector.<String> = replayer.info_sampleNames;
+            var i:uint, j:uint;
+            if (sample_names) {
+                for (j = 0; j < sample_names.length; j++ ) {
+                    this.removeChild(sample_names[j]);
+                }
+            }
+            sample_names = new Vector.<TextField>();
+            for (i = 0;i<temp.length;i++ ) {
+                sample_names.push(blank_textfield(220, 2 + i * 14, style_asci_text));
+                sample_names[i].text = "* " + temp[i];
+            }
+        }
         
         private function update_totaltime():void {
             total_time = Math.floor(replayer.info_tuneLength);
@@ -185,8 +202,10 @@ package {
             }
         }
         
-        private function update_scrollbar():void {
-            
+        private function update_trackbar():void{
+            if(!isDragged_trackBar && (replayer.info_tuneLength > replayer.cur_playTime)){
+                _trackBar.x = bar_length * (replayer.cur_playTime / replayer.info_tuneLength);
+            }
         }
         
         private function update_VUmeters():void {
@@ -225,7 +244,9 @@ package {
                 VU_rectangles[index].scaleX = 1;
         }
         
-        
+        private function reset_trackbar():void{
+            _trackBar.x = 0;
+        }
         
         
         
@@ -253,10 +274,28 @@ package {
             matr.createGradientBox( 1, 125, 1.57079633, 0, -25 );
             var sprite:Sprite = new Sprite();
             var g:Graphics = sprite.graphics;
-            g.beginGradientFill( GradientType.LINEAR, [ color_grad_top, color_grad_bot ], [ 1, 1 ], [ 0, 255 ], matr, SpreadMethod.PAD );
+            g.beginGradientFill( GradientType.LINEAR, [ col_peachGradientTop, col_lightLimeGradientBottom ], [ 1, 1 ], [ 0, 255 ], matr, SpreadMethod.PAD );
             g.drawRect( 0, 0, stage.stageWidth , stage.stageHeight );
             
             this.addChild( sprite );
+        }
+        
+        private function draw_trackbar(x:int, y:int, seek_length:uint):void {
+            bar_length = seek_length;
+            _trackBar = new Sprite();
+            _trackBar.graphics.beginFill(col_redPostTitle);
+            _trackBar.graphics.drawRect(x, y, 10, 20);
+            _trackBar.graphics.endFill();
+
+            var backline:Sprite = new Sprite();
+            backline.graphics.lineStyle(2, col_redBrownText);
+            backline.graphics.moveTo(x,  y + 10);
+            backline.graphics.lineTo(x + bar_length, y + 10);
+            
+            this.addChild(backline);
+            this.addChild(_trackBar);
+            _trackBar.addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
+            _trackBar.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
         }
         
         private function draw_VUmeters(x:int, y:int):void {
@@ -269,27 +308,12 @@ package {
             VU_rectangles = new Vector.<Sprite>();
             for (i = 0;i<replayer.info_channels; i++ ) {
                 var VU:Sprite = new Sprite();
-                VU.graphics.beginFill(color_head_0001);
+                VU.graphics.beginFill(col_peachHeader);
                 VU.graphics.drawRect(x, y+20*i, 5, 15);
                 VU.graphics.endFill();
                 VU_rectangles.push(VU);
                 this.addChild(VU);
                 
-            }
-        }
-        
-        private function draw_sample_names():void {
-            var temp:Vector.<String> = replayer.info_sampleNames;
-            var i:uint, j:uint;
-            if (sample_names) {
-                for (j = 0; j < sample_names.length; j++ ) {
-                    this.removeChild(sample_names[j]);
-                }
-            }
-            sample_names = new Vector.<TextField>();
-            for (i = 0;i<temp.length;i++ ) {
-                sample_names.push(blank_textfield(220, 2 + i * 14, style_asci_text));
-                sample_names[i].text = "* " + temp[i];
             }
         }
         
@@ -317,9 +341,10 @@ package {
         
         private function draw_buttan( x:int, y:int, label:String, func:Function ):void{
             var button:Sprite = new Sprite();
-            button.graphics.beginFill(color_butt_bckg);
+            button.graphics.beginFill(col_grayButton);
             button.graphics.drawRect(x, y, 50, 20);
             button.graphics.endFill();
+            button.useHandCursor = true;
             this.addChild(button);
             
             var text:TextField = new TextField();
@@ -362,11 +387,16 @@ package {
         
         
         
-        
-        
-        
-        
+        private function onMouseUp(e:MouseEvent):void {
+            isDragged_trackBar = false;
+            _trackBar.stopDrag();
+            replayer.com_seek(replayer.info_tuneLength * (_trackBar.x  / bar_length));
+        }
 
+        private function onMouseDown(e:MouseEvent):void {
+            isDragged_trackBar = true;
+            _trackBar.startDrag(false, new Rectangle(0, 0, bar_length, 0));
+        }
         
         private function onFileSelected(evt:Event):void{ 
             fr.addEventListener(Event.COMPLETE, onComplete); 
@@ -381,6 +411,7 @@ package {
             var temp:uint, i:uint;
             update_play();
             update_VUmeters();
+            update_trackbar();
         }
         
         
@@ -398,6 +429,7 @@ package {
         }
         
         private function stop( event:MouseEvent ):void {
+            reset_trackbar();
             replayer.com_stop();
         }
         
@@ -420,10 +452,11 @@ package {
         
         
         private function load( data:ByteArray ):void {
+            reset_trackbar();
             subnr = 0;
             replayer.com_loadTune( data, taipan );
             VU_ringbuffers = null;
-            draw_VUmeters(0, 150);
+            draw_VUmeters(0, 200);
             update_all();
         }
     }

@@ -90,7 +90,7 @@ package hvl {
             if ( ht.PlayingTime > frame ){
                 replayer.InitSubsong( ht, ht.SongNum );
             }
-            while ( ht.PlayingTime < (frame%info_tuneLength) ) {
+            while ( ht.PlayingTime < frame ) {
                 //<del>We sacrifice accuracy for speed :(</del> Hell no! We sacrifice speed for accuracy.
                 //Unless a trick is discovered. Inb4 using flascc instead of AS3.
                 //I am not exactly fond of precompiled libs and would rather work with full source, in one language.
