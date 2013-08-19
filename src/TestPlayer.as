@@ -20,9 +20,9 @@ package {
     import hvl.cons;
     import hvl.front_panel;
     
+    //This thing is a bloody mess!
+    
     public class TestPlayer extends Sprite{
-        private static const taipan:uint = 2;
-        private static const VU_rolloff:Number = 1.04;
         
         private var replayer:front_panel;
         private var fr:FileReference;
@@ -30,14 +30,15 @@ package {
         private var subnr:uint;
         private var total_time:Number;
         private var VU_shown:Boolean = true;
-        private var VU_ringbuffers:Vector.<Vector.<uint>>;
-        private var VU_instant:Vector.<uint>;
+        private var VU_ringbuffers:Vector.<Vector.<int>>;
+        private var VU_instant:Vector.<int>;
         private var VU_index:uint;
         private var VU_delay:uint;
         
         
-        private const
-        VU_min:uint = 250,
+        private static const
+        taipan:uint = 2,
+        VU_rolloff:Number = 1.04,
         //stolen from Yotsuba imageboard theme
         color_link_text:uint = 0x0000EE,
         color_ttit_text:uint = 0xCC1105,
@@ -178,10 +179,14 @@ package {
             VU_index = 0;
             var chans:uint=replayer.info_channels;
             var i:uint;
-            VU_ringbuffers = new Vector.<Vector.<uint>>(chans, true);
+            VU_ringbuffers = new Vector.<Vector.<int>>(chans, true);
             for (i = 0; i< chans; i++) {
-                VU_ringbuffers[i] = new Vector.<uint>(VU_delay, true);
+                VU_ringbuffers[i] = new Vector.<int>(VU_delay, true);
             }
+        }
+        
+        private function update_scrollbar():void {
+            
         }
         
         private function update_VUmeters():void {
@@ -189,13 +194,13 @@ package {
             var activity:Boolean = false;
             if (VU_shown) {
                 for (i = 0; i < replayer.info_channels; i++ ) {
-                    if (VU_min < VU_buffered(i)) {
+                    if (1 < VU_buffered(i)) {
                         activity = true;
-                        VU_rectangles[i].scaleX = VU_buffered(i) / 190;
+                        VU_rectangles[i].scaleX = VU_buffered(i);
                     }else {
                         clear_VUmeter(i);
                     }
-                    VU_instant[i] /=VU_rolloff;
+                    VU_instant[i]<1 ? VU_instant[i]=1 : VU_instant[i]-=1;
                 }                
             }else{
                 for (i = 0; i < replayer.info_channels; i++ ) {
@@ -299,8 +304,8 @@ package {
         private function draw_all_buttans(x:int, y:int):void {
             draw_buttan( x      , y    , "LOAD"  , browse );
             draw_buttan( x+70   , y    , "SNG++" , subsong );
-            //draw_buttan( x+70*2 , y    , "VU"    , toggle_VUmeters );
-            draw_buttan( x+70*2 , y    , "TEST"  , test );
+            draw_buttan( x+70*2 , y    , "VU"    , toggle_VUmeters );
+            //draw_buttan( x+70*2 , y    , "TEST"  , test );
             
             draw_buttan( x      , y+30 , "PLAY"  , play );
             draw_buttan( x+70   , y+30 , "PAUSE" , pause );

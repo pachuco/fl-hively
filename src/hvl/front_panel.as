@@ -13,8 +13,7 @@ package hvl {
         private var ht:tune;
         private var subsong:uint;
         private var replayer:replay;
-        private var resume_position:uint;
-        private var resume_step:uint;
+        private var tune_length:Number;
         private var audio_out:Sound;
         private var sc:SoundChannel;
         
@@ -27,6 +26,7 @@ package hvl {
         /**Load AHX/HVL tune and init subsong 0.*/
         public function com_loadTune( ba:ByteArray, stereo_separation:uint = 4 ):Boolean {
             ht = null;
+            tune_length = NaN;
             subsong = 0;
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo_separation );
@@ -42,6 +42,7 @@ package hvl {
         /**Inits selected subsong.*/
         public function com_initSubsong( nr:uint ):Boolean {
             if (ht) {
+                tune_length = NaN;
                 return replayer.InitSubsong( ht, nr );
             }else {
                 return false;
@@ -51,6 +52,7 @@ package hvl {
         /**Discard loaded tune.*/
         public function com_unloadTune():void {
             com_stop();
+            tune_length = NaN;
             ht = null;
             subsong = 0;
         }
@@ -84,15 +86,11 @@ package hvl {
 
         /**Seek trough tune by x seconds.*/
         public function com_seek( time:Number ):void {
-            //var will_render:Boolean = false;
             var frame:uint = tools.time_to_samples( time, 50 * ht.SpeedMultiplier );
             if ( ht.PlayingTime > frame ){
                 replayer.InitSubsong( ht, ht.SongNum );
             }
-            while ( ht.PlayingTime < frame ) {
-                //if ( ht.PlayingTime > frame-10 ) {
-                //    will_render = true;
-                //}
+            while ( ht.PlayingTime < (frame%info_tuneLength) ) {
                 //<del>We sacrifice accuracy for speed :(</del> Hell no! We sacrifice speed for accuracy.
                 //Unless a trick is discovered. Inb4 using flascc instead of AS3.
                 //I am not exactly fond of precompiled libs and would rather work with full source, in one language.
@@ -139,16 +137,20 @@ package hvl {
         
         /**Tune length in seconds.*/
         public function get info_tuneLength():Number{
-            if(ht){
-                var safety:uint = 2 * 60 * 60 * 50 * ht.SpeedMultiplier; // 2 hours, just like foo_dumb
-                
-                while ( ! ht.SongEndReached && safety ){
-                    replayer.play_irq( ht, false );
-                    --safety;
+            if (ht) {
+                if (isNaN(tune_length)) {
+                    var safety:uint = 2 * 60 * 60 * 50 * ht.SpeedMultiplier; // 2 hours, just like foo_dumb
+                    while ( ! ht.SongEndReached && safety ){
+                        replayer.play_irq( ht, false );
+                        --safety;
+                    }
+                    var temp:Number = ht.PlayingTime / ht.SpeedMultiplier / 50;
+                    replayer.InitSubsong(ht, ht.SongNum);
+                    tune_length = temp;
+                    return temp;
+                }else {
+                    return tune_length;
                 }
-                var temp:Number = ht.PlayingTime / ht.SpeedMultiplier / 50;
-                replayer.InitSubsong(ht, ht.SongNum);
-                return temp;
             }else {
                 return NaN;
             }
@@ -180,7 +182,7 @@ package hvl {
         }
         
         /**Get reference to VU meter Vector.*/
-        public function get_VUmeters():Vector.<uint> {
+        public function get_VUmeters():Vector.<int> {
             return ht?ht.VUMeters:null;
         }
         

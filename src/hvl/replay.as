@@ -1937,10 +1937,10 @@ package hvl {
                             * ht.Voices[i].VoiceVolume;
                     }
                     
-                    absj=(j^(j>>31))-(j>>31);
-                    absj=Math.abs(j);
+                    //absj=Math.abs(j);
+                    absj=((j^(j>>31))-(j>>31))/190;
                     //ht.Voices[i].VUMeter = absj;
-                    if ( absj > ht.VUMeters[i] ) {
+                    if (absj > ht.VUMeters[i]){
                         ht.VUMeters[i] = absj;
                     }
                     

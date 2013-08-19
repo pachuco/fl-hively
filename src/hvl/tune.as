@@ -36,7 +36,7 @@ package hvl {
         internal var mixgain:int;                              //int32
         internal var Version:uint;                             //uint8
         
-        internal var VUMeters:Vector.<uint>;
+        internal var VUMeters:Vector.<int>;
         internal var FormatString:String;
         
         private static const xy:uint = 256 * 64;
@@ -59,7 +59,7 @@ package hvl {
         
         public function init_VUMeters():void {
             var i:uint;
-            VUMeters = new Vector.<uint>(Channels, true);
+            VUMeters = new Vector.<int>(Channels, true);
         }
         
         internal function malloc_positions( ind:uint ):void{
