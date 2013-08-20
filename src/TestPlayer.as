@@ -94,8 +94,8 @@ package {
             
             draw_bckg_gradient();
             draw_header(10, 2);
-            draw_trackbar(10,85,185);
-            draw_all_buttans(10, 125);
+            draw_trackbar(10,80,185);
+            draw_all_buttans(10, 110);
             //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
@@ -288,7 +288,7 @@ package {
             bar_length = seek_length;
             _trackBar = new Sprite();
             _trackBar.graphics.beginFill(col_redPostTitle);
-            _trackBar.graphics.drawRect(x, y, 10, 20);
+            _trackBar.graphics.drawRect(x, y+2, 8, 15);
             _trackBar.graphics.endFill();
 
             var backline:Sprite = new Sprite();
@@ -330,23 +330,22 @@ package {
         }
         
         private function draw_all_buttans(x:int, y:int):void {
-            draw_buttan( x      , y    , "LOAD"  , browse );
-            draw_buttan( x+70   , y    , "SNG++" , subsong );
-            draw_buttan( x+70*2 , y    , "VU"    , toggle_VUmeters );
-            //draw_buttan( x+70*2 , y    , "TEST"  , test );
+            const hsp:uint = 55;
+            const vsp:uint = 30;
+            draw_buttan( x          , y     , 50, " LOAD"  , browse );
+            draw_buttan( x+hsp      , y     , 23, ">>"     , subsong );
+            draw_buttan( x+hsp*2-28 , y     , 23, "VU"     , toggle_VUmeters );
+            //draw_buttan( x+hsp*2    , y     , 50, " TEST"  , test );
             
-            draw_buttan( x      , y+30 , "PLAY"  , play );
-            draw_buttan( x+70   , y+30 , "PAUSE" , pause );
-            draw_buttan( x+70*2 , y+30 , "SOTP"  , stop );
-        }
-        private function test( event:MouseEvent ):void {
-            replayer.com_seek(50);
+            draw_buttan( x          , y+vsp , 50, " PLAY"  , play );
+            draw_buttan( x+hsp      , y+vsp , 50, " PAUSE" , pause );
+            draw_buttan( x+hsp*2    , y+vsp , 50, " SOTP"  , stop );
         }
         
-        private function draw_buttan( x:int, y:int, label:String, func:Function ):void{
+        private function draw_buttan( x:int, y:int, xl:uint, label:String, func:Function ):void{
             var button:Sprite = new Sprite();
             button.graphics.beginFill(col_grayButton);
-            button.graphics.drawRect(x, y, 50, 20);
+            button.graphics.drawRect(x, y, xl, 20);
             button.graphics.endFill();
             button.useHandCursor = true;
             this.addChild(button);
@@ -356,7 +355,7 @@ package {
             
             text.text = label;
             text.defaultTextFormat = style_butt_text;
-            text.x = x + 4;
+            text.x = x;
             text.y = y + 1;
             //text.border = true;
             text.width  = 45;
@@ -369,6 +368,10 @@ package {
             
             button.addEventListener(MouseEvent.CLICK, func);
             
+        }
+        
+        private function test( event:MouseEvent ):void {
+            replayer.com_seekTime(50);
         }
 
         private function blank_textfield( x:int, y:int, format:TextFormat):TextField {
@@ -394,7 +397,7 @@ package {
         private function onMouseUp(e:MouseEvent):void {
             isDragged_trackBar = false;
             _trackBar.stopDrag();
-            replayer.com_seek(replayer.info_tuneLength * (_trackBar.x  / bar_length));
+            replayer.com_seekTime(replayer.info_tuneLength * (_trackBar.x  / bar_length));
         }
 
         private function onMouseDown(e:MouseEvent):void {

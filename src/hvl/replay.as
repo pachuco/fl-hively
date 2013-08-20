@@ -538,61 +538,65 @@ package hvl {
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
                 if ( nptr < buflen ) {
-                    ht.Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
+                    ht.Instruments[i].Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.Instruments[i].ins_Name = "";
+                    ht.Instruments[i].Name = "";
                 }
     
-                ht.Instruments[i].ins_Volume      = buf[bptr+0];
-                ht.Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-                ht.Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
+                ht.Instruments[i].Volume      = buf[bptr+0];
+                ht.Instruments[i].FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                ht.Instruments[i].WaveLength  = buf[bptr+1]&0x07;
 
-                ht.Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
-                ht.Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
-                ht.Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
-                ht.Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
-                ht.Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
-                ht.Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
-                ht.Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
+                ht.Instruments[i].Envelope.aFrames = buf[bptr+2];
+                ht.Instruments[i].Envelope.aVolume = buf[bptr+3];
+                ht.Instruments[i].Envelope.dFrames = buf[bptr+4];
+                ht.Instruments[i].Envelope.dVolume = buf[bptr+5];
+                ht.Instruments[i].Envelope.sFrames = buf[bptr+6];
+                ht.Instruments[i].Envelope.rFrames = buf[bptr+7];
+                ht.Instruments[i].Envelope.rVolume = buf[bptr+8];
                 
-                ht.Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
-                ht.Instruments[i].ins_VibratoDelay         = buf[bptr+13];
-                ht.Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-                ht.Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
-                ht.Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
-                ht.Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
-                ht.Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
-                ht.Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
-                ht.Instruments[i].ins_SquareSpeed          = buf[bptr+18];
-                ht.Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
-                ht.Instruments[i].ins_PList.Speed      = buf[bptr+20];
-                ht.Instruments[i].ins_PList.Length     = buf[bptr+21];
+                //if (!ht.Instruments[i].Envelope.aFrames ) trace("ht.Instruments["+i+"].Envelope.aFrames == 0");
+                //if (!ht.Instruments[i].Envelope.dFrames ) trace("ht.Instruments["+i+"].Envelope.dFrames == 0");
+                //if (!ht.Instruments[i].Envelope.rFrames ) trace("ht.Instruments["+i+"].Envelope.rFrames == 0");
                 
-                ht.Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
+                ht.Instruments[i].FilterLowerLimit     = buf[bptr+12]&0x7f;
+                ht.Instruments[i].VibratoDelay         = buf[bptr+13];
+                ht.Instruments[i].HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                ht.Instruments[i].HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                ht.Instruments[i].VibratoDepth         = buf[bptr+14]&0x0f;
+                ht.Instruments[i].VibratoSpeed         = buf[bptr+15];
+                ht.Instruments[i].SquareLowerLimit     = buf[bptr+16];
+                ht.Instruments[i].SquareUpperLimit     = buf[bptr+17];
+                ht.Instruments[i].SquareSpeed          = buf[bptr+18];
+                ht.Instruments[i].FilterUpperLimit     = buf[bptr+19]&0x3f;
+                ht.Instruments[i].PList.Speed      = buf[bptr+20];
+                ht.Instruments[i].PList.Length     = buf[bptr+21];
+                
+                ht.Instruments[i].PList.ple_malloc( buf[bptr+21] );
     
                 bptr += 22;
-                for( j=0; j<ht.Instruments[i].ins_PList.Length; j++ ){
+                for( j=0; j<ht.Instruments[i].PList.Length; j++ ){
                     k = (buf[bptr+0]>>5)&7;
                     if( k == 6 ) k = 12;
                     if( k == 7 ) k = 15;
                     l = (buf[bptr+0]>>2)&7;
                     if( l == 6 ) l = 12;
                     if( l == 7 ) l = 15;
-                    ht.Instruments[i].ins_PList.Entries[j].FX[1]      = k;
-                    ht.Instruments[i].ins_PList.Entries[j].FX[0]      = l;
-                    ht.Instruments[i].ins_PList.Entries[j].Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
-                    ht.Instruments[i].ins_PList.Entries[j].Fixed      = (buf[bptr+1]>>6)&1;
-                    ht.Instruments[i].ins_PList.Entries[j].Note       = buf[bptr+1]&0x3f;
-                    ht.Instruments[i].ins_PList.Entries[j].FXParam[0] = buf[bptr+2];
-                    ht.Instruments[i].ins_PList.Entries[j].FXParam[1] = buf[bptr+3];
+                    ht.Instruments[i].PList.Entries[j].FX[1]      = k;
+                    ht.Instruments[i].PList.Entries[j].FX[0]      = l;
+                    ht.Instruments[i].PList.Entries[j].Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
+                    ht.Instruments[i].PList.Entries[j].Fixed      = (buf[bptr+1]>>6)&1;
+                    ht.Instruments[i].PList.Entries[j].Note       = buf[bptr+1]&0x3f;
+                    ht.Instruments[i].PList.Entries[j].FXParam[0] = buf[bptr+2];
+                    ht.Instruments[i].PList.Entries[j].FXParam[1] = buf[bptr+3];
 
                     // 1.6: Strip "toggle filter" commands if the module is
                     //      version 0 (pre-filters). This is what AHX also does.
                     if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) )
-                        ht.Instruments[i].ins_PList.Entries[j].FXParam[0] &= 0x0f;
+                        ht.Instruments[i].PList.Entries[j].FXParam[0] &= 0x0f;
                     if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) )
-                        ht.Instruments[i].ins_PList.Entries[j].FXParam[1] &= 0x0f; // 1.8
+                        ht.Instruments[i].PList.Entries[j].FXParam[1] &= 0x0f; // 1.8
 
                     bptr += 4;
                 }
@@ -769,48 +773,48 @@ package hvl {
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
                 if( nptr < buflen ){
-                    ht.Instruments[i].ins_Name = tools.strncpy(buf, nptr, 128);
+                    ht.Instruments[i].Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.Instruments[i].ins_Name = "";
+                    ht.Instruments[i].Name = "";
                 }
 
-                ht.Instruments[i].ins_Volume      = buf[bptr+0];
-                ht.Instruments[i].ins_FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-                ht.Instruments[i].ins_WaveLength  = buf[bptr+1]&0x07;
+                ht.Instruments[i].Volume      = buf[bptr+0];
+                ht.Instruments[i].FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                ht.Instruments[i].WaveLength  = buf[bptr+1]&0x07;
 
-                ht.Instruments[i].ins_Envelope.aFrames = buf[bptr+2];
-                ht.Instruments[i].ins_Envelope.aVolume = buf[bptr+3];
-                ht.Instruments[i].ins_Envelope.dFrames = buf[bptr+4];
-                ht.Instruments[i].ins_Envelope.dVolume = buf[bptr+5];
-                ht.Instruments[i].ins_Envelope.sFrames = buf[bptr+6];
-                ht.Instruments[i].ins_Envelope.rFrames = buf[bptr+7];
-                ht.Instruments[i].ins_Envelope.rVolume = buf[bptr+8];
+                ht.Instruments[i].Envelope.aFrames = buf[bptr+2];
+                ht.Instruments[i].Envelope.aVolume = buf[bptr+3];
+                ht.Instruments[i].Envelope.dFrames = buf[bptr+4];
+                ht.Instruments[i].Envelope.dVolume = buf[bptr+5];
+                ht.Instruments[i].Envelope.sFrames = buf[bptr+6];
+                ht.Instruments[i].Envelope.rFrames = buf[bptr+7];
+                ht.Instruments[i].Envelope.rVolume = buf[bptr+8];
 
-                ht.Instruments[i].ins_FilterLowerLimit     = buf[bptr+12]&0x7f;
-                ht.Instruments[i].ins_VibratoDelay         = buf[bptr+13];
-                ht.Instruments[i].ins_HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-                ht.Instruments[i].ins_HardCutRelease       = buf[bptr+14]&0x80?1:0;
-                ht.Instruments[i].ins_VibratoDepth         = buf[bptr+14]&0x0f;
-                ht.Instruments[i].ins_VibratoSpeed         = buf[bptr+15];
-                ht.Instruments[i].ins_SquareLowerLimit     = buf[bptr+16];
-                ht.Instruments[i].ins_SquareUpperLimit     = buf[bptr+17];
-                ht.Instruments[i].ins_SquareSpeed          = buf[bptr+18];
-                ht.Instruments[i].ins_FilterUpperLimit     = buf[bptr+19]&0x3f;
-                ht.Instruments[i].ins_PList.Speed      = buf[bptr+20];
-                ht.Instruments[i].ins_PList.Length     = buf[bptr+21];
+                ht.Instruments[i].FilterLowerLimit     = buf[bptr+12]&0x7f;
+                ht.Instruments[i].VibratoDelay         = buf[bptr+13];
+                ht.Instruments[i].HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                ht.Instruments[i].HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                ht.Instruments[i].VibratoDepth         = buf[bptr+14]&0x0f;
+                ht.Instruments[i].VibratoSpeed         = buf[bptr+15];
+                ht.Instruments[i].SquareLowerLimit     = buf[bptr+16];
+                ht.Instruments[i].SquareUpperLimit     = buf[bptr+17];
+                ht.Instruments[i].SquareSpeed          = buf[bptr+18];
+                ht.Instruments[i].FilterUpperLimit     = buf[bptr+19]&0x3f;
+                ht.Instruments[i].PList.Speed      = buf[bptr+20];
+                ht.Instruments[i].PList.Length     = buf[bptr+21];
 
-                ht.Instruments[i].ins_PList.ple_malloc( buf[bptr+21] );
+                ht.Instruments[i].PList.ple_malloc( buf[bptr+21] );
 
                 bptr += 22;
-                for( j=0; j<ht.Instruments[i].ins_PList.Length; j++ ){
-                    ht.Instruments[i].ins_PList.Entries[j].FX[0] = buf[bptr+0]&0xf;
-                    ht.Instruments[i].ins_PList.Entries[j].FX[1] = (buf[bptr+1]>>3)&0xf;
-                    ht.Instruments[i].ins_PList.Entries[j].Waveform = buf[bptr+1]&7;
-                    ht.Instruments[i].ins_PList.Entries[j].Fixed = (buf[bptr+2]>>6)&1;
-                    ht.Instruments[i].ins_PList.Entries[j].Note  = buf[bptr+2]&0x3f;
-                    ht.Instruments[i].ins_PList.Entries[j].FXParam[0] = buf[bptr+3];
-                    ht.Instruments[i].ins_PList.Entries[j].FXParam[1] = buf[bptr+4];
+                for( j=0; j<ht.Instruments[i].PList.Length; j++ ){
+                    ht.Instruments[i].PList.Entries[j].FX[0] = buf[bptr+0]&0xf;
+                    ht.Instruments[i].PList.Entries[j].FX[1] = (buf[bptr+1]>>3)&0xf;
+                    ht.Instruments[i].PList.Entries[j].Waveform = buf[bptr+1]&7;
+                    ht.Instruments[i].PList.Entries[j].Fixed = (buf[bptr+2]>>6)&1;
+                    ht.Instruments[i].PList.Entries[j].Note  = buf[bptr+2]&0x3f;
+                    ht.Instruments[i].PList.Entries[j].FXParam[0] = buf[bptr+3];
+                    ht.Instruments[i].PList.Entries[j].FXParam[1] = buf[bptr+4];
                     bptr += 5;
                 }
             }
@@ -1099,31 +1103,32 @@ package hvl {
                 vc.Instrument       = Ins = ht.Instruments[Instr];
                 vc.SamplePos        = 0;
             
-                vc.ADSR.aFrames     = Ins.ins_Envelope.aFrames;
-                vc.ADSR.aVolume     = Ins.ins_Envelope.aVolume*256/vc.ADSR.aFrames;
-                vc.ADSR.dFrames     = Ins.ins_Envelope.dFrames;
-                vc.ADSR.dVolume     = (Ins.ins_Envelope.dVolume-Ins.ins_Envelope.aVolume)*256/vc.ADSR.dFrames;
-                vc.ADSR.sFrames     = Ins.ins_Envelope.sFrames;
-                vc.ADSR.rFrames     = Ins.ins_Envelope.rFrames;
-                vc.ADSR.rVolume     = (Ins.ins_Envelope.rVolume-Ins.ins_Envelope.dVolume)*256/vc.ADSR.rFrames;
+                vc.ADSR.aFrames     = Ins.Envelope.aFrames;
+                vc.ADSR.aVolume     = Ins.Envelope.aVolume*256/vc.ADSR.aFrames;
+                vc.ADSR.dFrames     = Ins.Envelope.dFrames;
+                vc.ADSR.dVolume     = (Ins.Envelope.dVolume-Ins.Envelope.aVolume)*256/vc.ADSR.dFrames;
+                vc.ADSR.sFrames     = Ins.Envelope.sFrames;
+                vc.ADSR.rFrames     = Ins.Envelope.rFrames;
+                vc.ADSR.rVolume     = (Ins.Envelope.rVolume-Ins.Envelope.dVolume)*256/vc.ADSR.rFrames;
             
-                vc.WaveLength       = Ins.ins_WaveLength;
-                vc.NoteMaxVolume    = Ins.ins_Volume;
+                
+                vc.WaveLength       = Ins.WaveLength;
+                vc.NoteMaxVolume    = Ins.Volume;
             
                 vc.VibratoCurrent   = 0;
-                vc.VibratoDelay     = Ins.ins_VibratoDelay;
-                vc.VibratoDepth     = Ins.ins_VibratoDepth;
-                vc.VibratoSpeed     = Ins.ins_VibratoSpeed;
+                vc.VibratoDelay     = Ins.VibratoDelay;
+                vc.VibratoDepth     = Ins.VibratoDepth;
+                vc.VibratoSpeed     = Ins.VibratoSpeed;
                 vc.VibratoPeriod    = 0;
             
-                vc.HardCutRelease   = Ins.ins_HardCutRelease;
-                vc.HardCut          = Ins.ins_HardCutReleaseFrames;
+                vc.HardCutRelease   = Ins.HardCutRelease;
+                vc.HardCut          = Ins.HardCutReleaseFrames;
             
                 vc.IgnoreSquare = vc.SquareSlidingIn = 0;
                 vc.SquareWait   = vc.SquareOn        = 0;
             
-                SquareLower = Ins.ins_SquareLowerLimit >> (5 - vc.WaveLength);
-                SquareUpper = Ins.ins_SquareUpperLimit >> (5 - vc.WaveLength);
+                SquareLower = Ins.SquareLowerLimit >> (5 - vc.WaveLength);
+                SquareUpper = Ins.SquareUpperLimit >> (5 - vc.WaveLength);
             
                 if( SquareUpper < SquareLower ){
                     t = SquareUpper;            //int16
@@ -1139,9 +1144,9 @@ package hvl {
                 vc.FilterOn         = 0;
                 vc.FilterSlidingIn  = 0;
 
-                d6 = Ins.ins_FilterSpeed;
-                d3 = Ins.ins_FilterLowerLimit;
-                d4 = Ins.ins_FilterUpperLimit;
+                d6 = Ins.FilterSpeed;
+                d3 = Ins.FilterLowerLimit;
+                d4 = Ins.FilterUpperLimit;
             
                 if( d3 & 0x80 ) d6 |= 0x20;
                 if( d4 & 0x80 ) d6 |= 0x40;
@@ -1162,8 +1167,8 @@ package hvl {
             
                 vc.PerfWait    = 0;
                 vc.PerfCurrent = 0;
-                vc.PerfSpeed = Ins.ins_PList.Speed;
-                vc.PerfList  = vc.Instrument.ins_PList;
+                vc.PerfSpeed = Ins.PList.Speed;
+                vc.PerfList  = vc.Instrument.PList;
                 
                 //WARNING: "unreachable" value
                 //vc.vc_RingMixSource   = null;   // No ring modulation
@@ -1374,7 +1379,7 @@ package hvl {
                     vc.NoteCutOn = 0;
                 
                     if( vc.HardCutRelease ){
-                        vc.ADSR.rVolume = -(vc.ADSRVolume - (vc.Instrument.ins_Envelope.rVolume << 8)) / vc.HardCutReleaseF;
+                        vc.ADSR.rVolume = -(vc.ADSRVolume - (vc.Instrument.Envelope.rVolume << 8)) / vc.HardCutReleaseF;
                         vc.ADSR.rFrames = vc.HardCutReleaseF;
                         vc.ADSR.aFrames = vc.ADSR.dFrames = vc.ADSR.sFrames = 0;
                     } else {
@@ -1390,7 +1395,7 @@ package hvl {
                 vc.ADSRVolume += vc.ADSR.aVolume;
               
                 if( --vc.ADSR.aFrames <= 0 ){
-                    vc.ADSRVolume = vc.Instrument.ins_Envelope.aVolume << 8;
+                    vc.ADSRVolume = vc.Instrument.Envelope.aVolume << 8;
                 }
 
             } else if( vc.ADSR.dFrames ) {
@@ -1398,7 +1403,7 @@ package hvl {
                 vc.ADSRVolume += vc.ADSR.dVolume;
               
                 if( --vc.ADSR.dFrames <= 0 ){
-                    vc.ADSRVolume = vc.Instrument.ins_Envelope.dVolume << 8;
+                    vc.ADSRVolume = vc.Instrument.Envelope.dVolume << 8;
                 }
             
             } else if( vc.ADSR.sFrames ) {
@@ -1410,7 +1415,7 @@ package hvl {
                 vc.ADSRVolume += vc.ADSR.rVolume;
             
                 if( --vc.ADSR.rFrames <= 0 ){
-                    vc.ADSRVolume = vc.Instrument.ins_Envelope.rVolume << 8;
+                    vc.ADSRVolume = vc.Instrument.Envelope.rVolume << 8;
                 }
             }
 
@@ -1464,7 +1469,7 @@ package hvl {
           
             // PList
             if( vc.PerfList ){
-                if( vc.Instrument && vc.PerfCurrent < vc.Instrument.ins_PList.Length ){
+                if( vc.Instrument && vc.PerfCurrent < vc.Instrument.PList.Length ){
                     if( --vc.PerfWait <= 0 ){
                         var i:uint;       //uint32
                         var cur:int;      //int32
@@ -1541,7 +1546,7 @@ package hvl {
                     d3 += vc.SquareSign;
                     vc.SquarePos   = d3;
                     vc.PlantSquare = 1;
-                    vc.SquareWait  = vc.Instrument.ins_SquareSpeed;
+                    vc.SquareWait  = vc.Instrument.SquareSpeed;
                 }
             }
           

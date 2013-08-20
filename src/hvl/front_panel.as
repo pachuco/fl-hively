@@ -30,7 +30,6 @@ package hvl {
             subsong = 0;
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo_separation );
-            trace(50 * ht.SpeedMultiplier);
             if (ht) {
                 return true;
             }else {
@@ -71,7 +70,7 @@ package hvl {
         }
         
         /**Stop playback but keep position.*/
-        public function com_pause(     ):void {
+        public function com_pause( ):void {
             if ( is_playing ) {
                 sc.stop();
             }
@@ -84,19 +83,24 @@ package hvl {
             replayer.InitSubsong(ht, ht.SongNum);
         }
 
-        /**Seek trough tune by x seconds.*/
-        public function com_seek( time:Number ):void {
+        /**Seek trough tune by time, in seconds.*/
+        public function com_seekTime( time:Number ):void {
             var frame:uint = tools.time_to_samples( time, 50 * ht.SpeedMultiplier );
             if ( ht.PlayingTime > frame ){
                 replayer.InitSubsong( ht, ht.SongNum );
             }
             while ( ht.PlayingTime < frame ) {
-                //<del>We sacrifice accuracy for speed :(</del> Hell no! We sacrifice speed for accuracy.
-                //Unless a trick is discovered. Inb4 using flascc instead of AS3.
-                //I am not exactly fond of precompiled libs and would rather work with full source, in one language.
+                //<del>Let's hope this doesn't break tunes up</del> Yes it does.
+                //Renderless seeking, even with reset does break stuff.
                 replayer.play_irq( ht, true );
+                //replayer.reset_some_stuff( ht );
             }
         }
+        
+        /**Seek trough tune by order and note number*/
+        //public function com_seekOrder( orderNr:uint, noteNr:uint=0 ):void {
+            
+        //}
         
         /**Total number of channels.*/
         public function get info_channels():int {
@@ -109,7 +113,12 @@ package hvl {
         
         /**String with tune format and version.*/
         public function get info_format():String{
-            return ht.FormatString;
+            return ht?ht.FormatString:"NULL";
+        }
+        
+        /***/
+        public function get info_sampleNr():int {
+            return ht?ht.InstrumentNr:-1;
         }
         
         /**Vector of all sample names.*/
@@ -117,7 +126,7 @@ package hvl {
             if(ht){
                 var temp:Vector.<String> = new Vector.<String>(ht.InstrumentNr, true);
                 for (var i:uint = 1; i <= ht.InstrumentNr; i++ ) {
-                    temp[i-1] = ht.Instruments[i].ins_Name;
+                    temp[i-1] = ht.Instruments[i].Name;
                 }
                 return temp;
             }else {
@@ -127,7 +136,7 @@ package hvl {
         
         /**Song title.*/
         public function get info_title():String {
-            return ht?ht.Name:"";
+            return ht?ht.Name:"NULL";
         }
         
         /**Total number of subsongs.*/
@@ -163,6 +172,12 @@ package hvl {
         
         /**Current playtime in seconds.*/
         public function get cur_playTime():Number{
+            return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
+        }
+        
+        /**Current playtime in seconds, wrapped acording to looping information.*/
+        public function get cur_playTimeWrapped():Number {
+            ht.PositionNr
             return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
         }
         

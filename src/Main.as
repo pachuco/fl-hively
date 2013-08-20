@@ -10,7 +10,7 @@ package
      * ...
      * @author me!
      */
-    [SWF(width='800',height='800',backgroundColor='#FFFFEE',frameRate='30')]
+    [SWF(width='800',height='800',backgroundColor='#FFFFEE',frameRate='60')]
     public class Main extends Sprite {
         
         public function Main():void{
