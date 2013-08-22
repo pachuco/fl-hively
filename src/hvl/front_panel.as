@@ -9,6 +9,7 @@ package hvl {
         private var buf_size:uint = 4092;
         private var is_playing:Boolean;
         private var framerate:uint;
+        private var stereo:uint = 4;
         
         private var ht:tune;
         private var subsong:uint;
@@ -24,12 +25,12 @@ package hvl {
         }
         
         /**Load AHX/HVL tune and init subsong 0.*/
-        public function com_loadTune( ba:ByteArray, stereo_separation:uint = 4 ):Boolean {
+        public function com_loadTune( ba:ByteArray):Boolean {
             ht = null;
             tune_length = NaN;
             subsong = 0;
             ba.endian = Endian.LITTLE_ENDIAN;
-            ht = replayer.LoadTune( ba, stereo_separation );
+            ht = replayer.LoadTune( ba, stereo );
             if (ht) {
                 return true;
             }else {
@@ -194,6 +195,14 @@ package hvl {
         /**Length of audio buffer in float samples(not bytes).*/
         public function get cur_bufLength():uint{
             return buf_size;
+        }
+        
+        /**Set panning from 0 to 4. Only applies to AHX.*/
+        public function set panning(pan:uint):void {
+            stereo = pan;
+            if (ht && pan <= 4) {
+                replayer.setPan(ht, pan);
+            }
         }
         
         /**Get reference to VU meter Vector.*/

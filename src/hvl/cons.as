@@ -42,6 +42,9 @@ package hvl {
             0x00E2, 0x00D6, 0x00CA, 0x00BE, 0x00B4, 0x00AA, 0x00A0, 0x0097,
             0x008F, 0x0087, 0x007F, 0x0078, 0x0071
         ]);
+        
+        internal static const defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]);
+        
         // Woohoo!
         internal static const MAX_CHANNELS:uint = 16;
         

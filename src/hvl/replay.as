@@ -416,13 +416,44 @@ package hvl {
             return true;
         }
         
+        internal function setPan( ht:tune, defstereo:uint ):void {
+            if ( ht.FormatString.indexOf("AHX") < 0 ) {
+                return;
+            }
+            var i:uint;
+            ht.defstereo       = defstereo;
+            ht.defpanleft      = cons.stereopan_left[ht.defstereo];
+            ht.defpanright     = cons.stereopan_right[ht.defstereo];
+            ht.mixgain         = (cons.defgain[ht.defstereo]*256)/100;
+
+            for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
+                ht.Voices[i+0].Pan          = ht.defpanleft;
+                ht.Voices[i+0].SetPan       = ht.defpanleft; // 1.4
+                ht.Voices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
+                ht.Voices[i+0].PanMultRight = panning_right[ht.defpanleft];
+                ht.Voices[i+1].Pan          = ht.defpanright;
+                ht.Voices[i+1].SetPan       = ht.defpanright; // 1.4
+                ht.Voices[i+1].PanMultLeft  = panning_left[ht.defpanright];
+                ht.Voices[i+1].PanMultRight = panning_right[ht.defpanright];
+                ht.Voices[i+2].Pan          = ht.defpanright;
+                ht.Voices[i+2].SetPan       = ht.defpanright; // 1.4
+                ht.Voices[i+2].PanMultLeft  = panning_left[ht.defpanright];
+                ht.Voices[i+2].PanMultRight = panning_right[ht.defpanright];
+                ht.Voices[i+3].Pan          = ht.defpanleft;
+                ht.Voices[i+3].SetPan       = ht.defpanleft;  // 1.4
+                ht.Voices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
+                ht.Voices[i+3].PanMultRight = panning_right[ht.defpanleft];
+            }
+
+            //reset_some_stuff(ht);
+        }
+        
         private function load_ahx( buf:ByteArray, defstereo:uint ):tune{
             var bptr:uint;      //*uint8
             var nptr:uint;      //*TEXT
             var buflen:uint, i:uint, j:uint, k:uint, l:uint, posn:uint, insn:uint, ssn:uint, hs:uint, trkn:uint, trkl:uint;
             var ht:tune;
             var ple:plsentry;
-            const defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]);
             
             buflen = buf.length;
             
@@ -471,7 +502,7 @@ package hvl {
             ht.defstereo       = defstereo;
             ht.defpanleft      = cons.stereopan_left[ht.defstereo];
             ht.defpanright     = cons.stereopan_right[ht.defstereo];
-            ht.mixgain         = (defgain[ht.defstereo]*256)/100;
+            ht.mixgain         = (cons.defgain[ht.defstereo]*256)/100;
   
             if( ht.Restart >= ht.PositionNr ){
                     ht.Restart = ht.PositionNr - 1;

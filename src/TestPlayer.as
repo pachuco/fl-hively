@@ -39,12 +39,12 @@ package {
         private var VU_delay:uint;
         private var isDragged_trackBar:Boolean;
         private var bar_length:uint;
+        private var panning:uint = 2;
         
         
         private static const
         def_framerate:uint    = 60,
         sleep_framerate:uint  = 1,
-        taipan:uint = 2,
         VU_rolloff:Number = 1.04,
         //stolen from Yotsuba imageboard theme
         col_blueLink                    :uint = 0x0000EE,
@@ -103,6 +103,7 @@ package {
             //fr.save(replayer.getwaves, "fl_hively.waves");
             
             replayer = new front_panel();
+            replayer.panning = 2;
             load( new choon() as ByteArray);
             
             fr = new FileReference();
@@ -333,8 +334,9 @@ package {
             const hsp:uint = 55;
             const vsp:uint = 30;
             draw_buttan( x          , y     , 50, " LOAD"  , browse );
-            draw_buttan( x+hsp      , y     , 23, ">>"     , subsong );
-            draw_buttan( x+hsp*2-28 , y     , 23, "VU"     , toggle_VUmeters );
+            draw_buttan( x+hsp      , y     , 23, " >>"    , change_subsong );
+            draw_buttan( x+hsp*2-28 , y     , 23, " VU"    , toggle_VUmeters );
+            draw_buttan( x+hsp*2    , y     , 23, " ><"    , change_pan );
             //draw_buttan( x+hsp*2    , y     , 50, " TEST"  , test );
             
             draw_buttan( x          , y+vsp , 50, " PLAY"  , play );
@@ -445,12 +447,17 @@ package {
             replayer.com_pause();
         }
         
-        private function subsong( event:MouseEvent ):void {
+        private function change_subsong( event:MouseEvent ):void {
             if(replayer.info_subsongNr){
                 replayer.com_initSubsong(++subnr % (replayer.info_subsongNr + 1));
                 update_subsong();
                 update_totaltime();
             }
+        }
+        
+        private function change_pan( event:MouseEvent ):void {
+            replayer.panning = ++panning % 4;
+            panning %= 4;
         }
         
         private function toggle_VUmeters( event:MouseEvent ):void {
@@ -462,7 +469,7 @@ package {
         private function load( data:ByteArray ):void {
             reset_trackbar();
             subnr = 0;
-            replayer.com_loadTune( data, taipan );
+            replayer.com_loadTune( data );
             VU_ringbuffers = null;
             draw_VUmeters(0, 200);
             update_all();
