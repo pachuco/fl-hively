@@ -59,7 +59,20 @@ package hvl {
         
         /**Start playback.*/
         public function com_play():void {
-            if( !is_playing ){     //see if( true ) for a magic trick
+            if( !is_playing ){
+                if( ht ){
+                    is_playing = true;
+                    audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
+                    sc = audio_out.play();
+                }else{
+                    
+                }
+            }
+        }
+        
+        /**Like com_play(), except it doesn't care if current song is already playing. Press play multiple times for psychedelic effect.*/
+        public function funky_play():void {
+            if( true ){
                 if( ht ){
                     is_playing = true;
                     audio_out.addEventListener(SampleDataEvent.SAMPLE_DATA, audio_loop);
@@ -94,7 +107,7 @@ package hvl {
                 //<del>Let's hope this doesn't break tunes up</del> Yes it does.
                 //Renderless seeking, even with reset does break stuff.
                 replayer.play_irq( ht, true );
-                //replayer.reset_some_stuff( ht );
+                replayer.reset_some_stuff( ht );
             }
         }
         

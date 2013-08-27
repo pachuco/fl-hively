@@ -148,7 +148,11 @@ package {
         
         
         
-        private function update_all():void {
+        private function reset_all():void {
+            reset_trackbar();
+            subnr = 0;
+            VU_ringbuffers = null;
+            draw_VUmeters(0, 200);
             update_songtitle();
             update_sample_names();
             update_subsong();
@@ -336,8 +340,8 @@ package {
             draw_buttan( x          , y     , 50, " LOAD"  , browse );
             draw_buttan( x+hsp      , y     , 23, " >>"    , change_subsong );
             draw_buttan( x+hsp*2-28 , y     , 23, " VU"    , toggle_VUmeters );
-            draw_buttan( x+hsp*2    , y     , 23, " ><"    , change_pan );
-            //draw_buttan( x+hsp*2    , y     , 50, " TEST"  , test );
+            draw_buttan( x+hsp*2    , y     , 23, " >|<"   , change_pan );
+            draw_buttan( x+hsp*3-28 , y     , 23, "  X"     , unload );
             
             draw_buttan( x          , y+vsp , 50, " PLAY"  , play );
             draw_buttan( x+hsp      , y+vsp , 50, " PAUSE" , pause );
@@ -435,7 +439,7 @@ package {
         private function play( event:MouseEvent ):void {
             stage.frameRate = def_framerate;
             this.addEventListener(Event.ENTER_FRAME, onEnterFrame);
-            replayer.com_play();
+            replayer.funky_play();
         }
         
         private function stop( event:MouseEvent ):void {
@@ -464,15 +468,14 @@ package {
             VU_shown = !VU_shown;
         }
         
-        
+        private function unload( event:MouseEvent ):void {
+            replayer.com_unloadTune();
+            reset_all();
+        }
         
         private function load( data:ByteArray ):void {
-            reset_trackbar();
-            subnr = 0;
             replayer.com_loadTune( data );
-            VU_ringbuffers = null;
-            draw_VUmeters(0, 200);
-            update_all();
+            reset_all();
         }
     }
 }
