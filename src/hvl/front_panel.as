@@ -233,8 +233,12 @@ package hvl {
         }
         
         /**Get ByteArray of precalculated waveforms.*/
-        //public function get getwaves():ByteArray {
-            //return replayer.getdemwaves();
-        //}
+        public function get getwaves():ByteArray {
+            var bat:ByteArray = new ByteArray();
+            for (var i:uint = 0; i < cons.WAVES_SIZE; i++) {
+                bat[i] = replayer.waves[i];
+            }
+            return bat;
+        }
     }
 }

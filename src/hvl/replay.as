@@ -17,7 +17,7 @@ package hvl {
     
     internal class replay{
         private var waves_t:ByteArray = new ByteArray();
-        private var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
+        internal var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
         
@@ -50,13 +50,8 @@ package hvl {
                 //every bloody time.
             }
             waves_t.clear();
-        }
+        } 
         
-        internal function getdemwaves():ByteArray{
-            return waves_t;
-        }
-        
-
         private function Period2Freq(period:int):Number{
             return cons.AMIGA_PAULA_PAL_CLK * 65536.0 / period;
         }
@@ -1694,8 +1689,10 @@ package hvl {
                     AudioSource += ( vc.WNRandom & (2*0x280-1) ) & ~1;
                     // GoOnRandom
                     vc.WNRandom += 2239384;
-                    //vc.vc_WNRandom  = ((((vc.vc_WNRandom >> 8) | (vc.vc_WNRandom << 24)) + 782323) ^ 75) - 6735;
-                    vc.WNRandom  = ((tools.bitRotate(8, vc.WNRandom, 32) + 782323) ^ 75) - 6735;
+                    vc.WNRandom  = ((((vc.WNRandom >> 8) | (vc.WNRandom << 24)) + 782323) ^ 75) - 6735;
+                    //vc.WNRandom  = ((tools.bitRotate(8, vc.WNRandom, 32) + 782323) ^ 75) - 6735;
+                    //White noise seems fixed by the above.
+                    //I thought bit rotation was broken, damnit.
                 }
 
                 vc.AudioSource = AudioSource;

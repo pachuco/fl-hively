@@ -100,7 +100,6 @@ package {
             
             
             
-            //fr.save(replayer.getwaves, "fl_hively.waves");
             
             replayer = new front_panel();
             replayer.panning = 2;
@@ -469,6 +468,7 @@ package {
         }
         
         private function unload( event:MouseEvent ):void {
+            //fr.save(replayer.getwaves, "fl_hively.waves");
             replayer.com_unloadTune();
             reset_all();
         }
