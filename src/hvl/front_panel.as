@@ -96,8 +96,10 @@ package hvl {
         
         /**Stop playback and reset position to 0.*/
         public function com_stop():void {
-            com_pause();
-            replayer.InitSubsong(ht, ht.SongNum);
+            if(ht){
+                com_pause();
+                replayer.InitSubsong(ht, ht.SongNum);
+            }
         }
 
         /**Seek trough tune by time, in seconds.*/
@@ -114,10 +116,14 @@ package hvl {
             }
         }
         
-        /**Seek trough tune by order and note number*/
-        //public function com_seekOrder( orderNr:uint, noteNr:uint=0 ):void {
-            
-        //}
+        /**Seek trough tune by position and row. Faster seeking, but might not land you where you want if song uses pattern break/position jump effects.*/
+        public function com_seekPos( posNr:uint, noteNr:uint = 0 ):void {
+            if (ht) {
+                replayer.reset_some_stuff( ht );
+                ht.PosNr = posNr;
+                ht.NoteNr = noteNr;
+            }
+        }
         
         /**Length of track in rows.*/
         public function get info_trackLength():int {
@@ -135,7 +141,7 @@ package hvl {
         
         /**String with tune format and version.*/
         public function get info_format():String{
-            return ht?ht.FormatString:"NULL";
+            return ht?ht.FormatString:"";
         }
         
         /**Number of samples.*/
@@ -158,7 +164,7 @@ package hvl {
         
         /**Song title.*/
         public function get info_title():String {
-            return ht?ht.Name:"NULL";
+            return ht?ht.Name:"";
         }
         
         /**Total number of subsongs.*/
@@ -183,7 +189,7 @@ package hvl {
                     return tune_length;
                 }
             }else {
-                return NaN;
+                return -1;
             }
         }
         
