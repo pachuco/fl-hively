@@ -3,18 +3,18 @@ package hvl {
     public class tools{
         public static function bitRotate(x:int, n:int, bits:uint):int{
             //Thanks go to Raymond Basque.
-            var tmp:int =0;
+            var temp:int =0;
             var msk:int = 0xffffffff >>> (32-bits); 
             var result:int=0;
             n %= bits;
-            tmp = x & msk;
+            temp = x & msk;
             result = n < 0 ? (x << -n) : (x  >>> n);
             if (n < 0){
-                tmp >>>= (bits + n);
+                temp >>>= (bits + n);
             }else {
-                tmp <<= (bits - n);
+                temp <<= (bits - n);
             }
-            result |= tmp;
+            result |= temp;
             return result & msk;
         }
         

@@ -6,7 +6,7 @@ package hvl {
         public var FX:Vector.<int>;         //int8
         public var FXParam:Vector.<int>;    //int8
         
-        public function plsentry():void{
+        public function plsentry(){
             FX = new Vector.<int>( 2, true );
             FXParam = new Vector.<int>( 2, true );
         }

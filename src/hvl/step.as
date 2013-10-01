@@ -7,7 +7,7 @@ package hvl {
         public var FXb:uint;                //uint8
         public var FXbParam:uint;           //uint8
         
-        public function step():void{
+        public function step(){
             
         }
     }

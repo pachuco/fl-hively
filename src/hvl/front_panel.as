@@ -20,7 +20,7 @@ package hvl {
         private var sc:SoundChannel;
         
         /**Constructor.*/
-        public function front_panel():void {
+        public function front_panel() {
             replayer = new replay();
             audio_out = new Sound();
         }

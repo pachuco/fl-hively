@@ -98,7 +98,7 @@ package hvl {
         
         //public var VUMeter:uint;                                 //uint32
         
-        public function voice():void{
+        public function voice(){
             ADSR = new envelope();
             SquareTempBuffer = new Vector.<int>(0x80, true);
             VoiceBuffer = new Vector.<int>(0x282*4, true);

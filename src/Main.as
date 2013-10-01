@@ -13,7 +13,7 @@ package
     [SWF(width='800',height='800',backgroundColor='#FFFFEE',frameRate='60')]
     public class Main extends Sprite {
         
-        public function Main():void{
+        public function Main(){
             if (stage) init();
             else addEventListener(Event.ADDED_TO_STAGE, init);
         }
@@ -24,7 +24,7 @@ package
             //MonsterDebugger.initialize(this);
             //this.addChild(new TheMiner());
             
-            var TP:TestPlayer = new TestPlayer();
+            var TP:TestPlayer = new TestPlayer(); //TP for my bunghole!
             this.addChild(TP);
             
 

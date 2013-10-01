@@ -4,7 +4,7 @@ package hvl {
         public var Length:int;                       //int16
         public var Entries:Vector.<plsentry>;    //struct hvl_plsentry *pls_Entries;
         
-        public function plist():void{
+        public function plist(){
             Entries = new Vector.<plsentry>;
         }
 

@@ -17,7 +17,7 @@ package hvl {
         public var Envelope:envelope;                   //
         public var PList:plist;                         //
         
-        public function instrument():void{
+        public function instrument(){
             Envelope = new envelope();
             PList = new plist();
         }
