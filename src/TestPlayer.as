@@ -72,8 +72,10 @@ package {
         private var song_title:TextField;
         private var gen_info:TextField;
         private var play_info:TextField;
+        private var play_info2:TextField;
+        private var play_info3:TextField;
         private var song_info:TextField;
-        private var sample_names:Vector.<TextField>;
+        private var instrument_names:Vector.<TextField>;
         private var VU_rectangles:Vector.<Sprite>;
         private var _trackBar:Sprite;
         
@@ -94,8 +96,8 @@ package {
             
             draw_bckg_gradient();
             draw_header(10, 2);
-            draw_trackbar(10,80,185);
-            draw_all_buttans(10, 110);
+            draw_trackbar(10,100,185);
+            draw_all_buttans(10, 130);
             //spit_text( 50, 400, "Press PLAY without LOADing to play embedded tune.")
             
             
@@ -153,7 +155,7 @@ package {
             VU_ringbuffers = null;
             draw_VUmeters(0, 200);
             update_songtitle();
-            update_sample_names();
+            update_instrument_names();
             update_subsong();
             update_totaltime();
             update_play();
@@ -163,18 +165,18 @@ package {
         }
         
         
-        private function update_sample_names():void {
-            var temp:Vector.<String> = replayer.info_sampleNames;
+        private function update_instrument_names():void {
+            var temp:Vector.<String> = replayer.info_instrumentNames;
             var i:uint, j:uint;
-            if (sample_names) {
-                for (j = 0; j < sample_names.length; j++ ) {
-                    this.removeChild(sample_names[j]);
+            if (instrument_names) {
+                for (j = 0; j < instrument_names.length; j++ ) {
+                    this.removeChild(instrument_names[j]);
                 }
             }
-            sample_names = new Vector.<TextField>();
+            instrument_names = new Vector.<TextField>();
             for (i = 0;i<temp.length;i++ ) {
-                sample_names.push(blank_textfield(220, 2 + i * 14, style_asci_text));
-                sample_names[i].text = "* " + temp[i];
+                instrument_names.push(blank_textfield(220, 2 + i * 14, style_asci_text));
+                instrument_names[i].text = "* " + temp[i];
             }
         }
         
@@ -191,6 +193,8 @@ package {
         
         private function update_play():void {
             play_info.text = "Time: " + (Math.floor(replayer.cur_playTime)).toString() + " / " + (total_time).toString() + " s";
+            play_info2.text = "Row: " + replayer.cur_noteNr + " / " + replayer.info_trackLength;
+            play_info3.text = "Pos: " + replayer.cur_positionNr + " / " + replayer.info_positionNr;
         }
         
         private function update_songinfo():void {
@@ -330,7 +334,9 @@ package {
             song_title = blank_textfield(x, y         , style_ttit_text);
             gen_info   = blank_textfield(x, y + sp    , style_post_text);
             play_info  = blank_textfield(x, y + sp * 2, style_post_text);
-            song_info  = blank_textfield(x, y + sp * 3, style_post_text);
+            play_info2 = blank_textfield(x, y + sp * 3, style_post_text);
+            play_info3 = blank_textfield(x+100, y + sp * 3, style_post_text);
+            song_info  = blank_textfield(x, y + sp * 4, style_post_text);
         }
         
         private function draw_all_buttans(x:int, y:int):void {

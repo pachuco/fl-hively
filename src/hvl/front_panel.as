@@ -4,6 +4,8 @@ package hvl {
     import flash.media.SoundChannel;
     import flash.utils.Endian;
     import flash.utils.ByteArray;
+    import com.demonsters.debugger.MonsterDebugger;
+
     
     public class front_panel{
         private var buf_size:uint = 4092;
@@ -20,6 +22,7 @@ package hvl {
         
         /**Constructor.*/
         public function front_panel():void {
+            MonsterDebugger.initialize(this);
             replayer = new replay();
             audio_out = new Sound();
         }
@@ -116,13 +119,18 @@ package hvl {
             
         //}
         
+        /**Length of track in rows.*/
+        public function get info_trackLength():int {
+            return ht?ht.TrackLength:-1;
+        }
+        /**Number of positions.*/
+        public function get info_positionNr():int {
+            return ht?ht.PositionNr:-1;
+        }
+        
         /**Total number of channels.*/
         public function get info_channels():int {
-            if(ht){
-                return ht.Channels;
-            }else {
-                return 0;
-            }
+            return ht?ht.Channels:-1;
         }
         
         /**String with tune format and version.*/
@@ -130,13 +138,13 @@ package hvl {
             return ht?ht.FormatString:"NULL";
         }
         
-        /***/
-        public function get info_sampleNr():int {
+        /**Number of samples.*/
+        public function get info_instrumentNr():int {
             return ht?ht.InstrumentNr:-1;
         }
         
         /**Vector of all sample names.*/
-        public function get info_sampleNames():Vector.<String>{
+        public function get info_instrumentNames():Vector.<String>{
             if(ht){
                 var temp:Vector.<String> = new Vector.<String>(ht.InstrumentNr, true);
                 for (var i:uint = 1; i <= ht.InstrumentNr; i++ ) {
@@ -179,6 +187,21 @@ package hvl {
             }
         }
         
+        /**Current position in song. Playback tracking.*/
+        public function get cur_positionNr():int {
+            return ht?ht.PosNr:-1;
+        }
+                
+        /**Current row in current position in song. Playback tracking.*/
+        public function get cur_noteNr():int {
+            return ht?ht.NoteNr:-1;
+        }
+        
+        /**Has song's end been reached?*/
+        public function get cur_isSongEnd():int {
+            return ht?ht.SongEndReached:-1;
+        }
+        
         /**Number of currently loaded subsong.*/
         public function get cur_subsong():int{
             return ht?ht.SongNum:-1;
@@ -190,10 +213,10 @@ package hvl {
         }
         
         /**Current playtime in seconds, wrapped acording to looping information.*/
-        public function get cur_playTimeWrapped():Number {
-            ht.PositionNr
-            return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
-        }
+        //public function get cur_playTimeWrapped():Number {
+        //    ht.PositionNr
+        //    return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
+        //}
         
         /**Is the player active?*/
         public function get cur_isPlaying():Boolean{
@@ -233,12 +256,17 @@ package hvl {
         }
         
         /**Get ByteArray of precalculated waveforms.*/
-        public function get getwaves():ByteArray {
+        public function get waves():ByteArray {
             var bat:ByteArray = new ByteArray();
             for (var i:uint = 0; i < cons.WAVES_SIZE; i++) {
                 bat[i] = replayer.waves[i];
             }
             return bat;
+        }
+        
+        /**Return reference to loaded tune, if you want to skip the API and work directly with it.*/
+        public function get htune():tune {
+            return ht?ht:null;
         }
     }
 }

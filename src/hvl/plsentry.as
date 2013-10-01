@@ -1,10 +1,10 @@
 package hvl {
     internal class plsentry{
-        internal var Note:uint;               //uint8
-        internal var Waveform:uint;           //uint8
-        internal var Fixed:int;               //int16
-        internal var FX:Vector.<int>;         //int8
-        internal var FXParam:Vector.<int>;    //int8
+        public var Note:uint;               //uint8
+        public var Waveform:uint;           //uint8
+        public var Fixed:int;               //int16
+        public var FX:Vector.<int>;         //int8
+        public var FXParam:Vector.<int>;    //int8
         
         public function plsentry():void{
             FX = new Vector.<int>( 2, true );

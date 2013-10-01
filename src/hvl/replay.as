@@ -17,13 +17,13 @@ package hvl {
     
     internal class replay{
         private var waves_t:ByteArray = new ByteArray();
-        internal var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
+        public var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
         
         private static const stepW:uint = 64;
         
-        public function replay():void{
+        public function replay():void {
             GenPanningTables();
             GenSawtooth( cons.WO_SAWTOOTH_04, 0x04 );
             GenSawtooth( cons.WO_SAWTOOTH_08, 0x08 );
