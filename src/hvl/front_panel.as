@@ -4,7 +4,6 @@ package hvl {
     import flash.media.SoundChannel;
     import flash.utils.Endian;
     import flash.utils.ByteArray;
-    import com.demonsters.debugger.MonsterDebugger;
 
     
     public class front_panel{
@@ -16,13 +15,12 @@ package hvl {
         private var ht:tune;
         private var subsong:uint;
         private var replayer:replay;
-        private var tune_length:Number;
+        private var tune_length:Number = new Number(-1);
         private var audio_out:Sound;
         private var sc:SoundChannel;
         
         /**Constructor.*/
         public function front_panel():void {
-            MonsterDebugger.initialize(this);
             replayer = new replay();
             audio_out = new Sound();
         }
@@ -30,7 +28,7 @@ package hvl {
         /**Load AHX/HVL tune and init subsong 0.*/
         public function com_loadTune( ba:ByteArray):Boolean {
             ht = null;
-            tune_length = NaN;
+            tune_length = -1;
             subsong = 0;
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo );
@@ -45,7 +43,7 @@ package hvl {
         /**Inits selected subsong.*/
         public function com_initSubsong( nr:uint ):Boolean {
             if (ht) {
-                tune_length = NaN;
+                tune_length = -1;
                 return replayer.InitSubsong( ht, nr );
             }else {
                 return false;
@@ -55,7 +53,7 @@ package hvl {
         /**Discard loaded tune.*/
         public function com_unloadTune():void {
             com_stop();
-            tune_length = NaN;
+            tune_length = -1;
             ht = null;
             subsong = 0;
         }
@@ -175,7 +173,7 @@ package hvl {
         /**Tune length in seconds.*/
         public function get info_tuneLength():Number{
             if (ht) {
-                if (isNaN(tune_length)) {
+                if (tune_length<0) {
                     var safety:uint = 2 * 60 * 60 * 50 * ht.SpeedMultiplier; // 2 hours, just like foo_dumb
                     while ( ! ht.SongEndReached && safety ){
                         replayer.play_irq( ht, false );
