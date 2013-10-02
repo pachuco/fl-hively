@@ -1,4 +1,6 @@
 package hvl {
+    import flash.events.Event;
+    import flash.events.EventDispatcher;
     import flash.events.SampleDataEvent;
     import flash.media.Sound;
     import flash.media.SoundChannel;
@@ -6,9 +8,10 @@ package hvl {
     import flash.utils.ByteArray;
 
     
-    public class front_panel{
+    public class front_panel extends EventDispatcher{
         private var buf_size:uint = 4092;
         private var is_playing:Boolean;
+        private var start_dispatched:Boolean;
         private var latencyMs:int = -1;
         private var stereo:uint = 4;
         
@@ -19,10 +22,18 @@ package hvl {
         private var audio_out:Sound;
         private var sc:SoundChannel;
         
+        public var evt_playerInit:String  = "hvl_playerInit";
+        public var evt_tuneLoad:String    = "hvl_tuneLoad";
+        //public var evt_subtuneInit:String = "hvl_subtuneInit";
+        public var evt_tuneUnload:String  = "hvl_tuneUnload";
+        public var evt_audioStart:String  = "hvl_audioStart";
+        public var evt_audioStop:String   = "hvl_audioStop";
+        
         /**Constructor.*/
         public function front_panel() {
             replayer = new replay();
             audio_out = new Sound();
+            dispatchEvent(new Event(evt_playerInit));
         }
         
         /**Load AHX/HVL tune and init subsong 0.*/
@@ -33,6 +44,7 @@ package hvl {
             ba.endian = Endian.LITTLE_ENDIAN;
             ht = replayer.LoadTune( ba, stereo );
             if (ht) {
+                dispatchEvent(new Event(evt_tuneLoad));
                 return true;
             }else {
                 return false;
@@ -44,6 +56,7 @@ package hvl {
         public function com_initSubsong( nr:uint ):Boolean {
             if (ht) {
                 tune_length = -1;
+                //dispatchEvent(new Event(evt_subtuneInit));
                 return replayer.InitSubsong( ht, nr );
             }else {
                 return false;
@@ -56,6 +69,7 @@ package hvl {
             tune_length = -1;
             ht = null;
             subsong = 0;
+            dispatchEvent(new Event(evt_tuneUnload));
         }
         
         /**Start playback.*/
@@ -89,6 +103,7 @@ package hvl {
             if ( is_playing ) {
                 sc.stop();
                 latencyMs = -1;
+                dispatchEvent(new Event(evt_audioStop));
             }
             is_playing = false;
         }
@@ -99,6 +114,7 @@ package hvl {
                 com_pause();
                 latencyMs = -1;
                 replayer.InitSubsong(ht, ht.SongNum);
+                dispatchEvent(new Event(evt_audioStop));
             }
         }
 
@@ -258,10 +274,18 @@ package hvl {
         
         private function audio_loop( event:SampleDataEvent ):void{
             if ( is_playing ) {
-                if(sc) latencyMs = ((event.position / 44.1) - sc.position);
+                if (sc) {
+                    latencyMs = ((event.position / 44.1) - sc.position);
+                    if (!start_dispatched) {
+                        dispatchEvent(new Event(evt_audioStart));
+                        start_dispatched = true;
+                    }
+                }
                 while (event.data.position <= buf_size * 8 ){
                     replayer.DecodeFrame( ht, event.data );
                 }
+            }else {
+                start_dispatched = false;
             }
         }
         
