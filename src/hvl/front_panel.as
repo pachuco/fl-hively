@@ -9,7 +9,7 @@ package hvl {
     public class front_panel{
         private var buf_size:uint = 4092;
         private var is_playing:Boolean;
-        private var framerate:uint;
+        private var latencyMs:int = -1;
         private var stereo:uint = 4;
         
         private var ht:tune;
@@ -88,6 +88,7 @@ package hvl {
         public function com_pause( ):void {
             if ( is_playing ) {
                 sc.stop();
+                latencyMs = -1;
             }
             is_playing = false;
         }
@@ -96,6 +97,7 @@ package hvl {
         public function com_stop():void {
             if(ht){
                 com_pause();
+                latencyMs = -1;
                 replayer.InitSubsong(ht, ht.SongNum);
             }
         }
@@ -190,6 +192,10 @@ package hvl {
                 return -1;
             }
         }
+        /**Audio latency in miliseconds. This changes frequently, so keep that in mind.*/
+        public function get cur_latencyMs():int {
+            return sc?latencyMs:-1;
+        }
         
         /**Current position in song. Playback tracking.*/
         public function get cur_positionNr():int {
@@ -213,13 +219,13 @@ package hvl {
         
         /**Current playtime in seconds.*/
         public function get cur_playTime():Number{
-            return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
+            return ht?ht.PlayingTime / ht.SpeedMultiplier / 50: -1;
         }
         
         /**Current playtime in seconds, wrapped acording to looping information.*/
         //public function get cur_playTimeWrapped():Number {
         //    ht.PositionNr
-        //    return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1
+        //    return ht?ht.PlayingTime / ht.SpeedMultiplier / 50:-1;
         //}
         
         /**Is the player active?*/
@@ -252,7 +258,7 @@ package hvl {
         
         private function audio_loop( event:SampleDataEvent ):void{
             if ( is_playing ) {
-                //VU_delay = ((event.data.position / 44.1) - sc.position);
+                if(sc) latencyMs = ((event.position / 44.1) - sc.position);
                 while (event.data.position <= buf_size * 8 ){
                     replayer.DecodeFrame( ht, event.data );
                 }
