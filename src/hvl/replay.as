@@ -922,7 +922,7 @@ package hvl {
             switch( FX ){
                 case 0x9: // Set squarewave offset
                     vc.SquarePos    = FXParam >> (5 - vc.WaveLength);
-                    //vc.vc_PlantSquare  = 1;
+                    vc.PlantSquare  = 1;
                     vc.IgnoreSquare = 1;
                     break;
 
