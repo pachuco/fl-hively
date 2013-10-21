@@ -52,9 +52,11 @@ package hvl {
             waves_t.clear();
         } 
         
+        /*  inlined
         private function Period2Freq(period:int):Number{
             return cons.AMIGA_PAULA_PAL_CLK * 65536.0 / period;
         }
+        */
         
         private function GenPanningTables():void{
             var i:uint;
@@ -139,13 +141,8 @@ package hvl {
             }
         }
 
-        private function clip( x:Number ):Number{
-            if( x > 127.0 ){
-                x = 127.0;
-            }else if( x < -128.0 ){
-                x = -128.0;
-            }
-            return x;
+        private function clip( x:Number ):Number {
+            return x>127 ? 127:(x<-128 ? -128:x);
         }
         
         private function GenFilterWaves( buf:uint, lowbuf:uint, highbuf:uint ):void{
@@ -1788,7 +1785,7 @@ package hvl {
                 vc.PlantPeriod = 0;
                 vc.VoicePeriod = vc.AudioPeriod;
     
-                freq2 = Period2Freq( vc.AudioPeriod );
+                freq2 = cons.AMIGA_PAULA_PAL_CLK * 65536.0 / vc.AudioPeriod; //Period2Freq inline
                 delta = uint(freq2 / freqf);
 
                 if( delta > (0x280<<16) ) delta -= (0x280<<16);
@@ -1832,7 +1829,7 @@ package hvl {
             if( vc.RingPlantPeriod ){
     
                 vc.RingPlantPeriod = 0;
-                freq2 = Period2Freq( vc.RingAudioPeriod );
+                freq2 = cons.AMIGA_PAULA_PAL_CLK * 65536.0 / vc.RingAudioPeriod; //Period2Freq inline
                 delta = uint(freq2 / freqf);
     
                 if( delta > (0x280<<16) ) delta -= (0x280<<16);
