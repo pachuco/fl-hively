@@ -155,7 +155,8 @@ package hvl {
             var freq:Number;
             var temp:uint;
 
-            for( temp=0, freq=8.0; temp<31; temp++, freq+=3.0 ){
+            for( temp=0, freq=8.3115; temp<31; temp++, freq+=3.0 ){
+                
                 var wv:uint;
                 var a0:uint = buf;
 
@@ -165,7 +166,7 @@ package hvl {
 
                     mid = 0.0;
                     low = 0.0;
-                    fre = freq * 1.25 / 100.0;
+                    fre = freq * 1.17250 / 100.0;
 
                     for( i=0; i<=lentab[wv]; i++ ){
                         high  = tools.ui2i8(waves_t[a0+i]) - mid - low;
