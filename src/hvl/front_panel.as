@@ -22,12 +22,12 @@ package hvl {
         private var audio_out:Sound;
         private var sc:SoundChannel;
         
-        public var evt_playerInit:String  = "hvl_playerInit";
-        public var evt_tuneLoad:String    = "hvl_tuneLoad";
-        //public var evt_subtuneInit:String = "hvl_subtuneInit";
-        public var evt_tuneUnload:String  = "hvl_tuneUnload";
-        public var evt_audioStart:String  = "hvl_audioStart";
-        public var evt_audioStop:String   = "hvl_audioStop";
+        public static const evt_playerInit:String  = "hvl_playerInit";
+        public static const evt_tuneLoad:String    = "hvl_tuneLoad";
+        //public static const evt_subtuneInit:String = "hvl_subtuneInit";
+        public static const evt_tuneUnload:String  = "hvl_tuneUnload";
+        public static const evt_audioStart:String  = "hvl_audioStart";
+        public static const evt_audioStop:String   = "hvl_audioStop";
         
         /**Constructor.*/
         public function front_panel() {
@@ -272,6 +272,23 @@ package hvl {
             return ht?ht.VUMeters:null;
         }
         
+        /**Get ByteArray of precalculated waveforms.*/
+        public function get waves():ByteArray {
+            var bat:ByteArray = new ByteArray();
+            for (var i:uint = 0; i < cons.WAVES_SIZE; i++) {
+                bat[i] = replayer.waves[i];
+            }
+            return bat;
+        }
+        
+        /**Return reference to loaded tune, if you want to skip the API and work directly with it.*/
+        public function get htune():tune {
+            return ht?ht:null;
+        }
+        
+        
+        
+        
         private function audio_loop( event:SampleDataEvent ):void{
             if ( is_playing ) {
                 if (sc) {
@@ -287,20 +304,6 @@ package hvl {
             }else {
                 start_dispatched = false;
             }
-        }
-        
-        /**Get ByteArray of precalculated waveforms.*/
-        public function get waves():ByteArray {
-            var bat:ByteArray = new ByteArray();
-            for (var i:uint = 0; i < cons.WAVES_SIZE; i++) {
-                bat[i] = replayer.waves[i];
-            }
-            return bat;
-        }
-        
-        /**Return reference to loaded tune, if you want to skip the API and work directly with it.*/
-        public function get htune():tune {
-            return ht?ht:null;
         }
     }
 }
