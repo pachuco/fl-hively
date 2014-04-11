@@ -45,11 +45,12 @@ package hvl {
                 //because of some accuracy issues for working directly
                 //with Vector.<int>
                 //Why? no bloody idea. Rounding error, perhaps?
+                //TODO: wavefilter doesn't use float anymore, ditch ByteArray
                 waves[i]=tools.ui2i8(waves_t[i]);
                 //There is no point in using tools.ui2i8() to access our waves
                 //every bloody time.
             }
-            //waves_t.clear();
+            waves_t.clear();
         } 
         
         /*  inlined
@@ -149,11 +150,9 @@ package hvl {
         }
 
         private function GenFilterWaves( buf:uint, lowbuf:uint, highbuf:uint ):void{
-
-
             var mid_table:uint = 0;
             var low_table:uint = 1395;
-
+            
             var freq:int;
             var i:uint;
 
@@ -170,13 +169,13 @@ package hvl {
 
                     for( j=0; j<=cons.lentab[wv]; j++ ){
                         x    = tools.ui2i8(waves_t[a0+j]) << 16;
-                        high  = clipshifted8( x - mid - low );
+                        high = clipshifted8( x - mid - low );
                         fre  = (high >> 8) * freq;
                         mid  = clipshifted8(mid + fre);
                         fre  = (mid >> 8) * freq;
-                        low = clipshifted8(low + fre);
-                        waves_t[highbuf++]  = high >> 16;
-                        waves_t[lowbuf++] = low >> 16;
+                        low  = clipshifted8(low + fre);
+                        waves_t[highbuf++] = high >> 16;
+                        waves_t[lowbuf++]  = low >> 16;
                     }
                     a0 += cons.lentab[wv]+1;
                 }
