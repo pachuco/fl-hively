@@ -16,7 +16,7 @@ package hvl {
     import flash.utils.*;
     
     internal class replay{
-        private var waves_t:ByteArray = new ByteArray();
+        public var waves_t:ByteArray = new ByteArray();
         public var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
         private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
         private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
@@ -49,7 +49,7 @@ package hvl {
                 //There is no point in using tools.ui2i8() to access our waves
                 //every bloody time.
             }
-            waves_t.clear();
+            //waves_t.clear();
         } 
         
         /*  inlined
@@ -140,56 +140,45 @@ package hvl {
                 }
             }
         }
-
-        private function clip( x:Number ):Number {
-            return x>127 ? 127:(x<-128 ? -128:x);
-        }
         
+        private function clipshifted8(x:int):int{
+            var top:int = x >> 16;
+            if (top > 127) x = 127 << 16;
+            else if (top < -128) x = -(128 << 16);
+            return x;
+        }
+
         private function GenFilterWaves( buf:uint, lowbuf:uint, highbuf:uint ):void{
-            const lentab:Vector.<uint> = Vector.<uint>([
-                3, 7, 0xf, 0x1f, 0x3f, 0x7f, 3, 7, 0xf, 0x1f, 0x3f, 0x7f,
-                0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,
-                0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,
-                (0x280*3)-1 ]);
 
-            var freq:Number;
-            var temp:uint;
 
-            for( temp=0, freq=8.3115; temp<31; temp++, freq+=3.0 ){
-                
+            var mid_table:uint = 0;
+            var low_table:uint = 1395;
+
+            var freq:int;
+            var i:uint;
+
+            for( i=0, freq = 25; i<31; i++, freq += 9 ){
                 var wv:uint;
-                var a0:uint = buf;
+                var a0:uint = buf
 
                 for( wv=0; wv<6+6+0x20+1; wv++ ){
-                    var fre:Number, high:Number, mid:Number, low:Number;
-                    var i:uint;
+                    var x:int, fre:int, high:int, mid:int, low:int;
+                    var j:uint;
 
-                    mid = 0.0;
-                    low = 0.0;
-                    fre = freq * 1.17250 / 100.0;
+                    mid  = cons.filter_thing[mid_table++] << 8;
+                    low  = cons.filter_thing[low_table++] << 8;
 
-                    for( i=0; i<=lentab[wv]; i++ ){
-                        high  = tools.ui2i8(waves_t[a0+i]) - mid - low;
-                        high  = clip( high );
-                        mid  += high * fre;
-                        mid   = clip( mid );
-                        low  += mid * fre;
-                        low   = clip( low );
+                    for( j=0; j<=cons.lentab[wv]; j++ ){
+                        x    = tools.ui2i8(waves_t[a0+j]) << 16;
+                        high  = clipshifted8( x - mid - low );
+                        fre  = (high >> 8) * freq;
+                        mid  = clipshifted8(mid + fre);
+                        fre  = (mid >> 8) * freq;
+                        low = clipshifted8(low + fre);
+                        waves_t[highbuf++]  = high >> 16;
+                        waves_t[lowbuf++] = low >> 16;
                     }
-
-                    for( i=0; i<=lentab[wv]; i++ ){
-                        high  = tools.ui2i8(waves_t[a0+i]) - mid - low;
-                        high  = clip( high );
-                        mid  += high * fre;
-                        mid   = clip( mid );
-                        low  += mid * fre;
-                        low   = clip( low );
-                        waves_t[lowbuf++]  = int(low);
-                        waves_t[highbuf++] = int(high);
-                    }
-
-                    a0 += lentab[wv]+1;
-
+                    a0 += cons.lentab[wv]+1;
                 }
             }
         }

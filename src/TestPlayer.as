@@ -90,8 +90,6 @@ package {
             stage.frameRate = sleep_framerate;
             [Embed(source = "ahx.blondie", mimeType = "application/octet-stream")] const choon:Class;
             
-            
-            
             style_me();
             
             draw_bckg_gradient();
@@ -106,6 +104,13 @@ package {
             replayer = new front_panel();
             replayer.panning = 2;
             load( new choon() as ByteArray);
+            
+            /*
+            var frtest:FileReference = new FileReference();
+            var buttArray:ByteArray = new ByteArray();
+            buttArray = replayer.waves;
+            frtest.save(buttArray, "HVL.waves");
+            */
             
             fr = new FileReference();
             fr.addEventListener(Event.SELECT, onFileSelected);

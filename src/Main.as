@@ -3,8 +3,8 @@ package
     import flash.display.Sprite;
     import flash.events.*;
     
-    import com.demonsters.debugger.MonsterDebugger;
-    import com.sociodox.theminer.*;
+    //import com.demonsters.debugger.MonsterDebugger;
+    //import com.sociodox.theminer.*;
     
     /**
      * ...
@@ -26,8 +26,6 @@ package
             
             var TP:TestPlayer = new TestPlayer(); //TP for my bunghole!
             this.addChild(TP);
-            
-
         }
     }
     
