@@ -1116,13 +1116,13 @@ package hvl {
                 vc.SamplePos        = 0;
             
                 vc.ADSR.aFrames     = Ins.Envelope.aFrames;
-                vc.ADSR.aVolume     = Ins.Envelope.aVolume*256/vc.ADSR.aFrames;
+                vc.ADSR.aVolume     = vc.ADSR.aFrames ? Ins.Envelope.aVolume*256/vc.ADSR.aFrames : Ins.Envelope.aVolume * 256; // XXX
                 vc.ADSR.dFrames     = Ins.Envelope.dFrames;
-                vc.ADSR.dVolume     = (Ins.Envelope.dVolume-Ins.Envelope.aVolume)*256/vc.ADSR.dFrames;
+                vc.ADSR.dVolume     = vc.ADSR.dFrames ? (Ins.Envelope.dVolume-Ins.Envelope.aVolume)*256/vc.ADSR.dFrames : Ins.Envelope.dVolume * 256; // XXX
                 vc.ADSR.sFrames     = Ins.Envelope.sFrames;
                 vc.ADSR.rFrames     = Ins.Envelope.rFrames;
-                vc.ADSR.rVolume     = (Ins.Envelope.rVolume-Ins.Envelope.dVolume)*256/vc.ADSR.rFrames;
-            
+                vc.ADSR.rVolume     = vc.ADSR.rFrames ? (Ins.Envelope.rVolume-Ins.Envelope.dVolume)*256/vc.ADSR.rFrames : Ins.Envelope.rVolume * 256; // XXX
+    
                 
                 vc.WaveLength       = Ins.WaveLength;
                 vc.NoteMaxVolume    = Ins.Volume;
