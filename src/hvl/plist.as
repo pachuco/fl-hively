@@ -1,8 +1,9 @@
 package hvl {
-    internal class plist{
-        public var Speed:int;                        //int16
-        public var Length:int;                       //int16
-        public var Entries:Vector.<plsentry>;    //struct hvl_plsentry *pls_Entries;
+    public class plist{
+        public var
+            Speed:int,                        //int16
+            Length:int,                       //int16
+            Entries:Vector.<plsentry>;    //struct hvl_plsentry *pls_Entries;
         
         public function plist(){
             Entries = new Vector.<plsentry>;

@@ -1,45 +1,47 @@
 package hvl {
     public class cons{
-        public static const stereopan_left :Vector.<uint> = Vector.<uint>([ 128,  96,  64,  32,   0 ]);
-        public static const stereopan_right:Vector.<uint> = Vector.<uint>([ 128, 160, 193, 225, 255 ]);
+        public static const
+        
+        stereopan_left :Vector.<uint> = Vector.<uint>([ 128,  96,  64,  32,   0 ]),
+        stereopan_right:Vector.<uint> = Vector.<uint>([ 128, 160, 193, 225, 255 ]),
         
         /*
         ** Waves
         */
-        public static const WHITENOISELEN:uint  =(0x280*3);
-        public static const WO_LOWPASSES:uint   =0;
-        public static const WO_TRIANGLE_04:uint =(WO_LOWPASSES+((0xfc+0xfc+0x80*0x1f+0x80+3*0x280)*31));
-        public static const WO_TRIANGLE_08:uint =(WO_TRIANGLE_04+0x04);
-        public static const WO_TRIANGLE_10:uint =(WO_TRIANGLE_08+0x08);
-        public static const WO_TRIANGLE_20:uint =(WO_TRIANGLE_10+0x10);
-        public static const WO_TRIANGLE_40:uint =(WO_TRIANGLE_20+0x20);
-        public static const WO_TRIANGLE_80:uint =(WO_TRIANGLE_40+0x40);
-        public static const WO_SAWTOOTH_04:uint =(WO_TRIANGLE_80+0x80);
-        public static const WO_SAWTOOTH_08:uint =(WO_SAWTOOTH_04+0x04);
-        public static const WO_SAWTOOTH_10:uint =(WO_SAWTOOTH_08+0x08);
-        public static const WO_SAWTOOTH_20:uint =(WO_SAWTOOTH_10+0x10);
-        public static const WO_SAWTOOTH_40:uint =(WO_SAWTOOTH_20+0x20);
-        public static const WO_SAWTOOTH_80:uint =(WO_SAWTOOTH_40+0x40);
-        public static const WO_SQUARES:uint     =(WO_SAWTOOTH_80+0x80);
-        public static const WO_WHITENOISE:uint  =(WO_SQUARES+(0x80*0x20));
-        public static const WO_HIGHPASSES:uint  =(WO_WHITENOISE+WHITENOISELEN);
-        public static const WAVES_SIZE:uint     =(WO_HIGHPASSES+((0xfc+0xfc+0x80*0x1f+0x80+3*0x280)*31));
+        WHITENOISELEN:uint  =(0x280*3),
+        WO_LOWPASSES:uint   =0,
+        WO_TRIANGLE_04:uint =(WO_LOWPASSES+((0xfc+0xfc+0x80*0x1f+0x80+3*0x280)*31)),
+        WO_TRIANGLE_08:uint =(WO_TRIANGLE_04+0x04),
+        WO_TRIANGLE_10:uint =(WO_TRIANGLE_08+0x08),
+        WO_TRIANGLE_20:uint =(WO_TRIANGLE_10+0x10),
+        WO_TRIANGLE_40:uint =(WO_TRIANGLE_20+0x20),
+        WO_TRIANGLE_80:uint =(WO_TRIANGLE_40+0x40),
+        WO_SAWTOOTH_04:uint =(WO_TRIANGLE_80+0x80),
+        WO_SAWTOOTH_08:uint =(WO_SAWTOOTH_04+0x04),
+        WO_SAWTOOTH_10:uint =(WO_SAWTOOTH_08+0x08),
+        WO_SAWTOOTH_20:uint =(WO_SAWTOOTH_10+0x10),
+        WO_SAWTOOTH_40:uint =(WO_SAWTOOTH_20+0x20),
+        WO_SAWTOOTH_80:uint =(WO_SAWTOOTH_40+0x40),
+        WO_SQUARES:uint     =(WO_SAWTOOTH_80+0x80),
+        WO_WHITENOISE:uint  =(WO_SQUARES+(0x80*0x20)),
+        WO_HIGHPASSES:uint  =(WO_WHITENOISE+WHITENOISELEN),
+        WAVES_SIZE:uint     =(WO_HIGHPASSES+((0xfc+0xfc+0x80*0x1f+0x80+3*0x280)*31)),
         
-        public static const lentab:Vector.<uint> = Vector.<uint>([
+        lentab:Vector.<uint> = Vector.<uint>([
             3, 7, 0xf, 0x1f, 0x3f, 0x7f, 3, 7, 0xf, 0x1f, 0x3f, 0x7f,
             0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,
             0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,0x7f,
             (0x280*3)-1
-        ]);
+        ]),
         
-        public static const vib_tab:Vector.<int> = Vector.<int>([ 
+        vib_tab:Vector.<int> = Vector.<int>([ 
             0,24,49,74,97,120,141,161,180,197,212,224,235,244,250,253,255,
             253,250,244,235,224,212,197,180,161,141,120,97,74,49,24,
             0,-24,-49,-74,-97,-120,-141,-161,-180,-197,-212,-224,-235,-244,-250,-253,-255,
             -253,-250,-244,-235,-224,-212,-197,-180,-161,-141,-120,-97,-74,-49,-24
-        ]);
+        ]),
 
-        public static const period_tab:Vector.<uint> = Vector.<uint>([
+        period_tab:Vector.<uint> = Vector.<uint>([
             0x0000, 0x0D60, 0x0CA0, 0x0BE8, 0x0B40, 0x0A98, 0x0A00, 0x0970,
             0x08E8, 0x0868, 0x07F0, 0x0780, 0x0714, 0x06B0, 0x0650, 0x05F4,
             0x05A0, 0x054C, 0x0500, 0x04B8, 0x0474, 0x0434, 0x03F8, 0x03C0,
@@ -48,29 +50,29 @@ package hvl {
             0x0168, 0x0153, 0x0140, 0x012E, 0x011D, 0x010D, 0x00FE, 0x00F0,
             0x00E2, 0x00D6, 0x00CA, 0x00BE, 0x00B4, 0x00AA, 0x00A0, 0x0097,
             0x008F, 0x0087, 0x007F, 0x0078, 0x0071
-        ]);
+        ]),
         
-        public static const defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]);
+        defgain:Vector.<int> = Vector.<int>([ 71, 72, 76, 85, 100 ]),
         
         // Woohoo!
-        public static const MAX_CHANNELS:uint = 16;
+        MAX_CHANNELS:uint = 16,
         
         
         
         
         //might come in handy later, thanks bubsy
-        public static const AMIGA_PAL_XTAL:uint            =  28375160;
-        public static const AMIGA_NTSC_XTAL:uint           =  28636360;
-        public static const AMIGA_CPU_PAL_CLK:uint         =  (AMIGA_PAL_XTAL / 4);
-        public static const AMIGA_CPU_NTSC_CLK:uint        =  (AMIGA_NTSC_XTAL / 4);
-        public static const AMIGA_CIA_PAL_CLK:uint         =  (AMIGA_CPU_PAL_CLK / 10);
-        public static const AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10);
-        public static const AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2);
-        public static const AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2);
+        AMIGA_PAL_XTAL:uint            =  28375160,
+        AMIGA_NTSC_XTAL:uint           =  28636360,
+        AMIGA_CPU_PAL_CLK:uint         =  (AMIGA_PAL_XTAL / 4),
+        AMIGA_CPU_NTSC_CLK:uint        =  (AMIGA_NTSC_XTAL / 4),
+        AMIGA_CIA_PAL_CLK:uint         =  (AMIGA_CPU_PAL_CLK / 10),
+        AMIGA_CIA_NTSC_CLK:uint        =  (AMIGA_CPU_NTSC_CLK / 10),
+        AMIGA_PAULA_PAL_CLK:uint       =  (AMIGA_CPU_PAL_CLK / 2),
+        AMIGA_PAULA_NTSC_CLK:uint      =  (AMIGA_CPU_NTSC_CLK / 2),
         
-        public static const sample_rate:uint = 44100;
+        sample_rate:uint = 44100,
         
-        public static const filter_thing:Vector.<int> = Vector.<int>([
+        filter_thing:Vector.<int> = Vector.<int>([
             -1161, -4413, -7161, -13094, 635, 13255, 2189, 6401,
             9041, 16130, 13460, 5360, 6349, 12699, 19049, 25398,
             30464, 32512, 32512, 32515, 31625, 29756, 27158, 24060,

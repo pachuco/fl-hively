@@ -1,21 +1,22 @@
 package hvl {
-    internal class instrument{
-        public var Name:String;                             //TEXT[128]
-        public var Volume:uint;                             //uint8
-        public var WaveLength:uint;                         //uint8
-        public var FilterLowerLimit:uint;                   //uint8
-        public var FilterUpperLimit:uint;                   //uint8
-        public var FilterSpeed:uint;                        //uint8
-        public var SquareLowerLimit:uint;                   //uint8
-        public var SquareUpperLimit:uint;                   //uint8
-        public var SquareSpeed:uint;                        //uint8
-        public var VibratoDelay:uint;                       //uint8
-        public var VibratoSpeed:uint;                       //uint8
-        public var VibratoDepth:uint;                       //uint8
-        public var HardCutRelease:uint;                     //uint8
-        public var HardCutReleaseFrames:uint;               //uint8
-        public var Envelope:envelope;                   //
-        public var PList:plist;                         //
+    public class instrument{
+        public var
+            Name:String,                             //TEXT[128]
+            Volume:uint,                             //uint8
+            WaveLength:uint,                         //uint8
+            FilterLowerLimit:uint,                   //uint8
+            FilterUpperLimit:uint,                   //uint8
+            FilterSpeed:uint,                        //uint8
+            SquareLowerLimit:uint,                   //uint8
+            SquareUpperLimit:uint,                   //uint8
+            SquareSpeed:uint,                        //uint8
+            VibratoDelay:uint,                       //uint8
+            VibratoSpeed:uint,                       //uint8
+            VibratoDepth:uint,                       //uint8
+            HardCutRelease:uint,                     //uint8
+            HardCutReleaseFrames:uint,               //uint8
+            Envelope:envelope,                   //
+            PList:plist;                         //
         
         public function instrument(){
             Envelope = new envelope();

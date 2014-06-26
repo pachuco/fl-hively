@@ -221,135 +221,136 @@ package hvl {
         
         internal function reset_some_stuff(ht:tune):void{
             var i:uint;
-
+            var htVoice:voice;
+            
             for( i=0; i<cons.MAX_CHANNELS; i++ ){
-                ht.Voices[i].Delta=1;
-                ht.Voices[i].OverrideTranspose=1000;  // 1.5
-                ht.Voices[i].SamplePos=0;
-                ht.Voices[i].Track=0;
-                ht.Voices[i].Transpose=0;
-                ht.Voices[i].NextTrack=0;
-                ht.Voices[i].NextTranspose=0;
+                htVoice= ht.Voices[i];
                 
-                ht.Voices[i].ADSRVolume=0;
-                ht.Voices[i].InstrPeriod=0;
-                ht.Voices[i].TrackPeriod=0;
-                ht.Voices[i].VibratoPeriod=0;
-                ht.Voices[i].NoteMaxVolume=0;
-                ht.Voices[i].PerfSubVolume=0;
-                ht.Voices[i].TrackMasterVolume=0;
+                htVoice.Delta=1;
+                htVoice.OverrideTranspose=1000;  // 1.5
+                htVoice.SamplePos=0;
+                htVoice.Track=0;
+                htVoice.Transpose=0;
+                htVoice.NextTrack=0;
+                htVoice.NextTranspose=0;
                 
-                ht.Voices[i].NewWaveform=0;
-                ht.Voices[i].Waveform=0;
-                ht.Voices[i].PlantSquare=0;
-                ht.Voices[i].PlantPeriod=0;
-                ht.Voices[i].IgnoreSquare=0;
+                htVoice.ADSRVolume=0;
+                htVoice.InstrPeriod=0;
+                htVoice.TrackPeriod=0;
+                htVoice.VibratoPeriod=0;
+                htVoice.NoteMaxVolume=0;
+                htVoice.PerfSubVolume=0;
+                htVoice.TrackMasterVolume=0;
                 
-                ht.Voices[i].TrackOn=0;
-                ht.Voices[i].FixedNote=0;
-                ht.Voices[i].VolumeSlideUp=0;
-                ht.Voices[i].VolumeSlideDown=0;
-                ht.Voices[i].HardCut=0;
-                ht.Voices[i].HardCutRelease=0;
-                ht.Voices[i].HardCutReleaseF=0;
+                htVoice.NewWaveform=0;
+                htVoice.Waveform=0;
+                htVoice.PlantSquare=0;
+                htVoice.PlantPeriod=0;
+                htVoice.IgnoreSquare=0;
                 
-                ht.Voices[i].PeriodSlideSpeed=0;
-                ht.Voices[i].PeriodSlidePeriod=0;
-                ht.Voices[i].PeriodSlideLimit=0;
-                ht.Voices[i].PeriodSlideOn=0;
-                ht.Voices[i].PeriodSlideWithLimit=0;
+                htVoice.TrackOn=0;
+                htVoice.FixedNote=0;
+                htVoice.VolumeSlideUp=0;
+                htVoice.VolumeSlideDown=0;
+                htVoice.HardCut=0;
+                htVoice.HardCutRelease=0;
+                htVoice.HardCutReleaseF=0;
                 
-                ht.Voices[i].PeriodPerfSlideSpeed=0;
-                ht.Voices[i].PeriodPerfSlidePeriod=0;
-                ht.Voices[i].PeriodPerfSlideOn=0;
-                ht.Voices[i].VibratoDelay=0;
-                ht.Voices[i].VibratoCurrent=0;
-                ht.Voices[i].VibratoDepth=0;
-                ht.Voices[i].VibratoSpeed=0;
+                htVoice.PeriodSlideSpeed=0;
+                htVoice.PeriodSlidePeriod=0;
+                htVoice.PeriodSlideLimit=0;
+                htVoice.PeriodSlideOn=0;
+                htVoice.PeriodSlideWithLimit=0;
                 
-                ht.Voices[i].SquareOn=0;
-                ht.Voices[i].SquareInit=0;
-                ht.Voices[i].SquareLowerLimit=0;
-                ht.Voices[i].SquareUpperLimit=0;
-                ht.Voices[i].SquarePos=0;
-                ht.Voices[i].SquareSign=0;
-                ht.Voices[i].SquareSlidingIn=0;
-                ht.Voices[i].SquareReverse=0;
+                htVoice.PeriodPerfSlideSpeed=0;
+                htVoice.PeriodPerfSlidePeriod=0;
+                htVoice.PeriodPerfSlideOn=0;
+                htVoice.VibratoDelay=0;
+                htVoice.VibratoCurrent=0;
+                htVoice.VibratoDepth=0;
+                htVoice.VibratoSpeed=0;
                 
-                ht.Voices[i].FilterOn=0;
-                ht.Voices[i].FilterInit=0;
-                ht.Voices[i].FilterLowerLimit=0;
-                ht.Voices[i].FilterUpperLimit=0;
-                ht.Voices[i].FilterPos=0;
-                ht.Voices[i].FilterSign=0;
-                ht.Voices[i].FilterSpeed=0;
-                ht.Voices[i].FilterSlidingIn=0;
-                ht.Voices[i].IgnoreFilter=0;
+                htVoice.SquareOn=0;
+                htVoice.SquareInit=0;
+                htVoice.SquareLowerLimit=0;
+                htVoice.SquareUpperLimit=0;
+                htVoice.SquarePos=0;
+                htVoice.SquareSign=0;
+                htVoice.SquareSlidingIn=0;
+                htVoice.SquareReverse=0;
                 
-                ht.Voices[i].PerfCurrent=0;
-                ht.Voices[i].PerfSpeed=0;
-                ht.Voices[i].WaveLength=0;
-                ht.Voices[i].NoteDelayOn=0;
-                ht.Voices[i].NoteCutOn=0;
+                htVoice.FilterOn=0;
+                htVoice.FilterInit=0;
+                htVoice.FilterLowerLimit=0;
+                htVoice.FilterUpperLimit=0;
+                htVoice.FilterPos=0;
+                htVoice.FilterSign=0;
+                htVoice.FilterSpeed=0;
+                htVoice.FilterSlidingIn=0;
+                htVoice.IgnoreFilter=0;
                 
-                ht.Voices[i].AudioPeriod=0;
-                ht.Voices[i].AudioVolume=0;
-                ht.Voices[i].VoiceVolume=0;
-                ht.Voices[i].VoicePeriod=0;
-                ht.Voices[i].VoiceNum=0;
-                ht.Voices[i].WNRandom=0;
+                htVoice.PerfCurrent=0;
+                htVoice.PerfSpeed=0;
+                htVoice.WaveLength=0;
+                htVoice.NoteDelayOn=0;
+                htVoice.NoteCutOn=0;
                 
-                ht.Voices[i].SquareWait=0;
-                ht.Voices[i].FilterWait=0;
-                ht.Voices[i].PerfWait=0;
-                ht.Voices[i].NoteDelayWait=0;
-                ht.Voices[i].NoteCutWait=0;
+                htVoice.AudioPeriod=0;
+                htVoice.AudioVolume=0;
+                htVoice.VoiceVolume=0;
+                htVoice.VoicePeriod=0;
+                htVoice.VoiceNum=0;
+                htVoice.WNRandom=0;
                 
-                ht.Voices[i].PerfList=null;
+                htVoice.SquareWait=0;
+                htVoice.FilterWait=0;
+                htVoice.PerfWait=0;
+                htVoice.NoteDelayWait=0;
+                htVoice.NoteCutWait=0;
                 
-                ht.Voices[i].RingSamplePos=0;
-                ht.Voices[i].RingDelta=0;
-                ht.Voices[i].RingPlantPeriod=0;
-                ht.Voices[i].RingAudioPeriod=0;
-                ht.Voices[i].RingNewWaveform=0;
-                ht.Voices[i].RingWaveform=0;
-                ht.Voices[i].RingFixedPeriod=0;
-                ht.Voices[i].RingBasePeriod=0;
+                htVoice.PerfList=null;
+                
+                htVoice.RingSamplePos=0;
+                htVoice.RingDelta=0;
+                htVoice.RingPlantPeriod=0;
+                htVoice.RingAudioPeriod=0;
+                htVoice.RingNewWaveform=0;
+                htVoice.RingWaveform=0;
+                htVoice.RingFixedPeriod=0;
+                htVoice.RingBasePeriod=0;
 
-                ht.Voices[i].RingMixSource = null;
-                ht.Voices[i].RingAudioSource = uint.MAX_VALUE;
+                htVoice.RingMixSource = null;
+                htVoice.RingAudioSource = uint.MAX_VALUE;
                 
                 var j:uint;
                 for(j=0;j<0x80;j++){
-                    ht.Voices[i].SquareTempBuffer[j]=0;
+                    htVoice.SquareTempBuffer[j]=0;
                 }
-                ht.Voices[i].ADSR.aFrames=0;
-                ht.Voices[i].ADSR.aVolume=0;
-                ht.Voices[i].ADSR.dFrames=0;
-                ht.Voices[i].ADSR.dVolume=0;
-                ht.Voices[i].ADSR.sFrames=0;
-                ht.Voices[i].ADSR.rFrames=0;
-                ht.Voices[i].ADSR.rVolume=0;
-                ht.Voices[i].ADSR.pad=0;
+                htVoice.ADSR.aFrames=0;
+                htVoice.ADSR.aVolume=0;
+                htVoice.ADSR.dFrames=0;
+                htVoice.ADSR.dVolume=0;
+                htVoice.ADSR.sFrames=0;
+                htVoice.ADSR.rFrames=0;
+                htVoice.ADSR.rVolume=0;
+                htVoice.ADSR.pad=0;
                 for(j=0;j<0x281;j++){ //Should be 0x282*4
-                    ht.Voices[i].VoiceBuffer[j]=0;
+                    htVoice.VoiceBuffer[j]=0;
                 }
                 for(j=0;j<0x281;j++){ //same
-                    ht.Voices[i].RingVoiceBuffer[j]=0;
+                    htVoice.RingVoiceBuffer[j]=0;
                 }
-            }
-
-            for( i=0; i<cons.MAX_CHANNELS; i++ ){
-                ht.Voices[i].WNRandom          = 0x280;
-                ht.Voices[i].VoiceNum          = i;
-                ht.Voices[i].TrackMasterVolume = 0x40;
-                ht.Voices[i].TrackOn           = 1;
-                ht.Voices[i].MixSource         = ht.Voices[i].VoiceBuffer;
+                
+                htVoice.WNRandom          = 0x280;
+                htVoice.VoiceNum          = i;
+                htVoice.TrackMasterVolume = 0x40;
+                htVoice.TrackOn           = 1;
+                htVoice.MixSource         = htVoice.VoiceBuffer;
             }
         }
         
         internal function InitSubsong( ht:tune, nr:uint ):Boolean{
-            var PosNr:uint, i:uint;
+            var PosNr:uint, i:uint; j:uint;
 
             if( nr > ht.SubsongNr ){
                 return false;
@@ -373,23 +374,24 @@ package hvl {
             ht.SongEndReached = 0;
             ht.PlayingTime    = 0;
 
+            var htVoices:Vector.<voice> = ht.Voices;
             for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
-                ht.Voices[i+0].Pan          = ht.defpanleft;
-                ht.Voices[i+0].SetPan       = ht.defpanleft; // 1.4
-                ht.Voices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
-                ht.Voices[i+0].PanMultRight = panning_right[ht.defpanleft];
-                ht.Voices[i+1].Pan          = ht.defpanright;
-                ht.Voices[i+1].SetPan       = ht.defpanright; // 1.4
-                ht.Voices[i+1].PanMultLeft  = panning_left[ht.defpanright];
-                ht.Voices[i+1].PanMultRight = panning_right[ht.defpanright];
-                ht.Voices[i+2].Pan          = ht.defpanright;
-                ht.Voices[i+2].SetPan       = ht.defpanright; // 1.4
-                ht.Voices[i+2].PanMultLeft  = panning_left[ht.defpanright];
-                ht.Voices[i+2].PanMultRight = panning_right[ht.defpanright];
-                ht.Voices[i+3].Pan          = ht.defpanleft;
-                ht.Voices[i+3].SetPan       = ht.defpanleft;  // 1.4
-                ht.Voices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
-                ht.Voices[i+3].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+0].Pan          = ht.defpanleft;
+                htVoices[i+0].SetPan       = ht.defpanleft; // 1.4
+                htVoices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
+                htVoices[i+0].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+1].Pan          = ht.defpanright;
+                htVoices[i+1].SetPan       = ht.defpanright; // 1.4
+                htVoices[i+1].PanMultLeft  = panning_left[ht.defpanright];
+                htVoices[i+1].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+2].Pan          = ht.defpanright;
+                htVoices[i+2].SetPan       = ht.defpanright; // 1.4
+                htVoices[i+2].PanMultLeft  = panning_left[ht.defpanright];
+                htVoices[i+2].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+3].Pan          = ht.defpanleft;
+                htVoices[i+3].SetPan       = ht.defpanleft;  // 1.4
+                htVoices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
+                htVoices[i+3].PanMultRight = panning_right[ht.defpanleft];
             }
 
             reset_some_stuff(ht);
@@ -406,24 +408,25 @@ package hvl {
             ht.defpanleft      = cons.stereopan_left[ht.defstereo];
             ht.defpanright     = cons.stereopan_right[ht.defstereo];
             ht.mixgain         = (cons.defgain[ht.defstereo]*256)/100;
-
+            
+            var htVoices:Vector.<voice> = ht.Voices;
             for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
-                ht.Voices[i+0].Pan          = ht.defpanleft;
-                ht.Voices[i+0].SetPan       = ht.defpanleft; // 1.4
-                ht.Voices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
-                ht.Voices[i+0].PanMultRight = panning_right[ht.defpanleft];
-                ht.Voices[i+1].Pan          = ht.defpanright;
-                ht.Voices[i+1].SetPan       = ht.defpanright; // 1.4
-                ht.Voices[i+1].PanMultLeft  = panning_left[ht.defpanright];
-                ht.Voices[i+1].PanMultRight = panning_right[ht.defpanright];
-                ht.Voices[i+2].Pan          = ht.defpanright;
-                ht.Voices[i+2].SetPan       = ht.defpanright; // 1.4
-                ht.Voices[i+2].PanMultLeft  = panning_left[ht.defpanright];
-                ht.Voices[i+2].PanMultRight = panning_right[ht.defpanright];
-                ht.Voices[i+3].Pan          = ht.defpanleft;
-                ht.Voices[i+3].SetPan       = ht.defpanleft;  // 1.4
-                ht.Voices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
-                ht.Voices[i+3].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+0].Pan          = ht.defpanleft;
+                htVoices[i+0].SetPan       = ht.defpanleft; // 1.4
+                htVoices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
+                htVoices[i+0].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+1].Pan          = ht.defpanright;
+                htVoices[i+1].SetPan       = ht.defpanright; // 1.4
+                htVoices[i+1].PanMultLeft  = panning_left[ht.defpanright];
+                htVoices[i+1].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+2].Pan          = ht.defpanright;
+                htVoices[i+2].SetPan       = ht.defpanright; // 1.4
+                htVoices[i+2].PanMultLeft  = panning_left[ht.defpanright];
+                htVoices[i+2].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+3].Pan          = ht.defpanleft;
+                htVoices[i+3].SetPan       = ht.defpanleft;  // 1.4
+                htVoices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
+                htVoices[i+3].PanMultRight = panning_right[ht.defpanleft];
             }
 
             //reset_some_stuff(ht);
@@ -521,94 +524,99 @@ package hvl {
                     ht.Positions[i].Transpose[j] = tools.ui2i8(buf[bptr++]);
                 }
             }
-  
+            
             // Tracks
+            var htTrack:Vector.<step> = ht.Tracks;
             for( i=0; i<=ht.TrackNr; i++ ){
                 if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
                     for( j=0; j<ht.TrackLength; j++ ){
-                        ht.Tracks[i*stepW+j].Note       = 0;
-                        ht.Tracks[i*stepW+j].Instrument = 0;
-                        ht.Tracks[i*stepW+j].FX         = 0;
-                        ht.Tracks[i*stepW+j].FXParam    = 0;
-                        ht.Tracks[i*stepW+j].FXb        = 0;
-                        ht.Tracks[i*stepW+j].FXbParam   = 0;
+                        htTrack[i*stepW+j].Note       = 0;
+                        htTrack[i*stepW+j].Instrument = 0;
+                        htTrack[i*stepW+j].FX         = 0;
+                        htTrack[i*stepW+j].FXParam    = 0;
+                        htTrack[i*stepW+j].FXb        = 0;
+                        htTrack[i*stepW+j].FXbParam   = 0;
                     }
                     continue;
                 }
     
                 for( j=0; j<ht.TrackLength; j++ ){
-                    ht.Tracks[i*stepW+j].Note       = (buf[bptr+0]>>2)&0x3f;
-                    ht.Tracks[i*stepW+j].Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
-                    ht.Tracks[i*stepW+j].FX         = buf[bptr+1]&0xf;
-                    ht.Tracks[i*stepW+j].FXParam    = buf[bptr+2];
-                    ht.Tracks[i*stepW+j].FXb        = 0;
-                    ht.Tracks[i*stepW+j].FXbParam   = 0;
+                    htTrack[i*stepW+j].Note       = (buf[bptr+0]>>2)&0x3f;
+                    htTrack[i*stepW+j].Instrument = ((buf[bptr+0]&0x3)<<4) | (buf[bptr+1]>>4);
+                    htTrack[i*stepW+j].FX         = buf[bptr+1]&0xf;
+                    htTrack[i*stepW+j].FXParam    = buf[bptr+2];
+                    htTrack[i*stepW+j].FXb        = 0;
+                    htTrack[i*stepW+j].FXbParam   = 0;
                     bptr += 3;
                 }
             }
   
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
+                var htInstr:instrument = ht.Instruments[i];
+                
                 if ( nptr < buflen ) {
-                    ht.Instruments[i].Name = tools.strncpy(buf, nptr, 128);
+                    htInstr.Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.Instruments[i].Name = "";
+                    htInstr.Name = "";
                 }
     
-                ht.Instruments[i].Volume      = buf[bptr+0];
-                ht.Instruments[i].FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-                ht.Instruments[i].WaveLength  = buf[bptr+1]&0x07;
+                htInstr.Volume      = buf[bptr+0];
+                htInstr.FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                htInstr.WaveLength  = buf[bptr+1]&0x07;
 
-                ht.Instruments[i].Envelope.aFrames = buf[bptr+2];
-                ht.Instruments[i].Envelope.aVolume = buf[bptr+3];
-                ht.Instruments[i].Envelope.dFrames = buf[bptr+4];
-                ht.Instruments[i].Envelope.dVolume = buf[bptr+5];
-                ht.Instruments[i].Envelope.sFrames = buf[bptr+6];
-                ht.Instruments[i].Envelope.rFrames = buf[bptr+7];
-                ht.Instruments[i].Envelope.rVolume = buf[bptr+8];
+                htInstr.Envelope.aFrames = buf[bptr+2];
+                htInstr.Envelope.aVolume = buf[bptr+3];
+                htInstr.Envelope.dFrames = buf[bptr+4];
+                htInstr.Envelope.dVolume = buf[bptr+5];
+                htInstr.Envelope.sFrames = buf[bptr+6];
+                htInstr.Envelope.rFrames = buf[bptr+7];
+                htInstr.Envelope.rVolume = buf[bptr+8];
                 
-                //if (!ht.Instruments[i].Envelope.aFrames ) trace("ht.Instruments["+i+"].Envelope.aFrames == 0");
-                //if (!ht.Instruments[i].Envelope.dFrames ) trace("ht.Instruments["+i+"].Envelope.dFrames == 0");
-                //if (!ht.Instruments[i].Envelope.rFrames ) trace("ht.Instruments["+i+"].Envelope.rFrames == 0");
+                //if (!htInstr.Envelope.aFrames ) trace("ht.Instruments["+i+"].Envelope.aFrames == 0");
+                //if (!htInstr.Envelope.dFrames ) trace("ht.Instruments["+i+"].Envelope.dFrames == 0");
+                //if (!htInstr.Envelope.rFrames ) trace("ht.Instruments["+i+"].Envelope.rFrames == 0");
                 
-                ht.Instruments[i].FilterLowerLimit     = buf[bptr+12]&0x7f;
-                ht.Instruments[i].VibratoDelay         = buf[bptr+13];
-                ht.Instruments[i].HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-                ht.Instruments[i].HardCutRelease       = buf[bptr+14]&0x80?1:0;
-                ht.Instruments[i].VibratoDepth         = buf[bptr+14]&0x0f;
-                ht.Instruments[i].VibratoSpeed         = buf[bptr+15];
-                ht.Instruments[i].SquareLowerLimit     = buf[bptr+16];
-                ht.Instruments[i].SquareUpperLimit     = buf[bptr+17];
-                ht.Instruments[i].SquareSpeed          = buf[bptr+18];
-                ht.Instruments[i].FilterUpperLimit     = buf[bptr+19]&0x3f;
-                ht.Instruments[i].PList.Speed      = buf[bptr+20];
-                ht.Instruments[i].PList.Length     = buf[bptr+21];
+                htInstr.FilterLowerLimit     = buf[bptr+12]&0x7f;
+                htInstr.VibratoDelay         = buf[bptr+13];
+                htInstr.HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                htInstr.HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                htInstr.VibratoDepth         = buf[bptr+14]&0x0f;
+                htInstr.VibratoSpeed         = buf[bptr+15];
+                htInstr.SquareLowerLimit     = buf[bptr+16];
+                htInstr.SquareUpperLimit     = buf[bptr+17];
+                htInstr.SquareSpeed          = buf[bptr+18];
+                htInstr.FilterUpperLimit     = buf[bptr+19]&0x3f;
+                htInstr.PList.Speed      = buf[bptr+20];
+                htInstr.PList.Length     = buf[bptr+21];
                 
-                ht.Instruments[i].PList.ple_malloc( buf[bptr+21] );
+                htInstr.PList.ple_malloc( buf[bptr+21] );
     
                 bptr += 22;
-                for( j=0; j<ht.Instruments[i].PList.Length; j++ ){
+                for( j=0; j<htInstr.PList.Length; j++ ){
+                    var htPlsentry:plsentry = htInstr.PList.Entries[j];
+                    
                     k = (buf[bptr+0]>>5)&7;
                     if( k == 6 ) k = 12;
                     if( k == 7 ) k = 15;
                     l = (buf[bptr+0]>>2)&7;
                     if( l == 6 ) l = 12;
                     if( l == 7 ) l = 15;
-                    ht.Instruments[i].PList.Entries[j].FX[1]      = k;
-                    ht.Instruments[i].PList.Entries[j].FX[0]      = l;
-                    ht.Instruments[i].PList.Entries[j].Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
-                    ht.Instruments[i].PList.Entries[j].Fixed      = (buf[bptr+1]>>6)&1;
-                    ht.Instruments[i].PList.Entries[j].Note       = buf[bptr+1]&0x3f;
-                    ht.Instruments[i].PList.Entries[j].FXParam[0] = buf[bptr+2];
-                    ht.Instruments[i].PList.Entries[j].FXParam[1] = buf[bptr+3];
+                    htPlsentry.FX[1]      = k;
+                    htPlsentry.FX[0]      = l;
+                    htPlsentry.Waveform   = ((buf[bptr+0]<<1)&6) | (buf[bptr+1]>>7);
+                    htPlsentry.Fixed      = (buf[bptr+1]>>6)&1;
+                    htPlsentry.Note       = buf[bptr+1]&0x3f;
+                    htPlsentry.FXParam[0] = buf[bptr+2];
+                    htPlsentry.FXParam[1] = buf[bptr+3];
 
                     // 1.6: Strip "toggle filter" commands if the module is
                     //      version 0 (pre-filters). This is what AHX also does.
                     if( ( buf[3] == 0 ) && ( l == 4 ) && ( (buf[bptr+2]&0xf0) != 0 ) )
-                        ht.Instruments[i].PList.Entries[j].FXParam[0] &= 0x0f;
+                        htPlsentry.FXParam[0] &= 0x0f;
                     if( ( buf[3] == 0 ) && ( k == 4 ) && ( (buf[bptr+3]&0xf0) != 0 ) )
-                        ht.Instruments[i].PList.Entries[j].FXParam[1] &= 0x0f; // 1.8
+                        htPlsentry.FXParam[1] &= 0x0f; // 1.8
 
                     bptr += 4;
                 }
@@ -746,37 +754,38 @@ package hvl {
             }
 
             // Tracks
+            var htTrack:Vector.<step> = ht.Tracks;
             for( i=0; i<=ht.TrackNr; i++ ){
                 if( ( ( buf[6]&0x80 ) == 0x80 ) && ( i == 0 ) ){
                     for( j=0; j<ht.TrackLength; j++ ){
-                        ht.Tracks[i*stepW+j].Note       = 0;
-                        ht.Tracks[i*stepW+j].Instrument = 0;
-                        ht.Tracks[i*stepW+j].FX         = 0;
-                        ht.Tracks[i*stepW+j].FXParam    = 0;
-                        ht.Tracks[i*stepW+j].FXb        = 0;
-                        ht.Tracks[i*stepW+j].FXbParam   = 0;
+                        htTrack[i*stepW+j].Note       = 0;
+                        htTrack[i*stepW+j].Instrument = 0;
+                        htTrack[i*stepW+j].FX         = 0;
+                        htTrack[i*stepW+j].FXParam    = 0;
+                        htTrack[i*stepW+j].FXb        = 0;
+                        htTrack[i*stepW+j].FXbParam   = 0;
                     }
                     continue;
                 }
 
                 for( j=0; j<ht.TrackLength; j++ ){
                     if( buf[bptr+0] == 0x3f ){
-                        ht.Tracks[i*stepW+j].Note       = 0;
-                        ht.Tracks[i*stepW+j].Instrument = 0;
-                        ht.Tracks[i*stepW+j].FX         = 0;
-                        ht.Tracks[i*stepW+j].FXParam    = 0;
-                        ht.Tracks[i*stepW+j].FXb        = 0;
-                        ht.Tracks[i*stepW+j].FXbParam   = 0;
+                        htTrack[i*stepW+j].Note       = 0;
+                        htTrack[i*stepW+j].Instrument = 0;
+                        htTrack[i*stepW+j].FX         = 0;
+                        htTrack[i*stepW+j].FXParam    = 0;
+                        htTrack[i*stepW+j].FXb        = 0;
+                        htTrack[i*stepW+j].FXbParam   = 0;
                         bptr++;
                         continue;
                     }
                   
-                    ht.Tracks[i*stepW+j].Note       = buf[bptr+0];
-                    ht.Tracks[i*stepW+j].Instrument = buf[bptr+1];
-                    ht.Tracks[i*stepW+j].FX         = buf[bptr+2]>>4;
-                    ht.Tracks[i*stepW+j].FXParam    = buf[bptr+3];
-                    ht.Tracks[i*stepW+j].FXb        = buf[bptr+2]&0xf;
-                    ht.Tracks[i*stepW+j].FXbParam   = buf[bptr+4];
+                    htTrack[i*stepW+j].Note       = buf[bptr+0];
+                    htTrack[i*stepW+j].Instrument = buf[bptr+1];
+                    htTrack[i*stepW+j].FX         = buf[bptr+2]>>4;
+                    htTrack[i*stepW+j].FXParam    = buf[bptr+3];
+                    htTrack[i*stepW+j].FXb        = buf[bptr+2]&0xf;
+                    htTrack[i*stepW+j].FXbParam   = buf[bptr+4];
                     bptr += 5;
                 }
             }
@@ -784,49 +793,53 @@ package hvl {
 
             // Instruments
             for( i=1; i<=ht.InstrumentNr; i++ ){
+                var htInstr:instrument = ht.Instruments[i];
+                
                 if( nptr < buflen ){
-                    ht.Instruments[i].Name = tools.strncpy(buf, nptr, 128);
+                    htInstr.Name = tools.strncpy(buf, nptr, 128);
                     nptr += tools.strlen( buf, nptr )+1;
                 } else {
-                    ht.Instruments[i].Name = "";
+                    htInstr.Name = "";
                 }
 
-                ht.Instruments[i].Volume      = buf[bptr+0];
-                ht.Instruments[i].FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
-                ht.Instruments[i].WaveLength  = buf[bptr+1]&0x07;
+                htInstr.Volume      = buf[bptr+0];
+                htInstr.FilterSpeed = ((buf[bptr+1]>>3)&0x1f)|((buf[bptr+12]>>2)&0x20);
+                htInstr.WaveLength  = buf[bptr+1]&0x07;
 
-                ht.Instruments[i].Envelope.aFrames = buf[bptr+2];
-                ht.Instruments[i].Envelope.aVolume = buf[bptr+3];
-                ht.Instruments[i].Envelope.dFrames = buf[bptr+4];
-                ht.Instruments[i].Envelope.dVolume = buf[bptr+5];
-                ht.Instruments[i].Envelope.sFrames = buf[bptr+6];
-                ht.Instruments[i].Envelope.rFrames = buf[bptr+7];
-                ht.Instruments[i].Envelope.rVolume = buf[bptr+8];
+                htInstr.Envelope.aFrames = buf[bptr+2];
+                htInstr.Envelope.aVolume = buf[bptr+3];
+                htInstr.Envelope.dFrames = buf[bptr+4];
+                htInstr.Envelope.dVolume = buf[bptr+5];
+                htInstr.Envelope.sFrames = buf[bptr+6];
+                htInstr.Envelope.rFrames = buf[bptr+7];
+                htInstr.Envelope.rVolume = buf[bptr+8];
 
-                ht.Instruments[i].FilterLowerLimit     = buf[bptr+12]&0x7f;
-                ht.Instruments[i].VibratoDelay         = buf[bptr+13];
-                ht.Instruments[i].HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
-                ht.Instruments[i].HardCutRelease       = buf[bptr+14]&0x80?1:0;
-                ht.Instruments[i].VibratoDepth         = buf[bptr+14]&0x0f;
-                ht.Instruments[i].VibratoSpeed         = buf[bptr+15];
-                ht.Instruments[i].SquareLowerLimit     = buf[bptr+16];
-                ht.Instruments[i].SquareUpperLimit     = buf[bptr+17];
-                ht.Instruments[i].SquareSpeed          = buf[bptr+18];
-                ht.Instruments[i].FilterUpperLimit     = buf[bptr+19]&0x3f;
-                ht.Instruments[i].PList.Speed      = buf[bptr+20];
-                ht.Instruments[i].PList.Length     = buf[bptr+21];
+                htInstr.FilterLowerLimit     = buf[bptr+12]&0x7f;
+                htInstr.VibratoDelay         = buf[bptr+13];
+                htInstr.HardCutReleaseFrames = (buf[bptr+14]>>4)&0x07;
+                htInstr.HardCutRelease       = buf[bptr+14]&0x80?1:0;
+                htInstr.VibratoDepth         = buf[bptr+14]&0x0f;
+                htInstr.VibratoSpeed         = buf[bptr+15];
+                htInstr.SquareLowerLimit     = buf[bptr+16];
+                htInstr.SquareUpperLimit     = buf[bptr+17];
+                htInstr.SquareSpeed          = buf[bptr+18];
+                htInstr.FilterUpperLimit     = buf[bptr+19]&0x3f;
+                htInstr.PList.Speed      = buf[bptr+20];
+                htInstr.PList.Length     = buf[bptr+21];
 
-                ht.Instruments[i].PList.ple_malloc( buf[bptr+21] );
+                htInstr.PList.ple_malloc( buf[bptr+21] );
 
                 bptr += 22;
-                for( j=0; j<ht.Instruments[i].PList.Length; j++ ){
-                    ht.Instruments[i].PList.Entries[j].FX[0] = buf[bptr+0]&0xf;
-                    ht.Instruments[i].PList.Entries[j].FX[1] = (buf[bptr+1]>>3)&0xf;
-                    ht.Instruments[i].PList.Entries[j].Waveform = buf[bptr+1]&7;
-                    ht.Instruments[i].PList.Entries[j].Fixed = (buf[bptr+2]>>6)&1;
-                    ht.Instruments[i].PList.Entries[j].Note  = buf[bptr+2]&0x3f;
-                    ht.Instruments[i].PList.Entries[j].FXParam[0] = buf[bptr+3];
-                    ht.Instruments[i].PList.Entries[j].FXParam[1] = buf[bptr+4];
+                for( j=0; j<htInstr.PList.Length; j++ ){
+                    var htPlsentry:plsentry = htInstr.PList.Entries[j];
+                    
+                    htPlsentry.FX[0] = buf[bptr+0]&0xf;
+                    htPlsentry.FX[1] = (buf[bptr+1]>>3)&0xf;
+                    htPlsentry.Waveform = buf[bptr+1]&7;
+                    htPlsentry.Fixed = (buf[bptr+2]>>6)&1;
+                    htPlsentry.Note  = buf[bptr+2]&0x3f;
+                    htPlsentry.FXParam[0] = buf[bptr+3];
+                    htPlsentry.FXParam[1] = buf[bptr+4];
                     bptr += 5;
                 }
             }
@@ -1114,14 +1127,16 @@ package hvl {
                 vc.ADSRVolume       = 0;
                 vc.Instrument       = Ins = ht.Instruments[Instr];
                 vc.SamplePos        = 0;
-            
-                vc.ADSR.aFrames     = Ins.Envelope.aFrames;
-                vc.ADSR.aVolume     = vc.ADSR.aFrames ? Ins.Envelope.aVolume*256/vc.ADSR.aFrames : Ins.Envelope.aVolume * 256; // XXX
-                vc.ADSR.dFrames     = Ins.Envelope.dFrames;
-                vc.ADSR.dVolume     = vc.ADSR.dFrames ? (Ins.Envelope.dVolume-Ins.Envelope.aVolume)*256/vc.ADSR.dFrames : Ins.Envelope.dVolume * 256; // XXX
-                vc.ADSR.sFrames     = Ins.Envelope.sFrames;
-                vc.ADSR.rFrames     = Ins.Envelope.rFrames;
-                vc.ADSR.rVolume     = vc.ADSR.rFrames ? (Ins.Envelope.rVolume-Ins.Envelope.dVolume)*256/vc.ADSR.rFrames : Ins.Envelope.rVolume * 256; // XXX
+                
+                var vcEnv:envelope  = vc.ADSR;
+                var insEnv:envelope = Ins.Envelope;
+                vcEnv.aFrames     = insEnv.aFrames;
+                vcEnv.aVolume     = vcEnv.aFrames ? insEnv.aVolume*256/vcEnv.aFrames : insEnv.aVolume * 256; // XXX
+                vcEnv.dFrames     = insEnv.dFrames;
+                vcEnv.dVolume     = vcEnv.dFrames ? (insEnv.dVolume-insEnv.aVolume)*256/vcEnv.dFrames : insEnv.dVolume * 256; // XXX
+                vcEnv.sFrames     = insEnv.sFrames;
+                vcEnv.rFrames     = insEnv.rFrames;
+                vcEnv.rVolume     = vcEnv.rFrames ? (insEnv.rVolume-insEnv.dVolume)*256/vcEnv.rFrames : insEnv.rVolume * 256; // XXX
     
                 
                 vc.WaveLength       = Ins.WaveLength;
@@ -1791,11 +1806,12 @@ package hvl {
                     ref = waves;
                 }
                 src = vc.AudioSource;
-    
+                
+                var voiceBuf:Vector.<int> = vc.VoiceBuffer;
                 if( vc.Waveform == 4-1 ){
                     //memcpy( &voice->vc_VoiceBuffer[0], src, 0x280 );
                     for ( var ii:uint = 0; ii < 0x280; ii++ ) {
-                         vc.VoiceBuffer[ii] = ref[src + ii];
+                         voiceBuf[ii] = ref[src + ii];
                     }
                 } else {
                     var i:uint, WaveLoops:uint;        //uint32
@@ -1805,13 +1821,13 @@ package hvl {
                     for( i=0; i<WaveLoops; i++ ){
                         //memcpy( &voice->vc_VoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
                         for( var j:uint=0; j<4*(1<<vc.WaveLength); j++ ){
-                            vc.VoiceBuffer[i*4*(1<<vc.WaveLength)+j] = ref[src+j];
+                            voiceBuf[i*4*(1<<vc.WaveLength)+j] = ref[src+j];
                         }
                     }
                 }
 
-                vc.VoiceBuffer[0x280] = vc.VoiceBuffer[0];
-                vc.MixSource          = vc.VoiceBuffer;
+                voiceBuf[0x280] = voiceBuf[0];
+                vc.MixSource    = voiceBuf;
             }
 
             /* Ring Modulation */
@@ -1836,37 +1852,45 @@ package hvl {
                 src = vc.RingAudioSource;
 
                 WaveLoops = (1 << (5 - vc.WaveLength)) * 5;
-
+                
+                var ringBuf:Vector.<int> = vc.RingVoiceBuffer;
                 for( i=0; i<WaveLoops; i++ ){
                     //memcpy( &voice->vc_RingVoiceBuffer[i*4*(1<<voice->vc_WaveLength)], src, 4*(1<<voice->vc_WaveLength) );
+                    
                     for( j=0; j<4*(1<<vc.WaveLength);j++ ){
-                        vc.RingVoiceBuffer[i*4*(1<<vc.WaveLength)+j] = ref[src+j];
+                        ringBuf[i*4*(1<<vc.WaveLength)+j] = ref[src+j];
                     }
                 }
 
-                vc.RingVoiceBuffer[0x280] = vc.RingVoiceBuffer[0];
-                vc.RingMixSource          = vc.RingVoiceBuffer;
+                ringBuf[0x280]   = ringBuf[0];
+                vc.RingMixSource = ringBuf;
             }
         }
 
         internal function play_irq( ht:tune, for_real:Boolean ):void{
             var i:uint;         //uint32
-
+            var htVoice:voice;
+            var htVoices:Vector.<voice> = ht.Voices;
+            
             if( ht.StepWaitFrames <= 0 ){
                 if( ht.GetNewPosition ){
                     var nextpos:int = (ht.PosNr+1==ht.PositionNr)?0:(ht.PosNr+1);     //int32
-
+                    var htPos:position = ht.Positions[ht.PosNr];
+                    var htNPos:position = ht.Positions[nextpos]
+                    
                     for( i=0; i<ht.Channels; i++ ){
-                        ht.Voices[i].Track         = ht.Positions[ht.PosNr].Track[i];
-                        ht.Voices[i].Transpose     = ht.Positions[ht.PosNr].Transpose[i];
-                        ht.Voices[i].NextTrack     = ht.Positions[nextpos].Track[i];
-                        ht.Voices[i].NextTranspose = ht.Positions[nextpos].Transpose[i];
+                        htVoice = ht.Voices[i];
+                        
+                        htVoice.Track         = htPos.Track[i];
+                        htVoice.Transpose     = htPos.Transpose[i];
+                        htVoice.NextTrack     = htNPos.Track[i];
+                        htVoice.NextTranspose = htNPos.Transpose[i];
                     }
                     ht.GetNewPosition = 0;
                 }
     
                 for( i=0; i<ht.Channels; i++ ){
-                    process_step( ht, ht.Voices[i] );
+                    process_step( ht, htVoices[i] );
                 }
     
                 ht.StepWaitFrames = ht.Tempo;
@@ -1874,7 +1898,7 @@ package hvl {
             //we skip this for performance resons when actual playback is not needed
             if (for_real) {
                 for( i=0; i<ht.Channels; i++ ){
-                    process_frame( ht, ht.Voices[i] );
+                    process_frame( ht, htVoices[i] );
                 }
             }
             
@@ -1905,7 +1929,7 @@ package hvl {
             }
 
             for( i=0; i<ht.Channels; i++ ){
-                set_audio( ht.Voices[i], ht.Frequency );
+                set_audio( htVoices[i], ht.Frequency );
             }
         }
 
@@ -1915,25 +1939,28 @@ package hvl {
         var cnt:uint, absj:int;
         var a:int, b:int, j:int;
         var i:uint, chans:uint, loops:uint;
+        var htVoice:voice;
      
         chans = ht.Channels;
      
         do{
             loops = samples;
             for (i = 0; i < chans; ++i){
-                if (ht.Voices[i].SamplePos >= (0x280 << 16))
-                    ht.Voices[i].SamplePos -= (0x280 << 16);
+                htVoice = ht.Voices[i];
+                
+                if (htVoice.SamplePos >= (0x280 << 16))
+                    htVoice.SamplePos -= (0x280 << 16);
                    
-                cnt = (((0x280 << 16) - (ht.Voices[i].SamplePos - 1))
-                      / ht.Voices[i].Delta) + 1;            
+                cnt = (((0x280 << 16) - (htVoice.SamplePos - 1))
+                      / htVoice.Delta) + 1;            
                 if (cnt < loops) loops = cnt;
      
-                if (ht.Voices[i].RingMixSource){
-                    if (ht.Voices[i].RingSamplePos >= (0x280 << 16))
-                        ht.Voices[i].RingSamplePos -= (0x280 << 16);
+                if (htVoice.RingMixSource){
+                    if (htVoice.RingSamplePos >= (0x280 << 16))
+                        htVoice.RingSamplePos -= (0x280 << 16);
                        
-                    cnt = (((0x280 << 16) - (ht.Voices[i].RingSamplePos - 1))
-                          / ht.Voices[i].RingDelta) + 1;                    
+                    cnt = (((0x280 << 16) - (htVoice.RingSamplePos - 1))
+                          / htVoice.RingDelta) + 1;                    
                     if (cnt < loops) loops = cnt;
                 }
             }
@@ -1945,28 +1972,30 @@ package hvl {
                 b=0;
                
                 for (i = 0; i < chans; ++i){
-                    if (ht.Voices[i].RingMixSource){
-                        j = ((ht.Voices[i].MixSource[ht.Voices[i].SamplePos >> 16]
-                            * ht.Voices[i].RingMixSource[ht.Voices[i].RingSamplePos >> 16]) >> 7)
-                            * ht.Voices[i].VoiceVolume;
+                    htVoice = ht.Voices[i];
+                    
+                    if (htVoice.RingMixSource){
+                        j = ((htVoice.MixSource[htVoice.SamplePos >> 16]
+                            * htVoice.RingMixSource[htVoice.RingSamplePos >> 16]) >> 7)
+                            * htVoice.VoiceVolume;
                            
-                        ht.Voices[i].RingSamplePos += ht.Voices[i].RingDelta;
+                        htVoice.RingSamplePos += htVoice.RingDelta;
                     }else{
-                        j = ht.Voices[i].MixSource[ht.Voices[i].SamplePos >> 16]
-                            * ht.Voices[i].VoiceVolume;
+                        j = htVoice.MixSource[htVoice.SamplePos >> 16]
+                            * htVoice.VoiceVolume;
                     }
                     
                     //absj=Math.abs(j);
                     absj=((j^(j>>31))-(j>>31))/190;
-                    //ht.Voices[i].VUMeter = absj;
+                    //htVoice.VUMeter = absj;
                     if (absj > ht.VUMeters[i]){
                         ht.VUMeters[i] = absj;
                     }
                     
-                    a += ((j * ht.Voices[i].PanMultLeft)  >> 7);
-                    b += ((j * ht.Voices[i].PanMultRight) >> 7);
+                    a += ((j * htVoice.PanMultLeft)  >> 7);
+                    b += ((j * htVoice.PanMultRight) >> 7);
                    
-                    ht.Voices[i].SamplePos += ht.Voices[i].Delta;
+                    htVoice.SamplePos += htVoice.Delta;
                 }
      
                 a = (a * ht.mixgain) >> 8;
