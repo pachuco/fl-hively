@@ -1,4 +1,4 @@
-package hvl {
+package hvl.struct {
     public class plist{
         public var
             Speed:int,                        //int16
@@ -9,7 +9,7 @@ package hvl {
             Entries = new Vector.<plsentry>;
         }
 
-        internal function ple_malloc( len:uint ):void{
+        public function ple_malloc( len:uint ):void{
             for( var i:uint=0; i<len; i++ ){
                 var ple:plsentry = new plsentry();
                 Entries.push( ple );

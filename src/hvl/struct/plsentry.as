@@ -1,4 +1,4 @@
-package hvl {
+package hvl.struct {
     public class plsentry{
         public var
             Note:uint,               //uint8

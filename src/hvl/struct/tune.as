@@ -1,4 +1,6 @@
-package hvl {
+package hvl.struct {
+    import hvl.cons;
+    
     public class tune{
         public var
             Name:String,                              //TEXT[128]
@@ -63,19 +65,19 @@ package hvl {
             VUMeters = new Vector.<int>(Channels, true);
         }
         
-        internal function malloc_positions( ind:uint ):void{
+        public function malloc_positions( ind:uint ):void{
             for(var i:uint=0;i<ind;i++){
                 Positions.push(new position());
             }
         }
         
-        internal function malloc_instruments( ind:uint ):void{
+        public function malloc_instruments( ind:uint ):void{
             for(var i:uint=0;i<=ind;i++){
                 Instruments.push(new instrument());
             }
         }
         
-        internal function malloc_subsongs( ind:uint ):void{
+        public function malloc_subsongs( ind:uint ):void{
             Subsongs = new Vector.<uint>(ind, true);
         }
     }

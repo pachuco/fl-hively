@@ -14,6 +14,7 @@ package hvl {
     import flash.events.*;
     import flash.media.*;
     import flash.utils.*;
+    import hvl.struct.*;
     
     internal class replay{
         public var waves_t:ByteArray = new ByteArray();

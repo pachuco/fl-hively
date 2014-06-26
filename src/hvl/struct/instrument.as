@@ -1,4 +1,4 @@
-package hvl {
+package hvl.struct {
     public class instrument{
         public var
             Name:String,                             //TEXT[128]

@@ -6,6 +6,8 @@ package hvl {
     import flash.media.SoundChannel;
     import flash.utils.Endian;
     import flash.utils.ByteArray;
+    
+    import hvl.struct.*;
 
     
     public class front_panel extends EventDispatcher{

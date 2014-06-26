@@ -1,4 +1,4 @@
-package hvl {
+package hvl.struct {
     public class voice{
         public var
             Track:int,                                    //int16

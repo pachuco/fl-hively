@@ -1,1 +1,0 @@
-package hvl {    public class position{        public var            Track:Vector.<uint>,             //uint8            Transpose:Vector.<int>;          //int8                public function position(){            Track = new Vector.<uint>( cons.MAX_CHANNELS, true );            Transpose = new Vector.<int>( cons.MAX_CHANNELS, true );        }    }}

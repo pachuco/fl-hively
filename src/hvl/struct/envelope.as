@@ -1,4 +1,4 @@
-package hvl {
+package hvl.struct {
     public class envelope{
         public var
             aFrames:int, aVolume:int,    //int16
