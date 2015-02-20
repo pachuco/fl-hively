@@ -17,41 +17,11 @@ package hvl {
     import hvl.struct.*;
     
     internal class replay{
-        public var waves_t:ByteArray = new ByteArray();
-        public var waves:Vector.<int> = new Vector.<int>( cons.WAVES_SIZE, true );
-        private var panning_left:Vector.<uint> = new Vector.<uint>( 256, true );
-        private var panning_right:Vector.<uint> = new Vector.<uint>( 256, true );
         
         private static const stepW:uint = 64;
         
         public function replay():void {
-            GenPanningTables();
-            GenSawtooth( cons.WO_SAWTOOTH_04, 0x04 );
-            GenSawtooth( cons.WO_SAWTOOTH_08, 0x08 );
-            GenSawtooth( cons.WO_SAWTOOTH_10, 0x10 );
-            GenSawtooth( cons.WO_SAWTOOTH_20, 0x20 );
-            GenSawtooth( cons.WO_SAWTOOTH_40, 0x40 );
-            GenSawtooth( cons.WO_SAWTOOTH_80, 0x80 );
-            GenTriangle( cons.WO_TRIANGLE_04, 0x04 );
-            GenTriangle( cons.WO_TRIANGLE_08, 0x08 );
-            GenTriangle( cons.WO_TRIANGLE_10, 0x10 );
-            GenTriangle( cons.WO_TRIANGLE_20, 0x20 );
-            GenTriangle( cons.WO_TRIANGLE_40, 0x40 );
-            GenTriangle( cons.WO_TRIANGLE_80, 0x80 );
-            GenSquare( cons.WO_SQUARES );
-            GenWhiteNoise( cons.WO_WHITENOISE, cons.WHITENOISELEN );
-            GenFilterWaves( cons.WO_TRIANGLE_04, cons.WO_LOWPASSES, cons.WO_HIGHPASSES );
-            for(var i:uint=0; i<cons.WAVES_SIZE; i++){
-                //we work with ByteArray and transfer to Vector.<int> after
-                //because of some accuracy issues for working directly
-                //with Vector.<int>
-                //Why? no bloody idea. Rounding error, perhaps?
-                //TODO: wavefilter doesn't use float anymore, ditch ByteArray
-                waves[i]=tools.ui2i8(waves_t[i]);
-                //There is no point in using tools.ui2i8() to access our waves
-                //every bloody time.
-            }
-            waves_t.clear();
+            new tables();
         } 
         
         /*  inlined
@@ -59,166 +29,6 @@ package hvl {
             return cons.AMIGA_PAULA_PAL_CLK * 65536.0 / period;
         }
         */
-        
-        private function GenPanningTables():void{
-            var i:uint;
-            var aa:Number, ab:Number;
-
-            // Sine based panning table
-            aa = (3.14159265*2.0)/4.0;     // Quarter of the way through the sinewave == top peak
-            ab = 0.0;                      // Start of the climb from zero
-
-            for( i=0; i<256; i++ ){
-                panning_left[i]  = uint(Math.sin(aa)*255.0);
-                panning_right[i] = uint(Math.sin(ab)*255.0);
-
-                aa += (3.14159265*2.0/4.0)/256.0;
-                ab += (3.14159265*2.0/4.0)/256.0;
-            }
-            panning_left[255] = 0;
-            panning_right[0] = 0;
-        }
-        
-        private function GenSawtooth( buf:uint, len:uint ):void{
-            var i:uint;
-            var val:int, add:int;
-
-            add = 256 / (len-1);
-            val = -128;
-
-            for( i=0; i<len; i++, val += add )
-                waves_t[buf++] = int(val);  
-        }
-        
-        private function GenTriangle( buf:uint, len:uint ):void{
-            var i:uint;
-            var d2:int, d5:int, d1:int, d4:int;
-            var val:int;
-            var buf2:uint;
-
-            d2  = len;
-            d5  = len >> 2;
-            d1  = 128/d5;
-            d4  = -(d2 >> 1);
-            val = 0;
-
-            for( i=0; i<d5; i++ ){
-                waves_t[buf++] = val;
-                val += d1;
-            }
-            waves_t[buf++] = 0x7f;
-
-            if( d5 != 1 ){
-                val = 128;
-                for( i=0; i<d5-1; i++ ){
-                    val -= d1;
-                    waves_t[buf++] = val;
-                }
-            }
-
-            buf2 = buf + d4;
-            for( i=0; i<d5*2; i++ ){
-                var c:int;
-
-                c = waves_t[buf2++];
-                if( c == 0x7f ){
-                    c = 0x80;
-                }else{
-                    c = -c;
-                }
-                waves_t[buf++] = c;
-            }
-        }
-        
-        private function GenSquare( buf:uint ):void{
-            var i:uint, j:uint;
-
-            for( i=1; i<=0x20; i++ ){
-                for( j=0; j<(0x40-i)*2; j++ ){
-                    waves_t[buf++] = 0x80;
-                }
-                for( j=0; j<i*2; j++ ){
-                    waves_t[buf++] = 0x7f;
-                }
-            }
-        }
-        
-        private function clipshifted8(x:int):int{
-            var top:int = x >> 16;
-            if (top > 127) x = 127 << 16;
-            else if (top < -128) x = -(128 << 16);
-            return x;
-        }
-
-        private function GenFilterWaves( buf:uint, lowbuf:uint, highbuf:uint ):void{
-            var mid_table:uint = 0;
-            var low_table:uint = 1395;
-            
-            var freq:int;
-            var i:uint;
-
-            for( i=0, freq = 25; i<31; i++, freq += 9 ){
-                var wv:uint;
-                var a0:uint = buf
-
-                for( wv=0; wv<6+6+0x20+1; wv++ ){
-                    var x:int, fre:int, high:int, mid:int, low:int;
-                    var j:uint;
-
-                    mid  = cons.filter_thing[mid_table++] << 8;
-                    low  = cons.filter_thing[low_table++] << 8;
-
-                    for( j=0; j<=cons.lentab[wv]; j++ ){
-                        x    = tools.ui2i8(waves_t[a0+j]) << 16;
-                        high = clipshifted8( x - mid - low );
-                        fre  = (high >> 8) * freq;
-                        mid  = clipshifted8(mid + fre);
-                        fre  = (mid >> 8) * freq;
-                        low  = clipshifted8(low + fre);
-                        waves_t[highbuf++] = high >> 16;
-                        waves_t[lowbuf++]  = low >> 16;
-                    }
-                    a0 += cons.lentab[wv]+1;
-                }
-            }
-        }
-
-        private function GenWhiteNoise( buf:uint, len:uint ):void{
-            var ays:uint;
-
-            ays = 0x41595321;
-
-            do{
-                var ax:uint, bx:uint; //uint16
-                var s:int; //int8
-
-                s = ays & 0xff;
-
-                if( ays & 0x100 ){
-                    s = 0x7f;
-
-                    if( ays & 0x8000 ){
-                        s = 0x80;
-                    }
-                }
-
-                waves_t[buf++] = s;
-                len--;
-                
-                //ays = (ays >> 5) | (ays << 27);
-                ays = tools.bitRotate(ays, 5, 32);
-                ays = (ays & 0xffffff00) | ((ays & 0xff) ^ 0x9a);
-                bx  = ays;
-                //ays = (ays << 2) | (ays >> 30);
-                ays = tools.bitRotate(ays, -2, 32);
-                ax  = ays & 0xffff;
-                bx  += ax;
-                ax  ^= bx & 0xffff;
-                ays  = (ays & 0xffff0000) | ax;
-                //ays  = (ays >> 3) | (ays << 29);
-                ays = tools.bitRotate(ays, 3, 32);
-            }while( len );
-        }
         
         internal function reset_some_stuff(ht:tune):void{
             var i:uint;
@@ -379,20 +189,20 @@ package hvl {
             for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
                 htVoices[i+0].Pan          = ht.defpanleft;
                 htVoices[i+0].SetPan       = ht.defpanleft; // 1.4
-                htVoices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
-                htVoices[i+0].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+0].PanMultLeft  = tables.panning_left[ht.defpanleft];
+                htVoices[i+0].PanMultRight = tables.panning_right[ht.defpanleft];
                 htVoices[i+1].Pan          = ht.defpanright;
                 htVoices[i+1].SetPan       = ht.defpanright; // 1.4
-                htVoices[i+1].PanMultLeft  = panning_left[ht.defpanright];
-                htVoices[i+1].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+1].PanMultLeft  = tables.panning_left[ht.defpanright];
+                htVoices[i+1].PanMultRight = tables.panning_right[ht.defpanright];
                 htVoices[i+2].Pan          = ht.defpanright;
                 htVoices[i+2].SetPan       = ht.defpanright; // 1.4
-                htVoices[i+2].PanMultLeft  = panning_left[ht.defpanright];
-                htVoices[i+2].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+2].PanMultLeft  = tables.panning_left[ht.defpanright];
+                htVoices[i+2].PanMultRight = tables.panning_right[ht.defpanright];
                 htVoices[i+3].Pan          = ht.defpanleft;
                 htVoices[i+3].SetPan       = ht.defpanleft;  // 1.4
-                htVoices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
-                htVoices[i+3].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+3].PanMultLeft  = tables.panning_left[ht.defpanleft];
+                htVoices[i+3].PanMultRight = tables.panning_right[ht.defpanleft];
             }
 
             reset_some_stuff(ht);
@@ -406,28 +216,28 @@ package hvl {
             }
             var i:uint;
             ht.defstereo       = defstereo;
-            ht.defpanleft      = cons.stereopan_left[ht.defstereo];
-            ht.defpanright     = cons.stereopan_right[ht.defstereo];
-            ht.mixgain         = (cons.defgain[ht.defstereo]*256)/100;
+            ht.defpanleft      = tables.stereopan_left[ht.defstereo];
+            ht.defpanright     = tables.stereopan_right[ht.defstereo];
+            ht.mixgain         = (tables.defgain[ht.defstereo]*256)/100;
             
             var htVoices:Vector.<voice> = ht.Voices;
             for( i=0; i<cons.MAX_CHANNELS; i+=4 ){
                 htVoices[i+0].Pan          = ht.defpanleft;
                 htVoices[i+0].SetPan       = ht.defpanleft; // 1.4
-                htVoices[i+0].PanMultLeft  = panning_left[ht.defpanleft];
-                htVoices[i+0].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+0].PanMultLeft  = tables.panning_left[ht.defpanleft];
+                htVoices[i+0].PanMultRight = tables.panning_right[ht.defpanleft];
                 htVoices[i+1].Pan          = ht.defpanright;
                 htVoices[i+1].SetPan       = ht.defpanright; // 1.4
-                htVoices[i+1].PanMultLeft  = panning_left[ht.defpanright];
-                htVoices[i+1].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+1].PanMultLeft  = tables.panning_left[ht.defpanright];
+                htVoices[i+1].PanMultRight = tables.panning_right[ht.defpanright];
                 htVoices[i+2].Pan          = ht.defpanright;
                 htVoices[i+2].SetPan       = ht.defpanright; // 1.4
-                htVoices[i+2].PanMultLeft  = panning_left[ht.defpanright];
-                htVoices[i+2].PanMultRight = panning_right[ht.defpanright];
+                htVoices[i+2].PanMultLeft  = tables.panning_left[ht.defpanright];
+                htVoices[i+2].PanMultRight = tables.panning_right[ht.defpanright];
                 htVoices[i+3].Pan          = ht.defpanleft;
                 htVoices[i+3].SetPan       = ht.defpanleft;  // 1.4
-                htVoices[i+3].PanMultLeft  = panning_left[ht.defpanleft];
-                htVoices[i+3].PanMultRight = panning_right[ht.defpanleft];
+                htVoices[i+3].PanMultLeft  = tables.panning_left[ht.defpanleft];
+                htVoices[i+3].PanMultRight = tables.panning_right[ht.defpanleft];
             }
 
             //reset_some_stuff(ht);
@@ -472,9 +282,9 @@ package hvl {
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
 
-            ht.WaveformTab[0]  = cons.WO_TRIANGLE_04;
-            ht.WaveformTab[1]  = cons.WO_SAWTOOTH_04;
-            ht.WaveformTab[3]  = cons.WO_WHITENOISE;
+            ht.WaveformTab[0]  = tables.WO_TRIANGLE_04;
+            ht.WaveformTab[1]  = tables.WO_SAWTOOTH_04;
+            ht.WaveformTab[3]  = tables.WO_WHITENOISE;
 
             ht.Channels        = 4;
             ht.PositionNr      = posn;
@@ -485,9 +295,9 @@ package hvl {
             ht.InstrumentNr    = insn;
             ht.SubsongNr       = ssn;
             ht.defstereo       = defstereo;
-            ht.defpanleft      = cons.stereopan_left[ht.defstereo];
-            ht.defpanright     = cons.stereopan_right[ht.defstereo];
-            ht.mixgain         = (cons.defgain[ht.defstereo]*256)/100;
+            ht.defpanleft      = tables.stereopan_left[ht.defstereo];
+            ht.defpanright     = tables.stereopan_right[ht.defstereo];
+            ht.mixgain         = (tables.defgain[ht.defstereo]*256)/100;
   
             if( ht.Restart >= ht.PositionNr ){
                     ht.Restart = ht.PositionNr - 1;
@@ -703,9 +513,9 @@ package hvl {
             ht.malloc_instruments(insn);
             ht.malloc_subsongs(ssn);
 
-            ht.WaveformTab[0]  = cons.WO_TRIANGLE_04;
-            ht.WaveformTab[1]  = cons.WO_SAWTOOTH_04;
-            ht.WaveformTab[3]  = cons.WO_WHITENOISE;
+            ht.WaveformTab[0]  = tables.WO_TRIANGLE_04;
+            ht.WaveformTab[1]  = tables.WO_SAWTOOTH_04;
+            ht.WaveformTab[3]  = tables.WO_WHITENOISE;
 
             ht.PositionNr      = posn;
             ht.Channels        = (buf[8]>>2)+4;
@@ -717,8 +527,8 @@ package hvl {
             ht.SubsongNr       = ssn;
             ht.mixgain         = (buf[14]<<8)/100;
             ht.defstereo       = buf[15];
-            ht.defpanleft      = cons.stereopan_left[ht.defstereo];
-            ht.defpanright     = cons.stereopan_right[ht.defstereo];
+            ht.defpanleft      = tables.stereopan_left[ht.defstereo];
+            ht.defpanright     = tables.stereopan_right[ht.defstereo];
 
             if( ht.Restart >= ht.PositionNr ){
                 ht.Restart = ht.PositionNr - 1;
@@ -872,8 +682,8 @@ package hvl {
                     }
                     vc.Pan          = (FXParam+128);
                     vc.SetPan       = (FXParam+128); // 1.4
-                    vc.PanMultLeft  = panning_left[vc.Pan];
-                    vc.PanMultRight = panning_right[vc.Pan];
+                    vc.PanMultLeft  = tables.panning_left[vc.Pan];
+                    vc.PanMultRight = tables.panning_right[vc.Pan];
                     break;
 
                 case 0xb: // Position jump
@@ -934,8 +744,8 @@ package hvl {
                         if( Note ){
                             var mew:int, diff:int;
 
-                            mew   = cons.period_tab[Note];
-                            diff  = cons.period_tab[vc.TrackPeriod];
+                            mew   = tables.period_tab[Note];
+                            diff  = tables.period_tab[vc.TrackPeriod];
                             diff -= mew;
                             mew   = diff + vc.PeriodSlidePeriod;
                 
@@ -1117,8 +927,8 @@ package hvl {
             
                 /* 1.4: Reset panning to last set position */
                 vc.Pan          = vc.SetPan;
-                vc.PanMultLeft  = panning_left[vc.Pan];
-                vc.PanMultRight = panning_right[vc.Pan];
+                vc.PanMultLeft  = tables.panning_left[vc.Pan];
+                vc.PanMultRight = tables.panning_right[vc.Pan];
 
                 vc.PeriodSlideSpeed =     0;
                 vc.PeriodSlidePeriod =    0;
@@ -1330,8 +1140,8 @@ package hvl {
                         FXParam -= 256;
                     }
                     vc.Pan          = (FXParam+128);
-                    vc.PanMultLeft  = panning_left[vc.Pan];
-                    vc.PanMultRight = panning_right[vc.Pan];
+                    vc.PanMultLeft  = tables.panning_left[vc.Pan];
+                    vc.PanMultRight = tables.panning_right[vc.Pan];
                     break;
 
                 case 12:
@@ -1362,6 +1172,7 @@ package hvl {
 
         private function process_frame( ht:tune, vc:voice ):void {
             var d0:int, d1:int, d2:int, d3:int;     //int32
+            var waves:Vector.<int> = tables.waves;
             
             const Offsets:Vector.<uint> = Vector.<uint>([0x00, 0x04, 0x04+0x08, 0x04+0x08+0x10, 0x04+0x08+0x10+0x20, 0x04+0x08+0x10+0x20+0x40]);
 
@@ -1487,7 +1298,7 @@ package hvl {
             // Vibrato
             if( vc.VibratoDepth ){
                 if( vc.VibratoDelay <= 0 ){
-                    vc.VibratoPeriod = (cons.vib_tab[vc.VibratoCurrent] * vc.VibratoDepth) >> 7;
+                    vc.VibratoPeriod = (tables.vib_tab[vc.VibratoCurrent] * vc.VibratoDepth) >> 7;
                     vc.PlantPeriod = 1;
                     vc.VibratoCurrent = (vc.VibratoCurrent + vc.VibratoSpeed) & 0x3f;
                 } else {
@@ -1627,7 +1438,7 @@ package hvl {
                 var SquarePtr:uint;      //*int8
                 var X:int;               //int32
             
-                SquarePtr = cons.WO_SQUARES+(vc.FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
+                SquarePtr = tables.WO_SQUARES+(vc.FilterPos-0x20)*(0xfc+0xfc+0x80*0x1f+0x80+0x280*3);
                 X = vc.SquarePos << (5 - vc.WaveLength);
             
                 if( X > 0x20 ){
@@ -1644,7 +1455,7 @@ package hvl {
                 
                 ht.WaveformTab_i2 = vc.SquareTempBuffer;
                 ht.WaveformTab[2] = 0;
-            
+                
                 for( i=0; i<(1<<vc.WaveLength)*4; i++ ){
                     vc.SquareTempBuffer[i] = waves[SquarePtr];
                     SquarePtr += Delta;
@@ -1720,7 +1531,7 @@ package hvl {
                     vc.RingAudioPeriod = 0;
                 }
           
-                vc.RingAudioPeriod = cons.period_tab[vc.RingAudioPeriod];
+                vc.RingAudioPeriod = tables.period_tab[vc.RingAudioPeriod];
 
                 if( !(vc.RingFixedPeriod) ){
                     vc.RingAudioPeriod += vc.PeriodSlidePeriod;
@@ -1756,7 +1567,7 @@ package hvl {
                 vc.AudioPeriod = 0;
             }
           
-            vc.AudioPeriod = cons.period_tab[vc.AudioPeriod];
+            vc.AudioPeriod = tables.period_tab[vc.AudioPeriod];
           
             if( !(vc.FixedNote) ){
                 vc.AudioPeriod += vc.PeriodSlidePeriod;
@@ -1804,7 +1615,7 @@ package hvl {
                 if (vc.Waveform == 2) {
                     ref = vc.SquareTempBuffer;
                 }else {
-                    ref = waves;
+                    ref = tables.waves;
                 }
                 src = vc.AudioSource;
                 
@@ -1847,7 +1658,7 @@ package hvl {
                 if (vc.Waveform == 2) {
                     ref = vc.SquareTempBuffer;
                 }else {
-                    ref = waves;
+                    ref = tables.waves;
                 }
                 
                 src = vc.RingAudioSource;

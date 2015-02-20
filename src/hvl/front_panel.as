@@ -277,11 +277,11 @@ package hvl {
         /**Get ByteArray of precalculated waveforms.*/
         public function get waves():ByteArray {
             var bat:ByteArray = new ByteArray();
-            //for (var i:uint = 0; i < cons.WAVES_SIZE; i++) {
-            //    bat[i] = replayer.waves[i];
-            //}
-            //return bat;
-            return replayer.waves_t;
+            for (var i:uint = 0; i < tables.WAVES_SIZE; i++) {
+                bat[i] = tables.waves[i];
+            }
+            return bat;
+            //return replayer.waves_t;
         }
         
         /**Return reference to loaded tune, if you want to skip the API and work directly with it.*/
