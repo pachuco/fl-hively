@@ -439,7 +439,32 @@ package hvl {
             return ht;
         }
 
-        internal function LoadTune( buf:ByteArray, defstereo:uint ):tune{
+        public function LoadTune( buf:ByteArray, defstereo:uint ):tune {
+            
+            //THX
+            if( ( buf[0] == 0x54 ) &&
+                ( buf[1] == 0x48 ) &&
+                ( buf[2] == 0x58 ) &&
+                ( buf[3] < 3 ) ){
+                    
+                    return load_ahx( buf, defstereo);
+                }
+            //HVL
+            else if( ( buf[0] == 0x48 ) ||
+                     ( buf[1] == 0x56 ) ||
+                     ( buf[2] == 0x4C ) ||
+                     ( buf[3] > 1 ) ) {
+                    
+                    return load_hvl( buf, defstereo);
+            }
+            else{
+                    trace( "Invalid file.\n" );
+                    return null;
+            }
+            
+        }
+        
+        private function load_hvl( buf:ByteArray, defstereo:uint ):tune{
             
             var ht:tune;            //*
             var bptr:uint;              //*uint8
@@ -447,23 +472,6 @@ package hvl {
             var buflen:uint, i:uint, j:uint, posn:uint, insn:uint, ssn:uint, chnn:uint, hs:uint, trkl:uint, trkn:uint;
 
             buflen = buf.length;
-            
-            //THX
-            if( ( buf[0] == 0x54 ) &&
-                ( buf[1] == 0x48 ) &&
-                ( buf[2] == 0x58 ) &&
-                ( buf[3] < 3 ) ){
-                    return load_ahx( buf, defstereo);
-                }
-            //HVL
-            if( ( buf[0] != 0x48 ) ||
-                ( buf[1] != 0x56 ) ||
-                ( buf[2] != 0x4C ) ||
-                ( buf[3] > 1 ) ){
-                    buf.clear();
-                    trace( "Invalid file.\n" );
-                    return null;
-            }
             
             posn = ((buf[6]&0x0f)<<8)|buf[7];
             insn = buf[12];
