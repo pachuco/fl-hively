@@ -744,27 +744,27 @@ package hvl {
                     vc.IgnoreSquare = 1;
                     break;
 
-                    case 0x5: // Tone portamento + volume slide
-                    case 0x3: // Tone portamento
-                        if( FXParam != 0 ){
-                            vc.PeriodSlideSpeed = FXParam;
-                        }
-                        if( Note ){
-                            var mew:int, diff:int;
+                case 0x3: // Tone portamento + volume slide
+                    if( FXParam != 0 ){
+                        vc.PeriodSlideSpeed = FXParam;
+                    }
+                case 0x5: // Tone portamento
+                    if( Note ){
+                        var mew:int, diff:int;
 
-                            mew   = tables.period_tab[Note];
-                            diff  = tables.period_tab[vc.TrackPeriod];
-                            diff -= mew;
-                            mew   = diff + vc.PeriodSlidePeriod;
-                
-                            if( mew ){
-                                vc.PeriodSlideLimit = -diff;
-                            }
+                        mew   = tables.period_tab[Note];
+                        diff  = tables.period_tab[vc.TrackPeriod];
+                        diff -= mew;
+                        mew   = diff + vc.PeriodSlidePeriod;
+            
+                        if( mew ){
+                            vc.PeriodSlideLimit = -diff;
                         }
-                        vc.PeriodSlideOn        = 1;
-                        vc.PeriodSlideWithLimit = 1;
-                        Note = 0;
-                        break;      
+                    }
+                    vc.PeriodSlideOn        = 1;
+                    vc.PeriodSlideWithLimit = 1;
+                    Note = 0;
+                    break;      
             }
             return Note;
         }
