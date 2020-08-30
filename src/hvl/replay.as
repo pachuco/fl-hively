@@ -1692,7 +1692,7 @@ package hvl {
             var htVoice:voice;
             var htVoices:Vector.<voice> = ht.Voices;
             
-            if( ht.StepWaitFrames <= 0 ){
+            if( ht.Tempo > 0 && ht.StepWaitFrames <= 0 ){
                 if( ht.GetNewPosition ){
                     var nextpos:int = (ht.PosNr+1==ht.PositionNr)?0:(ht.PosNr+1);     //int32
                     var htPos:position = ht.Positions[ht.PosNr];
